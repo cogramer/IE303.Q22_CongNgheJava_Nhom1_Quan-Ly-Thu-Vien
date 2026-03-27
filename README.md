@@ -160,7 +160,7 @@ spring.datasource.username=root
 spring.datasource.password=your_password
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
-server.port=8080
+server.port=8181
 ```
 
 **4. Chạy project**
@@ -174,7 +174,7 @@ Hoặc mở file `LibraryManagementApplication.java` trong VSCode và bấm **Ru
 **5. Truy cập ứng dụng**
 
 ```sh
-http://localhost:8080
+http://localhost:8181
 ```
 
 ---
