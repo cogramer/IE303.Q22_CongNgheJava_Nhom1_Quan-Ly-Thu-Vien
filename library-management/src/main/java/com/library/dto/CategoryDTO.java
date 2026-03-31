@@ -35,6 +35,13 @@ public class CategoryDTO {
     this.borrowCount = borrowCount;
   }
 
+  public CategoryDTO(Long id, String name, Long bookCount, Long borrowCount) {
+    this.id = id;
+    this.name = name;
+    this.bookCount = bookCount;
+    this.borrowCount = borrowCount;
+  }
+
   // Getter & Setter
   public Long getId() {
     return id;

@@ -18,9 +18,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
   // Giải quyết hàm 2: Đếm lượt mượn mỗi thể loại (Thể loại HOT)
   // Query này đi từ Category -> Book -> BorrowRecords
   @Query("SELECT new com.library.dto.CategoryDTO(c.id, c.name, 0L, COUNT(br)) " +
-      "FROM Category c " +
-      "LEFT JOIN c.books b " +
-      "LEFT JOIN b.borrowRecords br " +
-      "GROUP BY c.id, c.name")
-  List<CategoryDTO> findAllWithBorrowCount();
+       "FROM Category c " +
+       "LEFT JOIN c.books b " +
+       "LEFT JOIN BorrowRecord br ON br.book.id = b.id " + // <--- SỬA DÒNG NÀY
+       "GROUP BY c.id, c.name")
+    List<CategoryDTO> findAllWithBorrowCount();
 }
