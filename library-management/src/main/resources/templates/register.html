@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Register</title>
+    </head>
+    <body>
+        <h2>Đăng ký tài khoản</h2>
+
+        <!-- Hiển thị lỗi nếu có -->
+        <div th:if="${error}" style="color:red;">
+            <p th:text="${error}"></p>
+        </div>
+
+        <form onsubmit="register(event)">
+            <label>Username: 
+                <input type="text" id="username" name="username" required/>
+            </label><br/><br/>
+            
+            <label>Password: 
+                <input type="password" id="password" name="password" required/>
+            </label><br/><br/>
+            
+            <label>Email: 
+                <input type="email" id="email" name="email" required/>
+            </label><br/><br/>
+
+            <label> Fullname:
+                <input type="text" id="fullName" name="fullName" required/>
+            </label><br/><br/>
+            
+            <button type="submit">Register</button>
+        </form>
+
+        <p>Đã có tài khoản? <a th:href="@{/login}">Đăng nhập</a></p>
+    </body>
+    <script>
+        async function register(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const email = document.getElementById("email").value;
+            const fullName = document.getElementById("fullName").value;
+
+            const res = await fetch("http://localhost:8181/registerProcess", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password, email, fullName })
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                alert(error.message);
+                return;
+            }
+
+            window.location.href = "/login";
+        }
+    </script>
+</html>
