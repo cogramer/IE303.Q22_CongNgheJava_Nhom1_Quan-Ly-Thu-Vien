@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home</title>
+    </head>
+    <body>
+
+        <h2>Home Page</h2>
+
+        <button onclick="callApi()">Gọi API /home</button>
+        <button onclick="logout()">Logout</button>
+
+        <p id="result"></p>
+
+        <script>
+            // Tự động check khi load trang
+            window.onload = function () {
+                const token = localStorage.getItem("token");
+
+                if (!token) {
+                    alert("Chưa đăng nhập!");
+                    window.location.href = "/login.html";
+                }
+            };
+
+            // Gọi API có token
+            function callApi() {
+                const token = localStorage.getItem("token");
+
+                fetch("http://localhost:8181/home", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    }
+                })
+                .then(res => {
+                    if (res.status === 401) {
+                        throw new Error("Token không hợp lệ hoặc hết hạn");
+                    }
+                    return res.text();
+                })
+                .then(data => {
+                    document.getElementById("result").innerText = data;
+                })
+                .catch(err => {
+                    document.getElementById("result").innerText = "Lỗi: " + err.message;
+                });
+            }
+
+            //Logout
+            function logout() {
+                localStorage.removeItem("token");
+                alert("Đã logout!");
+                window.location.href = "/login.html";
+            }
+        </script>
+    </body>
+</html>
