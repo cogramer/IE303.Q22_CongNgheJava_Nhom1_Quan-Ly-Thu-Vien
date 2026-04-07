@@ -1,43 +1,164 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Login</title>
-    </head>
-    <body>
-        <h2>Login Page</h2>
-        
-        <div th:if="${error}" style="color:red;">
-            <p th:text="${error}"></p>
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
+    <!-- Google font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Custom CSS -->
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}"
+    >
+
+</head>
+
+
+<body class="auth-body">
+
+<div class="auth-card">
+
+    <!-- Title -->
+    <div class="auth-title">
+        Login
+    </div>
+
+
+    <!-- Error message -->
+    <div
+        th:if="${error}"
+        class="alert alert-danger"
+    >
+        <p th:text="${error}"></p>
+    </div>
+
+
+    <!-- Login form -->
+    <form onsubmit="login(event)">
+
+        <!-- Username -->
+        <div class="input-group custom-input">
+
+            <input
+                type="text"
+                id="username"
+                class="form-control"
+                placeholder="Username"
+                required
+            >
+
+            <i class="bi bi-person-fill"></i>
+
         </div>
 
-        <form onsubmit="login(event)">
-            <label>Username: <input type="text" id="username" name="username"/></label><br/>
-            <label>Password: <input type="password" id="password" name="password"/></label><br/>
-            <button type="submit">Login</button>
-        </form>
-    </body>
-    <script>
-        async function login(event) {
-        event.preventDefault();
 
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
+        <!-- Password -->
+        <div class="input-group custom-input">
 
-        const res = await fetch("/loginProcess", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username, password })
-        });
+            <input
+                type="password"
+                id="password"
+                class="form-control"
+                placeholder="Password"
+                required
+            >
 
-        if (!res.ok) {
-            const error = await res.json();
-            alert(error.message);
-            return;
-        }
+            <i class="bi bi-lock-fill"></i>
 
-        window.location.href = "/home";
-        }
-    </script>
+        </div>
+
+
+        <!-- Options -->
+        <div class="d-flex justify-content-between extra-options mb-3">
+
+            <label>
+                <input type="checkbox">
+                Remember me
+            </label>
+
+            <a href="#">
+                Forgot password?
+            </a>
+
+        </div>
+
+
+        <!-- Button -->
+        <button
+            class="auth-btn"
+            type="submit"
+        >
+            Login
+        </button>
+
+    </form>
+
+
+    <!-- Register -->
+    <div class="text-center auth-footer-text">
+
+        Don't have an account?
+
+        <a th:href="@{/register}">
+            Register
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+async function login(event) {
+
+    event.preventDefault()
+
+    const username = document.getElementById("username").value
+    const password = document.getElementById("password").value
+
+    const res = await fetch("/loginProcess", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({ username, password })
+
+    })
+
+    if (!res.ok) {
+
+        const error = await res.json()
+        alert(error.message)
+        return
+    }
+
+    window.location.href = "/home"
+}
+
+</script>
+
+</body>
 </html>
