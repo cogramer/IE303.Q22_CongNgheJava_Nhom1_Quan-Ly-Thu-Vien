@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gợi ý sách</title>
+</head>
+<body>
+    <h2>Sách gợi ý cho bạn</h2>
+    <p th:text="'Xin chào, ' + ${username}"></p>
+
+    <div th:if="${books.empty}">
+        <p>Chưa có gợi ý nào. Hãy mượn thêm sách để hệ thống học sở thích của bạn!</p>
+    </div>
+
+    <div th:each="book : ${books}">
+        <h3 th:text="${book.title}"></h3>
+        <p th:text="'Tác giả: ' + ${book.author}"></p>
+        <p th:text="'Thể loại: ' + ${book.categoryName}"></p>
+        <p th:text="'Còn lại: ' + ${book.availableCopies} + ' cuốn'"></p>
+        <hr/>
+    </div>
+
+    <a href="/home">Quay lại</a>
+</body>
+</html>
