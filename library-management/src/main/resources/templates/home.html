@@ -5,6 +5,8 @@
     </head>
     <body>
         <h2>Home Page</h2>
+        <a href="/recommendations">Xem sách gợi ý cho tôi</a>
+        <br/><br/>
         <button onclick="callApi()">Gọi API /home</button>
         <button onclick="logout()">Logout</button>
         <p id="result"></p>
@@ -12,12 +14,10 @@
             function callApi() {
                 fetch("/home", {
                     method: "GET",
-                    credentials: "include"  // gửi kèm cookie tự động
+                    credentials: "include"
                 })
                 .then(res => {
-                    if (res.status === 401) {
-                        throw new Error("Token không hợp lệ hoặc hết hạn");
-                    }
+                    if (res.status === 401) throw new Error("Token không hợp lệ");
                     return res.text();
                 })
                 .then(data => {
