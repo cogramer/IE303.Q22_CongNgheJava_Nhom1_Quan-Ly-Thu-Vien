@@ -111,4 +111,13 @@ public class BorrowRecordService {
 
     return borrowMapper.toDTO(borrowRepository.save(record));
   }
+
+  public List<BorrowRecordDTO> getUserBorrowHistory(Long userId) {
+    if (!userRepository.existsById(userId)) {
+        throw new EntityNotFoundException("Không tìm thấy người dùng ID: " + userId);
+    }
+    return borrowRepository.findByUserId(userId).stream()
+        .map(borrowMapper::toDTO)
+        .collect(Collectors.toList());
+  }
 }

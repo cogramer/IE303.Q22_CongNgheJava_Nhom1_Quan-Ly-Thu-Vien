@@ -87,7 +87,7 @@ public class UserService {
     userRepository.deleteById(id);
   }
 
-  // --- 6. TÌM KIẾM THEO TÊN ---
+  // --- 6. TÌM KIẾM THEO TÊN (FULLNAME) ---
 
   public List<UserDTO> searchUsersByName(String name) {
     return userRepository.findByFullNameContainingIgnoreCase(name).stream()
@@ -95,7 +95,14 @@ public class UserService {
         .collect(Collectors.toList());
   }
 
-  // --- 7. KIỂM TRA ĐĂNG NHẬP (BASIC) ---
+  // --- 7. TÌM KIẾM THEO USERNAME ---
+  public UserDTO getUserByUsername(String username) {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user: " + username));
+    return userMapper.toDTO(user);
+  }
+
+  // --- 8. KIỂM TRA ĐĂNG NHẬP (BASIC) ---
   public UserDTO login(String username, String password) {
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> new RuntimeException("Sai tên đăng nhập hoặc mật khẩu!"));

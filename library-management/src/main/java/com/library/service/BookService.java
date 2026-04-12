@@ -1,5 +1,6 @@
 package com.library.service;
 
+import java.util.stream.*;
 import com.library.dto.BookDTO;
 import com.library.mapper.BookMapper;
 import com.library.model.Book;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +26,14 @@ public class BookService {
         .collect(Collectors.toList());
   }
 
+  // --- 2. LẤY SÁCH THEO ID ---
   public BookDTO getBookById(Long id) {
     Book book = bookRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sách ID: " + id));
     return bookMapper.toDTO(book);
   }
 
-  // --- 2. THÊM & SỬA ---
+  // --- 3. THÊM & SỬA ---
   @Transactional
   public BookDTO saveBook(BookDTO dto) {
     Book entity = bookMapper.toEntity(dto);
@@ -44,7 +45,7 @@ public class BookService {
     return bookMapper.toDTO(saved);
   }
 
-  // --- 3. XÓA ---
+  // --- 4. XÓA ---
   public void deleteBook(Long id) {
     if (!bookRepository.existsById(id)) {
       throw new EntityNotFoundException("Không thể xóa, không tìm thấy sách ID: " + id);
@@ -52,7 +53,18 @@ public class BookService {
     bookRepository.deleteById(id);
   }
 
-  // --- 4. THAY ĐỔI TỔNG SỐ LƯỢNG (KHI NHẬP THÊM SÁCH MỚI) ---
+  public List<BookDTO> searchBooks(String keyword) {
+    List<Book> byTitle = bookRepository.findByTitleContainingIgnoreCase(keyword);
+    List<Book> byAuthor = bookRepository.findByAuthorContainingIgnoreCase(keyword);
+
+    // Gộp 2 danh sách, loại trùng lặp
+    return Stream.concat(byTitle.stream(), byAuthor.stream())
+        .distinct()
+        .map(bookMapper::toDTO)
+        .collect(Collectors.toList());
+}
+
+  // --- 5. THAY ĐỔI TỔNG SỐ LƯỢNG (KHI NHẬP THÊM SÁCH MỚI) ---
   @Transactional
   public BookDTO updateTotalCopies(Long id, int newTotal) {
     Book book = bookRepository.findById(id)
@@ -66,7 +78,7 @@ public class BookService {
     return bookMapper.toDTO(bookRepository.save(book));
   }
 
-  // --- 5. THAY ĐỔI SỐ LƯỢNG TỒN KHO (KHI CHO MƯỢN/TRẢ SÁCH) ---
+  // --- 6. THAY ĐỔI SỐ LƯỢNG TỒN KHO (KHI CHO MƯỢN/TRẢ SÁCH) ---
   @Transactional
   public void updateAvailableCopies(Long id, int amount) {
     Book book = bookRepository.findById(id)
