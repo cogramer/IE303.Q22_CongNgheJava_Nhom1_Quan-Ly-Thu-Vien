@@ -1,23 +1,32 @@
 package com.library.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.library.dto.BorrowRecordDTO;
 import com.library.dto.UserDTO;
+import com.library.enums.RegisterResult;
+import com.library.enums.Result;
 import com.library.mapper.BorrowRecordMapper;
 import com.library.mapper.UserMapper;
 import com.library.model.User;
 import com.library.repository.BorrowRecordRepository;
 import com.library.repository.UserRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+  @Autowired
+  private PasswordEncoder passwordEncoder;
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
@@ -39,26 +48,39 @@ public class UserService {
     return userMapper.toDTO(user);
   }
 
+  public Result checkEmail(String username, String email) {
+    Optional<User> userOpt = userRepository.findByEmail(email);
+    if (userOpt.isEmpty()) {
+      return Result.EMAIL_NOT_FOUND;
+    }
+
+    User user = userOpt.get();
+    
+    if (!username.equals(user.getUsername())) {
+      return Result.USERNAME_NOT_MATCH;
+    }
+    return Result.SUCCESS;
+  }
+
   // --- 3. THÊM NGƯỜI DÙNG (ĐĂNG KÝ) ---
-  @Transactional
-  public UserDTO createUser(UserDTO dto) {
-    if (userRepository.existsByUsername(dto.getUsername())) {
-      throw new RuntimeException("Tên đăng nhập đã tồn tại!");
-    }
-    if (userRepository.existsByEmail(dto.getEmail())) {
-      throw new RuntimeException("Email đã được sử dụng!");
+  public RegisterResult addNewUser(String username, String password, String email, String fullName) {
+    if (userRepository.existsByUsername(username)) {
+        return RegisterResult.USERNAME_EXIST;
     }
 
-    User user = userMapper.toEntity(dto);
-
-    // CHÚ Ý: Sau này nên dùng passwordEncoder.encode(dto.getPassword()) tại đây
-    user.setPassword(dto.getPassword());
-
-    if (user.getRole() == null) {
-      user.setRole(User.Role.READER); // Mặc định là người đọc
-    }
-
-    return userMapper.toDTO(userRepository.save(user));
+    if (userRepository.existsByEmail(email)) {
+        return RegisterResult.EMAIL_EXIST;
+    }  
+    
+    User newUser = new User();
+    newUser.setUsername(username);
+    newUser.setPassword(passwordEncoder.encode(password));
+    newUser.setEmail(email);
+    newUser.setFullName(fullName);
+    newUser.setRole(User.Role.READER); // mặc định role là READER
+    newUser.setCreatedAt(java.time.LocalDateTime.now());
+    userRepository.save(newUser);
+    return RegisterResult.SUCCESS;
   }
 
   // --- 4. CẬP NHẬT THÔNG TIN ---
@@ -87,8 +109,7 @@ public class UserService {
     userRepository.deleteById(id);
   }
 
-  // --- 6. TÌM KIẾM THEO TÊN (FULLNAME) ---
-
+  // --- 6. TÌM KIẾM THEO TÊN ---
   public List<UserDTO> searchUsersByName(String name) {
     return userRepository.findByFullNameContainingIgnoreCase(name).stream()
         .map(userMapper::toDTO)
@@ -99,26 +120,6 @@ public class UserService {
   public UserDTO getUserByUsername(String username) {
     User user = userRepository.findByUsername(username)
         .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user: " + username));
-    return userMapper.toDTO(user);
-  }
-
-  // --- 8. KIỂM TRA ĐĂNG NHẬP (BASIC) ---
-  public UserDTO login(String username, String password) {
-    User user = userRepository.findByUsername(username)
-        .orElseThrow(() -> new RuntimeException("Sai tên đăng nhập hoặc mật khẩu!"));
-
-    // GIẢ SỬ CHƯA MÃ HÓA (SO SÁNH TRỰC TIẾP)
-    if (!user.getPassword().equals(password)) {
-      throw new RuntimeException("Sai tên đăng nhập hoặc mật khẩu!");
-    }
-
-    /*
-     * NẾU DÙNG MÃ HÓA BCrypt (Sau này bạn nâng cấp):
-     * if (!passwordEncoder.matches(password, user.getPassword())) {
-     * throw new RuntimeException("Sai tên đăng nhập hoặc mật khẩu!");
-     * }
-     */
-
     return userMapper.toDTO(user);
   }
 
@@ -134,4 +135,40 @@ public class UserService {
         .map(borrowMapper::toDTOWithoutUser)
         .collect(Collectors.toList());
   }
+
+  // Đặt lại mật khẩu
+  public Result resetPassword(String email, String newPassword) {
+    Optional<User> userOpt = userRepository.findByEmail(email);
+
+    if (userOpt.isEmpty()) {
+      return Result.EMAIL_NOT_FOUND;
+    }
+
+    User user = userOpt.get();
+
+    user.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+    return Result.SUCCESS;
+  }
+
+  //Đổi mật khẩu
+  public Result changePassword(String username, String oldPassword, String newPassword) {
+    Optional<User> userOpt = userRepository.findByUsername(username);
+    if (userOpt.isEmpty()) {
+        return Result.USERNAME_NOT_FOUND;
+    }
+
+    User user = userOpt.get();
+
+    if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+        return Result.PASSWORD_INCORRECT;
+    } else if (passwordEncoder.matches(newPassword, user.getPassword())) {
+        return Result.NEW_PASSWORD_SAME_AS_OLD_PASSWORD;
+    }
+    
+    user.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+    return Result.SUCCESS;
+  }
+
 }

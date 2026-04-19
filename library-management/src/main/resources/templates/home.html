@@ -4,20 +4,42 @@
         <title>Home</title>
     </head>
     <body>
+
         <h2>Home Page</h2>
-        <a href="/recommendations">Xem sách gợi ý cho tôi</a>
-        <br/><br/>
+
         <button onclick="callApi()">Gọi API /home</button>
         <button onclick="logout()">Logout</button>
+
         <p id="result"></p>
+
         <script>
-            function callApi() {
-                fetch("/home", {
+            // Tự động check khi load trang
+            window.onload = function () {
+                fetch("http://localhost:8181/home", {
                     method: "GET",
-                    credentials: "include"
+                    credentials: "include" // 🔥 gửi cookie
                 })
                 .then(res => {
-                    if (res.status === 401) throw new Error("Token không hợp lệ");
+                    if (res.status === 401) {
+                        alert("Chưa đăng nhập!");
+                        window.location.href = "/login.html";
+                    }
+                })
+                .catch(() => {
+                    alert("Lỗi kết nối!");
+                });
+            };
+
+            // Gọi API có token
+            function callApi() {
+                fetch("http://localhost:8181/home", {
+                    method: "GET",
+                    credentials: "include" // 🔥 gửi cookie JWT
+                })
+                .then(res => {
+                    if (res.status === 401) {
+                        throw new Error("Chưa đăng nhập hoặc token hết hạn");
+                    }
                     return res.text();
                 })
                 .then(data => {
@@ -28,13 +50,27 @@
                 });
             }
 
-            function logout() {
-                fetch("/logout", {
-                    method: "POST",
-                    credentials: "include"
-                }).then(() => {
-                    window.location.href = "/login";
-                });
+            //Logout
+            async function logout() {
+                try {
+                    const res = await fetch("/logoutProcess", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                    });
+
+                    if (res.ok) {
+                        alert("Đã logout!");
+                        window.location.href = "/login";
+                    } else {
+                        alert("Logout thất bại!");
+                    }
+
+                } catch (err) {
+                    alert("Lỗi khi logout!");
+                }
             }
         </script>
     </body>
