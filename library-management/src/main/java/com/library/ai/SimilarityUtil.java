@@ -8,12 +8,12 @@ public class SimilarityUtil {
 
     // Tính Cosine Similarity giữa 2 vector
     // Vector ở đây là: key = bookId, value = số lần mượn
-    public double cosineSimilarity(Map<Long, Integer> vectorA, Map<Long, Integer> vectorB) {
+    public double cosineSimilarity(Map<Long, Double> vectorA, Map<Long, Double> vectorB) {
         if (vectorA.isEmpty() || vectorB.isEmpty()) return 0.0;
 
         // Tính dot product (tích vô hướng)
         double dotProduct = 0.0;
-        for (Map.Entry<Long, Integer> entry : vectorA.entrySet()) {
+        for (Map.Entry<Long, Double> entry : vectorA.entrySet()) {
             if (vectorB.containsKey(entry.getKey())) {
                 dotProduct += entry.getValue() * vectorB.get(entry.getKey());
             }

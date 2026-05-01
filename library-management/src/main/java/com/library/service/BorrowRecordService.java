@@ -4,6 +4,7 @@ import com.library.dto.BorrowRecordDTO;
 import com.library.mapper.BorrowRecordMapper;
 import com.library.model.Book;
 import com.library.model.BorrowRecord;
+import com.library.model.Feedback;
 import com.library.model.User;
 import com.library.repository.BookRepository;
 import com.library.repository.BorrowRecordRepository;
@@ -26,6 +27,7 @@ public class BorrowRecordService {
   private final BookRepository bookRepository;
   private final UserRepository userRepository;
   private final BorrowRecordMapper borrowMapper;
+  private final FeedbackService feedbackService;
 
   // --- 1. MƯỢN MỘT DANH SÁCH SÁCH ---
   @Transactional
@@ -62,6 +64,7 @@ public class BorrowRecordService {
       bookRepository.save(book);
 
       savedRecords.add(borrowRepository.save(record));
+      feedbackService.recordEvent(userId, bookId, Feedback.EventType.BORROW);
     }
 
     return savedRecords.stream()
@@ -94,22 +97,30 @@ public class BorrowRecordService {
   // --- 4. TRẢ SÁCH ---
   @Transactional
   public BorrowRecordDTO returnBook(Long recordId) {
-    BorrowRecord record = borrowRepository.findById(recordId)
-        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phiếu mượn!"));
+      BorrowRecord record = borrowRepository.findById(recordId)
+          .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phiếu mượn!"));
 
-    if (record.getStatus() == BorrowRecord.Status.RETURNED) {
-      throw new RuntimeException("Sách này đã được trả trước đó.");
-    }
+      if (record.getStatus() == BorrowRecord.Status.RETURNED) {
+          throw new RuntimeException("Sách này đã được trả trước đó.");
+      }
 
-    record.setStatus(BorrowRecord.Status.RETURNED);
-    record.setReturnDate(LocalDate.now());
+      record.setStatus(BorrowRecord.Status.RETURNED);
+      record.setReturnDate(LocalDate.now());
 
-    // Cộng lại kho
-    Book book = record.getBook();
-    book.setAvailableCopies(book.getAvailableCopies() + 1);
-    bookRepository.save(book);
+      Book book = record.getBook();
+      book.setAvailableCopies(book.getAvailableCopies() + 1);
+      bookRepository.save(book);
 
-    return borrowMapper.toDTO(borrowRepository.save(record));
+      BorrowRecord saved = borrowRepository.save(record);
+
+      // Ghi feedback RETURN trước khi return
+      feedbackService.recordEvent(
+          record.getUser().getId(),
+          record.getBook().getId(),
+          Feedback.EventType.RETURN
+      );
+
+      return borrowMapper.toDTO(saved);
   }
 
   public List<BorrowRecordDTO> getUserBorrowHistory(Long userId) {
