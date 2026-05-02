@@ -4,6 +4,7 @@ public class AuthDTO {
     public static class LoginRequest {
         private String username;
         private String password;
+        private String rememberMe;
 
         public String getUsername() {
             return username;
@@ -20,23 +21,13 @@ public class AuthDTO {
         public void setPassword(String password) {
             this.password = password;
         }
-    }
 
-    public static class LoginResponse {
-        private String message;
-        private String token;
-
-        public LoginResponse(String message, String token) {
-            this.message = (message != null) ? message : "";
-            this.token = (token != null) ? token : "";
+        public String getRememberMe() {
+            return rememberMe;
         }
 
-        public String getMessage() {
-            return message;
-        }
-
-        public String getToken() {
-            return token;
+        public void setRememberMe(String rememberMe) {
+            this.rememberMe = rememberMe;
         }
     }
 
@@ -77,35 +68,36 @@ public class AuthDTO {
         public void setFullName(String fullName) {
             this.fullName = fullName;
         }
-    }
+    }  
 
-    public static class RegisterResponse {
-        private String message;
+    public static class ForgotPasswordRequest {
         private String username;
         private String email;
-        private String fullName;
-
-        public RegisterResponse(String message, String username, String email, String fullName) {
-            this.message = (message != null) ? message : "";
-            this.username = (username != null) ? username : "";
-            this.email = (email != null) ? email : "";
-            this.fullName = (fullName != null) ? fullName : "";
-        }
-
-        public String getMessage() {
-            return message;
-        }
 
         public String getUsername() {
             return username;
         }
-        
+
+        public String getEmail() {
+            return email;
+        }
+    }
+
+    public static class ResetPasswordRequest {
+        private String email;
+        private String otp;
+        private String newPassword;
+
         public String getEmail() {
             return email;
         }
 
-        public String getFullName() {
-            return fullName;
+        public String getOtp() {
+            return otp;
+        }
+
+        public String getNewPassword() {
+            return newPassword;
         }
     }
 
@@ -117,8 +109,16 @@ public class AuthDTO {
             return oldPassword;
         }
 
+        public void setOldPassword(String oldPassword) {
+            this.oldPassword = oldPassword;
+        }
+
         public String getNewPassword() {
             return newPassword;
+        }
+
+        public void setNewPassword(String newPassword) {
+            this.newPassword = newPassword;
         }
     }
 }

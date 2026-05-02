@@ -17,7 +17,11 @@ BACKGROUND
     justify-content: center;
     align-items: center;
 
+<<<<<<< HEAD
     background: url(/img/background.jpg) no-repeat center center fixed;
+=======
+    background: url("../img/background.jpg") no-repeat center center fixed;
+>>>>>>> origin/main
     background-size: cover;
     overflow: hidden;
 }

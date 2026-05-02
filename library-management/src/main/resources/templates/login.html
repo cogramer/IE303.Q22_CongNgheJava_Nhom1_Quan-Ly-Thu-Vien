@@ -29,6 +29,10 @@
         rel="stylesheet"
         th:href="@{/css/style.css}"
     >
+<<<<<<< HEAD
+=======
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+>>>>>>> origin/main
 
 </head>
 
@@ -81,6 +85,7 @@
                 placeholder="Password"
                 required
             >
+<<<<<<< HEAD
 
             <i class="bi bi-lock-fill"></i>
 
@@ -156,6 +161,98 @@ async function login(event) {
     }
 
     window.location.href = "/home"
+=======
+
+            <i class="bi bi-lock-fill"></i>
+
+        </div>
+
+
+        <!-- Options -->
+        <div class="d-flex justify-content-between extra-options mb-3">
+
+            <label>
+                <input type="checkbox" id="rememberMeCheckBox">
+                Remember me
+            </label>
+
+            <a th:href="@{/forgotPassword}">
+                Forgot password?
+            </a>
+
+        </div>
+
+
+        <!-- Button -->
+        <button
+            class="auth-btn"
+            type="submit"
+        >
+            Login
+        </button>
+
+    </form>
+
+
+    <!-- Register -->
+    <div class="text-center auth-footer-text">
+
+        Don't have an account?
+
+        <a th:href="@{/register}">
+            Register
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+async function login(event) {
+
+    event.preventDefault()
+
+    const username = document.getElementById("username").value
+    const password = document.getElementById("password").value
+    const rememberMe = document.getElementById("rememberMeCheckBox").checked.toString()
+
+    const res = await fetch("/loginProcess", {
+
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({ username, password, rememberMe})
+
+    })
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Thất bại!',
+            text: data.message || 'Tên đăng nhập hoặc mật khẩu không đúng!',
+            confirmButtonColor: '#d33'
+        });
+        return;
+    }
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: data.message || 'Đăng nhập thành công!',
+        confirmButtonColor: '#28a745',
+        timer: 1000,
+        showConfirmButton: false
+    }).then(() => {
+        window.location.href = "/home";
+    });
+>>>>>>> origin/main
 }
 
 </script>

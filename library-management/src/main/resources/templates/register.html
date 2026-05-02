@@ -34,7 +34,11 @@
 
 </head>
 
+<<<<<<< HEAD
 
+=======
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+>>>>>>> origin/main
 <body class="auth-body">
 
 <div class="auth-card">
@@ -87,6 +91,7 @@
             <i class="bi bi-lock-fill"></i>
 
         </div>
+<<<<<<< HEAD
 
 
         <!-- Email -->
@@ -188,6 +193,117 @@ async function register(event) {
 
 }
 
+=======
+
+
+        <!-- Email -->
+        <div class="input-group custom-input">
+
+            <input
+                type="email"
+                id="email"
+                class="form-control"
+                placeholder="Email"
+                required
+            >
+
+            <i class="bi bi-envelope-fill"></i>
+
+        </div>
+
+
+        <!-- Fullname -->
+        <div class="input-group custom-input">
+
+            <input
+                type="text"
+                id="fullName"
+                class="form-control"
+                placeholder="Fullname"
+                required
+            >
+
+            <i class="bi bi-person-badge-fill"></i>
+
+        </div>
+
+
+        <!-- Submit button -->
+        <button
+            class="auth-btn"
+            type="submit"
+        >
+            Register
+        </button>
+
+    </form>
+
+
+    <!-- Login link -->
+    <div class="text-center auth-footer-text">
+
+        Do you already have an account?
+
+        <a th:href="@{/login}">
+            Login
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    async function register(event) {
+
+        event.preventDefault()
+
+        const username = document.getElementById("username").value
+        const password = document.getElementById("password").value
+        const email = document.getElementById("email").value
+        const fullName = document.getElementById("fullName").value
+
+
+        const res = await fetch("/registerProcess", {
+
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                username,
+                password,
+                email,
+                fullName
+            })
+
+        })
+
+        if (res.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng ký thành công',
+                text: 'Đang chuyển sang trang đăng nhập...',
+                showConfirmButton: false,
+                timer: 1000
+            }).then(() => {
+                window.location.href = "/login";
+            });
+        } else {
+            const error = await res.json();
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: error.message
+            });
+        }
+    }
+
+>>>>>>> origin/main
 </script>
 
 </body>

@@ -1,0 +1,10 @@
+package com.library.enums;
+
+public enum Result {
+    SUCCESS,
+    EMAIL_NOT_FOUND,
+    USERNAME_NOT_MATCH,
+    USERNAME_NOT_FOUND,
+    PASSWORD_INCORRECT,
+    NEW_PASSWORD_SAME_AS_OLD_PASSWORD
+}
