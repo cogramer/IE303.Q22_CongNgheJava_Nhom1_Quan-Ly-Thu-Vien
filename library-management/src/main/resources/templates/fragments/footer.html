@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="footer"
+        class="footer mt-5 text-light">
+
+    <div class="container py-4">
+
+        <div class="row">
+
+            <!-- GIỚI THIỆU -->
+            <div class="col-md-4">
+
+                <h5 class="fw-bold">
+                    HCMC Lib
+                </h5>
+
+                <p class="small">
+                    Hệ thống thư viện trực tuyến giúp bạn tìm kiếm,
+                    đặt giữ và quản lý lịch sử mượn sách dễ dàng.
+                </p>
+
+            </div>
+
+
+            <!-- LIÊN KẾT NHANH -->
+            <div class="col-md-4">
+
+                <h6 class="fw-bold">
+                    Liên kết nhanh
+                </h6>
+
+                <ul class="list-unstyled">
+
+                    <li>
+                        <a th:href="@{/home}"
+                           class="footer-link">
+                            Trang chủ
+                        </a>
+                    </li>
+
+                    <li>
+                        <a th:href="@{/books}"
+                           class="footer-link">
+                            Danh sách sách
+                        </a>
+                    </li>
+
+                    <li>
+                        <a th:href="@{/reader/history}"
+                           class="footer-link">
+                            Lịch sử mượn
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+
+            <!-- LIÊN HỆ -->
+            <div class="col-md-4">
+
+                <h6 class="fw-bold">
+                    Liên hệ
+                </h6>
+
+                <p class="small mb-1">
+                    📍 TP. Hồ Chí Minh
+                </p>
+
+                <p class="small mb-1">
+                    📧 support@hcmclib.vn
+                </p>
+
+                <p class="small">
+                    ☎ 0123 456 789
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- SOCIAL -->
+        <div class="text-center mt-3">
+
+            <a href="#"
+               class="footer-social">
+                Facebook
+            </a>
+
+            |
+
+            <a href="#"
+               class="footer-social">
+                Youtube
+            </a>
+
+            |
+
+            <a href="#"
+               class="footer-social">
+                Github
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- COPYRIGHT -->
+    <div class="footer-bottom text-center py-2">
+
+        © 2026 HCMC Lib — Thư viện Thành phố Hồ Chí Minh
+
+    </div>
+
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="header"
+     class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+
+    <div class="container">
+
+        <!-- LOGO -->
+        <a class="navbar-brand fw-bold"
+           th:href="@{/home}">
+            HCMC Lib
+        </a>
+
+
+        <!-- MOBILE BUTTON -->
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarContent">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+
+        <!-- MENU -->
+        <div class="collapse navbar-collapse"
+             id="navbarContent">
+
+            <!-- LEFT MENU -->
+            <ul class="navbar-nav me-auto">
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       th:href="@{/home}">
+                        Trang chủ
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       th:href="@{/books}">
+                        Danh sách sách
+                    </a>
+
+                </li>
+
+            </ul>
+
+
+            <!-- RIGHT MENU -->
+
+            <!-- CHƯA LOGIN -->
+            <ul class="navbar-nav"
+                th:if="${username == null}">
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       th:href="@{/login}">
+                        Đăng nhập
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       th:href="@{/register}">
+                        Đăng ký
+                    </a>
+
+                </li>
+
+            </ul>
+
+
+            <!-- ĐÃ LOGIN -->
+            <ul class="navbar-nav"
+                th:if="${username != null}">
+
+                <!-- CART -->
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       th:href="@{/cart}">
+                        Giỏ sách
+                    </a>
+
+                </li>
+
+
+                <!-- USER DROPDOWN -->
+                <li class="nav-item dropdown">
+
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown">
+
+                        Xin chào,
+                        <span th:text="${username}"></span>
+
+                    </a>
+
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+
+                        <li>
+
+                            <a class="dropdown-item"
+                               th:href="@{/profile}">
+                                Thông tin tài khoản
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a class="dropdown-item"
+                               th:href="@{/reader/history}">
+                                Lịch sử mượn sách
+                            </a>
+
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <li>
+
+                            <a class="dropdown-item text-danger"
+                               th:href="@{/logout}">
+                                Đăng xuất
+                            </a>
+
+                        </li>
+
+                    </ul>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</nav>
+
+</body>
+</html>

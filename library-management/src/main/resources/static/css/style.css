@@ -184,3 +184,116 @@ ANIMATION
     }
 
 }
+
+/* HOME PAGE */
+/* ===============================
+NAVBAR
+=============================== */
+
+.navbar-custom{
+background:#2d6cdf;
+}
+
+/* =============================
+BANNER CAROUSEL
+============================= */
+
+#homeBanner {
+    height: 420px;
+}
+
+#homeBanner .carousel-inner {
+    height: 420px;
+}
+
+#homeBanner .carousel-item {
+    height: 420px;
+}
+
+#homeBanner img {
+    height: 420px;
+    width: 100%;
+    object-fit: cover;
+}
+
+
+/* ===============================
+BODY
+=============================== */
+
+body{
+background:#f4f6f9;
+}
+
+
+/* ===============================
+SECTION TITLE
+=============================== */
+
+.section-title{
+font-weight:600;
+margin:20px 0;
+}
+
+
+/* ===============================
+BOOK CARD
+=============================== */
+
+.book-card img{
+height:230px;
+object-fit:cover;
+}
+
+
+/* ===============================
+SIDEBAR
+=============================== */
+
+.sidebar-box{
+background:white;
+border-radius:10px;
+overflow:hidden;
+}
+
+.sidebar-title{
+background:#2d6cdf;
+color:white;
+padding:10px;
+font-weight:500;
+}
+
+
+/* ===============================
+FOOTER
+=============================== */
+
+.footer {
+    background: #102647;
+}
+
+.footer-link {
+    color: #ddd;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.footer-link:hover {
+    color: white;
+}
+
+.footer-social {
+    color: #ccc;
+    margin: 0 8px;
+    text-decoration: none;
+}
+
+.footer-social:hover {
+    color: white;
+}
+
+.footer-bottom {
+    background: #0d6efd;
+    font-size: 14px;
+}
