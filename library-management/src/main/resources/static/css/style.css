@@ -17,11 +17,7 @@ BACKGROUND
     justify-content: center;
     align-items: center;
 
-<<<<<<< HEAD
-    background: url(/img/background.jpg) no-repeat center center fixed;
-=======
-    background: url("../img/background.jpg") no-repeat center center fixed;
->>>>>>> origin/main
+    /* background: url("https://cdn.thuviennhadat.vn//upload/hinh-anh-bai-viet/NHN/Thang-02-2025/12-02/lawnet/08-loai-hinh-thu-vien-theo-phap-luat-viet-nam.jpg") no-repeat center center fixed; */
     background-size: cover;
     overflow: hidden;
 }
