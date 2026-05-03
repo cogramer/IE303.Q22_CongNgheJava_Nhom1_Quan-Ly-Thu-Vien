@@ -179,92 +179,54 @@ MAIN CONTENT
 
         <div class="col-md-9">
 
+            <!-- =============================
+            FEATURED BOOKS
+            ============================= -->
 
-            <!-- FEATURED BOOKS -->
+            <section class="book-section container mt-5">
 
-            <h4 class="section-title">
-                Sách nổi bật
-            </h4>
+                <h3 class="section-title">
+                    Sách nổi bật
+                </h3>
 
+                <div class="row g-4">
 
-            <div class="row">
+                    <div
+                        class="col-xl-3 col-lg-4 col-md-6"
+                        th:each="book : ${featuredBooks}"
+                    >
 
-                <div
-                    class="col-md-3 mb-4"
-                    th:each="book : ${featuredBooks}"
-                >
+                        <div class="card book-card h-100 shadow-sm">
 
-                    <div class="card book-card h-100">
+                            <!-- BOOK IMAGE -->
+                            <img
+                                th:src="${book.imageUrl != null} ?
+                                        ${book.imageUrl} :
+                                        @{/img/banner_1.jpg}"
+                                class="card-img-top book-img"
+                            />
 
-                        <img
-                            th:src="${book.imageUrl}"
-                            class="card-img-top"
-                        >
+                            <!-- BODY -->
+                            <div class="card-body d-flex flex-column">
 
-                        <div class="card-body">
+                                <h6
+                                    class="book-title"
+                                    th:text="${book.title}"
+                                ></h6>
 
-                            <h6
-                                th:text="${book.title}"
-                            ></h6>
+                                <p
+                                    class="book-price"
+                                    th:text="${book.price} + 'đ'"
+                                ></p>
 
-                            <p
-                                th:text="|${book.price} đ|"
-                            ></p>
+                                <a
+                                    class="btn btn-primary mt-auto"
+                                    th:href="@{/books/{id}(id=${book.id})}"
+                                >
+                                    Mượn
+                                </a>
 
-                            <a
-                                class="btn btn-primary"
-                                th:href="@{/books/{id}(id=${book.id})}"
-                            >
-                                Xem chi tiết
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- NEW BOOKS -->
-
-            <h4 class="section-title">
-                Sách mới
-            </h4>
-
-
-            <div class="row">
-
-                <div
-                    class="col-md-3 mb-4"
-                    th:each="book : ${newBooks}"
-                >
-
-                    <div class="card book-card h-100">
-
-                        <img
-                            th:src="${book.imageUrl}"
-                            class="card-img-top"
-                        >
-
-                        <div class="card-body">
-
-                            <h6
-                                th:text="${book.title}"
-                            ></h6>
-
-                            <p
-                                th:text="|${book.price} đ|"
-                            ></p>
-
-                            <a
-                                class="btn btn-primary"
-                                th:href="@{/books/{id}(id=${book.id})}"
-                            >
-                                Xem chi tiết
-                            </a>
+                            </div>
 
                         </div>
 
@@ -272,22 +234,69 @@ MAIN CONTENT
 
                 </div>
 
-            </div>
+            </section>
 
+            <!-- =============================
+            NEW BOOKS
+            ============================= -->
 
-        </div>
+            <section class="book-section container mt-5">
 
-    </div>
+                <h3 class="section-title">
+                    Sách mới
+                </h3>
 
+                <div class="row g-4">
 
+                    <div
+                        class="col-xl-3 col-lg-4 col-md-6"
+                        th:each="book : ${newBooks}"
+                    >
 
-    <!-- =============================
-    FOOTER
-    ============================== -->
-    <div th:replace="fragments/footer :: footer"></div>
+                        <div class="card book-card h-100 shadow-sm">
+
+                            <img
+                                th:src="${book.imageUrl != null} ?
+                                        ${book.imageUrl} :
+                                        @{/img/banner_1.jpg}"
+                                class="card-img-top book-img"
+                            />
+
+                            <div class="card-body d-flex flex-column">
+
+                                <h6
+                                    class="book-title"
+                                    th:text="${book.title}"
+                                ></h6>
+
+                                <p
+                                    class="book-price"
+                                    th:text="${book.price} + 'đ'"
+                                ></p>
+
+                                <a
+                                    class="btn btn-primary mt-auto"
+                                    th:href="@{/books/{id}(id=${book.id})}"
+                                >
+                                    Mượn
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
 
 </div>
 
+<!-- =============================
+FOOTER
+============================== -->
+<div th:replace="fragments/footer :: footer"></div>
 
 
 <!-- Bootstrap JS -->
