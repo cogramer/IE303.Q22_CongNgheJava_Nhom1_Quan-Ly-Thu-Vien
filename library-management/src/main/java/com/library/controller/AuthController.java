@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ import com.library.enums.Result;
 import com.library.model.RememberMeToken;
 import com.library.security.JwtUtil;
 import com.library.service.AuthService;
+import com.library.service.BookService;
 import com.library.service.RememberMeService;
 import com.library.service.UserService;
 
@@ -46,6 +48,8 @@ public class AuthController {
     private JwtUtil jwtUtil;
     @Autowired
     private UserService userService;
+    @Autowired
+    private BookService bookService;
     @Autowired
     private RememberMeService rememberMeService;
 
@@ -261,7 +265,9 @@ public class AuthController {
     } 
 
     @GetMapping("/home")
-    public String homePage() {
+    public String homePage(Model model) {
+        model.addAttribute("featuredBooks", bookService.getFeaturedBooks());
+        model.addAttribute("newBooks", bookService.getNewBooks());
         return "home";
     }
 }

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*; // Import các ràng buộc
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -34,6 +35,9 @@ public class BookDTO {
   private Long categoryId;
 
   private String categoryName; // Thường chỉ dùng để hiển thị nên không cần ràng buộc khi nhận vào
+
+  private String imageUrl;
+  private BigDecimal price;
 
   private LocalDateTime createdAt;
 }
