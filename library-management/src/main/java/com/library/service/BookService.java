@@ -1,5 +1,8 @@
 package com.library.service;
 
+import java.io.IOException;
+import java.text.Normalizer;
+import java.util.regex.Pattern;
 import java.util.stream.*;
 import com.library.dto.BookDTO;
 import com.library.mapper.BookMapper;
@@ -7,6 +10,7 @@ import com.library.model.Book;
 import com.library.repository.BookRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,17 +24,65 @@ public class BookService {
   private final BookMapper bookMapper;
 
   // --- 1. LẤY DANH SÁCH ---
+  private static final Pattern DIACRITICS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+  private static final String[] IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"};
+
   public List<BookDTO> getAllBooks() {
     return bookRepository.findAll().stream()
-        .map(bookMapper::toDTO)
+        .map(this::toBookDTO)
         .collect(Collectors.toList());
+  }
+
+  private BookDTO toBookDTO(Book book) {
+    BookDTO dto = bookMapper.toDTO(book);
+    dto.setImageUrl(resolveImageUrl(dto));
+    return dto;
+  }
+
+  private String resolveImageUrl(BookDTO dto) {
+    if (dto.getImageUrl() != null && !dto.getImageUrl().isBlank()) {
+      return dto.getImageUrl();
+    }
+
+    String title = dto.getTitle();
+    if (title == null || title.isBlank()) {
+      return null;
+    }
+
+    String normalized = stripDiacritics(title.trim()).toLowerCase();
+    String candidateBase = normalized.replaceAll("[^a-z0-9]+", "-").replaceAll("(^-+|-+$)", "");
+    String candidateBaseUnderscore = candidateBase.replace('-', '_');
+
+    for (String base : new String[] {candidateBase, candidateBaseUnderscore}) {
+      for (String ext : IMAGE_EXTENSIONS) {
+        String fileName = base + "." + ext;
+        if (classPathResourceExists("static/img/" + fileName)) {
+          return "/img/" + fileName;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private static String stripDiacritics(String value) {
+    String normalized = Normalizer.normalize(value, Normalizer.Form.NFD);
+    return DIACRITICS_PATTERN.matcher(normalized).replaceAll("");
+  }
+
+  private boolean classPathResourceExists(String path) {
+    try {
+      return new ClassPathResource(path).exists();
+    } catch (Exception ex) {
+      return false;
+    }
   }
 
   // --- 2. LẤY SÁCH THEO ID ---
   public BookDTO getBookById(Long id) {
     Book book = bookRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sách ID: " + id));
-    return bookMapper.toDTO(book);
+    return toBookDTO(book);
   }
 
   // --- 3. THÊM & SỬA ---
@@ -60,9 +112,21 @@ public class BookService {
     // Gộp 2 danh sách, loại trùng lặp
     return Stream.concat(byTitle.stream(), byAuthor.stream())
         .distinct()
-        .map(bookMapper::toDTO)
+        .map(this::toBookDTO)
         .collect(Collectors.toList());
 }
+
+  public List<BookDTO> getFeaturedBooks() {
+    return bookRepository.findTop8ByAvailableCopiesGreaterThanOrderByTotalCopiesDesc(0).stream()
+        .map(this::toBookDTO)
+        .collect(Collectors.toList());
+  }
+
+  public List<BookDTO> getNewBooks() {
+    return bookRepository.findTop8ByOrderByCreatedAtDesc().stream()
+        .map(this::toBookDTO)
+        .collect(Collectors.toList());
+  }
 
   // --- 5. THAY ĐỔI TỔNG SỐ LƯỢNG (KHI NHẬP THÊM SÁCH MỚI) ---
   @Transactional
