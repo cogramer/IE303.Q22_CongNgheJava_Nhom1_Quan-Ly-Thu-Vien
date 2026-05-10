@@ -39,6 +39,26 @@ public class LibrarianController {
         return "librarian/dashboard";
     }
 
+    // Quản lý user
+    @GetMapping("/users")
+    public String users(
+            @RequestParam(required = false) String keyword,
+            Model model) {
+        if (keyword != null && !keyword.isEmpty()) {
+            model.addAttribute("users", userService.searchUsersByName(keyword));
+            model.addAttribute("keyword", keyword);
+        } else {
+            model.addAttribute("users", userService.getAllUsers());
+        }
+        return "librarian/users";
+    }
+    
+    @PostMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return "redirect:/librarian/users";
+    }
+
     // Quản lý sách
     @GetMapping("/books")
     public String books(Model model) {
@@ -61,8 +81,16 @@ public class LibrarianController {
 
     // Quản lý mượn/trả
     @GetMapping("/loans")
-    public String loans(Model model) {
+    public String loans(
+            @RequestParam(required = false) String keyword,
+            Model model) {
+        if (keyword != null && !keyword.isEmpty()) {
+            model.addAttribute("loans", borrowService.searchByUsername(keyword));
+        } else {
+            model.addAttribute("loans", borrowService.getAllActiveLoans());
+        }
         model.addAttribute("overdueList", borrowService.getOverdueRecords());
+        model.addAttribute("keyword", keyword);
         return "librarian/loans";
     }
 
