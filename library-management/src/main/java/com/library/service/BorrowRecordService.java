@@ -11,11 +11,17 @@ import com.library.repository.BorrowRecordRepository;
 import com.library.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -130,5 +136,70 @@ public class BorrowRecordService {
     return borrowRepository.findByUserId(userId).stream()
         .map(borrowMapper::toDTO)
         .collect(Collectors.toList());
+  }
+  
+  // 10 hoạt động gần đây
+  public List<BorrowRecordDTO> getRecentActivity() {
+      return borrowRepository.findTop10ByOrderByBorrowDateDesc().stream()
+          .map(borrowMapper::toDTO)
+          .collect(Collectors.toList());
+  }
+
+  // Top 5 sách mượn nhiều nhất
+  public List<Map<String, Object>> getTopBorrowedBooks() {
+      Pageable top5 = PageRequest.of(0, 5);
+      List<Object[]> results = borrowRepository.findTopBorrowedBooks(top5);
+
+      List<Map<String, Object>> topBooks = new ArrayList<>();
+      for (Object[] row : results) {
+          Book book = (Book) row[0];
+          Long count = (Long) row[1];
+          Map<String, Object> item = new HashMap<>();
+          item.put("title", book.getTitle());
+          item.put("author", book.getAuthor());
+          item.put("count", count);
+          topBooks.add(item);
+      }
+      return topBooks;
+  }
+
+  // Thống kê mượn theo tháng trong năm
+  public Map<Integer, Long> getBorrowCountByMonth(int year) {
+      List<Object[]> results = borrowRepository.countByMonth(year);
+      Map<Integer, Long> monthlyData = new LinkedHashMap<>();
+
+      // Khởi tạo 12 tháng = 0
+      for (int i = 1; i <= 12; i++) {
+          monthlyData.put(i, 0L);
+      }
+
+      // Điền dữ liệu thực
+      for (Object[] row : results) {
+          Integer month = ((Number) row[0]).intValue();
+          Long count = ((Number) row[1]).longValue();
+          monthlyData.put(month, count);
+      }
+
+      return monthlyData;
+  }
+
+  // Lấy tất cả phiếu đang mượn
+  public List<BorrowRecordDTO> getAllActiveLoans() {
+      return borrowRepository.findAll().stream()
+          .filter(r -> r.getStatus() == BorrowRecord.Status.BORROWING
+                    || r.getStatus() == BorrowRecord.Status.OVERDUE)
+          .map(borrowMapper::toDTO)
+          .collect(Collectors.toList());
+  }
+
+  // Tìm theo tên độc giả
+  public List<BorrowRecordDTO> searchByUsername(String keyword) {
+      return borrowRepository.findAll().stream()
+          .filter(r -> r.getStatus() == BorrowRecord.Status.BORROWING
+                    || r.getStatus() == BorrowRecord.Status.OVERDUE)
+          .filter(r -> r.getUser().getFullName()
+                    .toLowerCase().contains(keyword.toLowerCase()))
+          .map(borrowMapper::toDTO)
+          .collect(Collectors.toList());
   }
 }

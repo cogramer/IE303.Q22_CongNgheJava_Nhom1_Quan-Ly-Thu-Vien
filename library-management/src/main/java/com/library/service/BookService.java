@@ -14,6 +14,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 @Service
@@ -159,5 +161,24 @@ public class BookService {
 
     book.setAvailableCopies(newAvailable);
     bookRepository.save(book);
+  }
+
+  // Tỷ lệ đang mượn
+  public Map<String, Object> getBorrowingRate() {
+      List<BookDTO> allBooks = getAllBooks();
+      int totalCopies = allBooks.stream()
+          .mapToInt(BookDTO::getTotalCopies).sum();
+      int availableCopies = allBooks.stream()
+          .mapToInt(BookDTO::getAvailableCopies).sum();
+      int borrowedCopies = totalCopies - availableCopies;
+
+      Map<String, Object> rate = new HashMap<>();
+      rate.put("totalCopies", totalCopies);
+      rate.put("borrowedCopies", borrowedCopies);
+      rate.put("availableCopies", availableCopies);
+      rate.put("borrowingRate", totalCopies > 0
+          ? Math.round((double) borrowedCopies / totalCopies * 100)
+          : 0);
+      return rate;
   }
 }

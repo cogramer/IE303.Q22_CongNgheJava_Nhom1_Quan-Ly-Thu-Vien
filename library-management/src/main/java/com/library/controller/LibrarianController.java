@@ -28,8 +28,14 @@ public class LibrarianController {
         model.addAttribute("totalBooks", bookService.getAllBooks().size());
         model.addAttribute("totalUsers", userService.getAllUsers().size());
         model.addAttribute("overdueList", borrowService.getOverdueRecords());
-        model.addAttribute("pendingReservations",
-            reservationService.getPendingReservations());
+        model.addAttribute("pendingReservations", reservationService.getPendingReservations());
+        
+        model.addAttribute("recentActivity", borrowService.getRecentActivity());
+        model.addAttribute("topBorrowedBooks", borrowService.getTopBorrowedBooks());
+        model.addAttribute("newBooks", bookService.getNewBooks());
+        model.addAttribute("borrowByMonth", borrowService.getBorrowCountByMonth(2026));
+        model.addAttribute("borrowingRate", bookService.getBorrowingRate());
+        model.addAttribute("topCategories", categoryService.getCategoryHotStats());
         return "librarian/dashboard";
     }
 
