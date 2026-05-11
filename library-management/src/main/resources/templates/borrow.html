@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Đặt giữ / đang mượn - HCMC Lib</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/borrow.css}">
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <main class="container borrow-container mt-4">
+        <div class="page-heading mb-4">
+            <div>
+                <h1 class="mb-2">Đặt giữ / đang mượn</h1>
+                <p class="text-muted mb-0">Chọn sách để đặt giữ. Thủ thư sẽ duyệt và tạo phiếu mượn thật.</p>
+            </div>
+
+            <div class="borrow-tabs" role="tablist" aria-label="Chọn chức năng">
+                <button id="borrow-tab" class="btn btn-primary" type="button">Đặt giữ sách</button>
+                <button id="return-tab" class="btn btn-outline-primary" type="button">Đang mượn</button>
+            </div>
+        </div>
+
+        <div id="borrow-message"></div>
+
+        <section id="borrow-section">
+            <div class="action-buttons">
+                <button id="refresh-books" class="btn btn-outline-primary" type="button">
+                    Tải lại danh sách
+                </button>
+                <button id="borrow-btn" class="btn btn-success" type="button" disabled>
+                    Đặt giữ sách đã chọn
+                </button>
+                <span class="selected-count">
+                    Đã chọn: <span id="selected-count">0</span> sách
+                </span>
+            </div>
+
+            <div id="books-container" class="row g-3"></div>
+        </section>
+
+        <section id="return-section" class="is-hidden">
+            <div class="action-buttons">
+                <button id="refresh-borrowed" class="btn btn-outline-primary" type="button">
+                    Tải lại danh sách
+                </button>
+                <span class="selected-count">
+                    Sách đang mượn: <span id="current-count">0</span>
+                </span>
+            </div>
+
+            <div class="return-panel">
+                <h2 class="h4 mb-3">Danh sách đang mượn</h2>
+                <div id="return-summary" class="return-summary"></div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Sách</th>
+                                <th>Ngày mượn</th>
+                                <th>Hạn trả</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="borrowed-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/library.js}"></script>
+    <script th:src="@{/js/borrow.js}"></script>
+</body>
+
+</html>
