@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/loginProcess", "/logoutProcess", "/verifyOtpAndResetPassword",
                     "/register", "/registerProcess",
                     "/forgotPassword", "/forgotPasswordProcess",
-                    "/css/**", "/js/**", "/images/**").permitAll()
+                    "/css/**", "/js/**", "/images/**", "/error").permitAll()
                 .requestMatchers("/librarian/**").hasAnyRole("ADMIN", "LIBRARIAN")
                 .requestMatchers("/reader/**").hasRole("READER")
                 .anyRequest().authenticated()

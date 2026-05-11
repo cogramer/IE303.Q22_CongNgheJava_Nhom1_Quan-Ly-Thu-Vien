@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +68,10 @@ public class BookService {
   }
 
   private static String stripDiacritics(String value) {
-    String normalized = Normalizer.normalize(value, Normalizer.Form.NFD);
+    // Ten file anh bia tieng Viet can doi d/D thu cong vi Unicode normalize khong tu bo ky tu nay.
+    String normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
+        .replace('đ', 'd')
+        .replace('Đ', 'D');
     return DIACRITICS_PATTERN.matcher(normalized).replaceAll("");
   }
 
@@ -130,6 +133,13 @@ public class BookService {
         .collect(Collectors.toList());
   }
 
+  // API /api/books/available chi nen tra sach con ban sao kha dung.
+  public List<BookDTO> getAvailableBooks() {
+    return bookRepository.findByAvailableCopiesGreaterThan(0).stream()
+        .map(this::toBookDTO)
+        .collect(Collectors.toList());
+  }
+
   // --- 5. THAY ĐỔI TỔNG SỐ LƯỢNG (KHI NHẬP THÊM SÁCH MỚI) ---
   @Transactional
   public BookDTO updateTotalCopies(Long id, int newTotal) {
@@ -163,22 +173,23 @@ public class BookService {
     bookRepository.save(book);
   }
 
-  // Tỷ lệ đang mượn
   public Map<String, Object> getBorrowingRate() {
-      List<BookDTO> allBooks = getAllBooks();
-      int totalCopies = allBooks.stream()
-          .mapToInt(BookDTO::getTotalCopies).sum();
-      int availableCopies = allBooks.stream()
-          .mapToInt(BookDTO::getAvailableCopies).sum();
-      int borrowedCopies = totalCopies - availableCopies;
+    List<BookDTO> allBooks = getAllBooks();
+    int totalCopies = allBooks.stream()
+        .mapToInt(BookDTO::getTotalCopies)
+        .sum();
+    int availableCopies = allBooks.stream()
+        .mapToInt(BookDTO::getAvailableCopies)
+        .sum();
+    int borrowedCopies = totalCopies - availableCopies;
 
-      Map<String, Object> rate = new HashMap<>();
-      rate.put("totalCopies", totalCopies);
-      rate.put("borrowedCopies", borrowedCopies);
-      rate.put("availableCopies", availableCopies);
-      rate.put("borrowingRate", totalCopies > 0
-          ? Math.round((double) borrowedCopies / totalCopies * 100)
-          : 0);
-      return rate;
+    Map<String, Object> rate = new HashMap<>();
+    rate.put("totalCopies", totalCopies);
+    rate.put("borrowedCopies", borrowedCopies);
+    rate.put("availableCopies", availableCopies);
+    rate.put("borrowingRate", totalCopies > 0
+        ? Math.round((double) borrowedCopies / totalCopies * 100)
+        : 0);
+    return rate;
   }
 }

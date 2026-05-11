@@ -56,17 +56,14 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
             .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đặt giữ"));
 
-        // Kiểm tra sách còn không
         Book book = reservation.getBook();
         if (book.getAvailableCopies() <= 0) {
             throw new RuntimeException("Sách đã hết, không thể xác nhận!");
         }
 
-        // Đổi status reservation
         reservation.setStatus(Reservation.Status.FULFILLED);
         reservationRepository.save(reservation);
 
-        // Tạo borrow_record tự động
         BorrowRecord record = new BorrowRecord();
         record.setUser(reservation.getUser());
         record.setBook(book);
@@ -75,11 +72,9 @@ public class ReservationService {
         record.setStatus(BorrowRecord.Status.BORROWING);
         borrowRecordRepository.save(record);
 
-        // Giảm available_copies
         book.setAvailableCopies(book.getAvailableCopies() - 1);
         bookRepository.save(book);
 
-        // Ghi feedback
         feedbackService.recordEvent(
             reservation.getUser().getId(),
             book.getId(),
@@ -104,6 +99,13 @@ public class ReservationService {
     }
 
     // Thủ thư xem danh sách đặt giữ đang chờ
+    // UI librarian/reservations cần xem tất cả trạng thái để filter:
+    // PENDING, FULFILLED, CANCELLED, NOTIFIED.
+    public List<Reservation> getAllReservations() {
+        return reservationRepository.findAll();
+    }
+
+    // Dashboard chỉ cần số lượng đặt giữ đang chờ xử lý.
     public List<Reservation> getPendingReservations() {
         return reservationRepository.findByStatus(Reservation.Status.PENDING);
     }
