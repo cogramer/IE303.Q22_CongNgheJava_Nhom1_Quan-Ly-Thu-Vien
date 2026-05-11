@@ -1,15 +1,20 @@
 package com.library.service;
 
 import com.library.model.Book;
+import com.library.model.BorrowRecord;
+import com.library.model.Feedback;
 import com.library.model.Reservation;
 import com.library.model.User;
 import com.library.repository.BookRepository;
+import com.library.repository.BorrowRecordRepository;
 import com.library.repository.ReservationRepository;
 import com.library.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -19,6 +24,8 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final BorrowRecordRepository borrowRecordRepository;
+    private final FeedbackService feedbackService;
 
     // Độc giả đặt giữ sách
     @Transactional
@@ -49,8 +56,37 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
             .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đặt giữ"));
 
+        // Kiểm tra sách còn không
+        Book book = reservation.getBook();
+        if (book.getAvailableCopies() <= 0) {
+            throw new RuntimeException("Sách đã hết, không thể xác nhận!");
+        }
+
+        // Đổi status reservation
         reservation.setStatus(Reservation.Status.FULFILLED);
-        return reservationRepository.save(reservation);
+        reservationRepository.save(reservation);
+
+        // Tạo borrow_record tự động
+        BorrowRecord record = new BorrowRecord();
+        record.setUser(reservation.getUser());
+        record.setBook(book);
+        record.setBorrowDate(LocalDate.now());
+        record.setDueDate(LocalDate.now().plusDays(14));
+        record.setStatus(BorrowRecord.Status.BORROWING);
+        borrowRecordRepository.save(record);
+
+        // Giảm available_copies
+        book.setAvailableCopies(book.getAvailableCopies() - 1);
+        bookRepository.save(book);
+
+        // Ghi feedback
+        feedbackService.recordEvent(
+            reservation.getUser().getId(),
+            book.getId(),
+            Feedback.EventType.BORROW
+        );
+
+        return reservation;
     }
 
     // Độc giả huỷ đặt giữ
