@@ -1,0 +1,319 @@
+.books-page {
+    background: #f4f6f9;
+    min-height: 100vh;
+}
+
+.top-books-carousel {
+    height: 360px;
+    overflow: hidden;
+    background: #111827;
+}
+
+.top-books-carousel .carousel-inner,
+.top-books-carousel .carousel-item,
+.top-books-carousel img {
+    height: 360px;
+}
+
+.top-books-carousel img {
+    object-fit: cover;
+    filter: brightness(0.58);
+}
+
+.top-books-carousel .carousel-caption {
+    left: 8%;
+    right: 8%;
+    bottom: 46px;
+    text-align: left;
+}
+
+.top-books-carousel .eyebrow {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #ffd166;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.top-books-carousel h1 {
+    max-width: 780px;
+    font-size: 2.4rem;
+    font-weight: 800;
+}
+
+.books-toolbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.filter-bar {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) 220px 180px;
+    gap: 12px;
+}
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.book-list-card {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+    animation: fadeCard 0.28s ease both;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-list-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+}
+
+.book-cover-wrap {
+    position: relative;
+    height: 250px;
+    background: #e8edf5;
+}
+
+.book-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.book-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: #198754;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.book-badge.is-muted {
+    background: #6c757d;
+}
+
+.book-card-body {
+    padding: 14px;
+}
+
+.book-card-body h3 {
+    min-height: 48px;
+    margin: 4px 0 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.book-author {
+    min-height: 24px;
+    margin-bottom: 8px;
+    color: #667085;
+    font-size: 0.92rem;
+}
+
+.book-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 24px;
+    color: #475467;
+    font-size: 0.86rem;
+}
+
+.book-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.rating {
+    color: #f59f00;
+    font-size: 0.92rem;
+    letter-spacing: 0;
+}
+
+.pagination-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.empty-state {
+    padding: 34px;
+    text-align: center;
+    color: #667085;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 8px;
+}
+
+.modal-book-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.modal-book-image {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #e8edf5;
+}
+
+.borrow-confirm-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.borrow-confirm-info > div {
+    border: 1px solid #e3e8ef;
+    border-radius: 8px;
+    padding: 12px;
+    background: #f8fafc;
+}
+
+.borrow-confirm-info span {
+    display: block;
+    margin-bottom: 4px;
+    color: #667085;
+    font-size: 0.86rem;
+}
+
+.borrow-confirm-info strong {
+    color: #101828;
+}
+
+.success-message,
+.error-message {
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.success-message {
+    color: #146c43;
+    background: #d1e7dd;
+    border: 1px solid #badbcc;
+}
+
+.error-message {
+    color: #b02a37;
+    background: #f8d7da;
+    border: 1px solid #f5c2c7;
+}
+
+.is-hidden {
+    display: none !important;
+}
+
+body.books-dark {
+    background: #0f172a;
+}
+
+body.books-dark .books-page {
+    background: #0f172a;
+    color: #e5e7eb;
+}
+
+body.books-dark .book-list-card,
+body.books-dark .empty-state,
+body.books-dark .book-modal,
+body.books-dark .summary-item {
+    background: #111827;
+    border-color: #263244;
+    color: #e5e7eb;
+}
+
+body.books-dark .book-author,
+body.books-dark .book-meta,
+body.books-dark .text-muted {
+    color: #aab4c3 !important;
+}
+
+body.books-dark .form-control,
+body.books-dark .form-select {
+    background: #111827;
+    border-color: #344054;
+    color: #e5e7eb;
+}
+
+body.books-dark .borrow-confirm-info > div {
+    background: #0f172a;
+    border-color: #344054;
+}
+
+body.books-dark .borrow-confirm-info span {
+    color: #aab4c3;
+}
+
+body.books-dark .borrow-confirm-info strong {
+    color: #e5e7eb;
+}
+
+@keyframes fadeCard {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1200px) {
+    .books-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .top-books-carousel,
+    .top-books-carousel .carousel-inner,
+    .top-books-carousel .carousel-item,
+    .top-books-carousel img {
+        height: 300px;
+    }
+
+    .top-books-carousel h1 {
+        font-size: 1.7rem;
+    }
+
+    .filter-bar {
+        grid-template-columns: 1fr;
+    }
+
+    .books-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .modal-book-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .books-grid {
+        grid-template-columns: 1fr;
+    }
+}
