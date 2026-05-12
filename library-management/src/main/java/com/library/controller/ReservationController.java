@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -23,10 +24,15 @@ public class ReservationController {
     @PostMapping("/create")
     public String createReservation(
             @RequestParam Long bookId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Long userId = getUserId(userDetails);
-        reservationService.createReservation(userId, bookId);
+            @AuthenticationPrincipal UserDetails userDetails,
+            RedirectAttributes redirectAttributes) {
+        try {
+            Long userId = getUserId(userDetails);
+            reservationService.createReservation(userId, bookId);
+            redirectAttributes.addFlashAttribute("success", "Đặt giữ thành công!");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
         return "redirect:/reader/books";
     }
 

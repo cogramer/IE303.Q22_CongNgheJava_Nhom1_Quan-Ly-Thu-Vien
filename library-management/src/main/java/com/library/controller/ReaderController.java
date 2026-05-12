@@ -2,6 +2,7 @@ package com.library.controller;
 
 import com.library.dto.BorrowRecordDTO;
 import com.library.model.BorrowRecord;
+import com.library.model.Reservation;
 import com.library.repository.UserRepository;
 import com.library.service.BookService;
 import com.library.service.BorrowRecordService;
@@ -43,7 +44,17 @@ public class ReaderController {
     @GetMapping("/books")
     public String books(
             @RequestParam(required = false) String keyword,
+            @AuthenticationPrincipal UserDetails userDetails,
             Model model) {
+
+        Long userId = getUserId(userDetails);
+
+        // Lấy danh sách bookId đã đặt giữ PENDING
+        List<Long> pendingBookIds = reservationService
+            .getUserReservations(userId).stream()
+            .filter(r -> r.getStatus() == Reservation.Status.PENDING)
+            .map(r -> r.getBook().getId())
+            .collect(Collectors.toList());
 
         if (keyword != null && !keyword.isEmpty()) {
             model.addAttribute("books", bookService.searchBooks(keyword));
@@ -51,6 +62,8 @@ public class ReaderController {
         } else {
             model.addAttribute("books", bookService.getAllBooks());
         }
+
+        model.addAttribute("pendingBookIds", pendingBookIds);
         return "reader/books";
     }
 

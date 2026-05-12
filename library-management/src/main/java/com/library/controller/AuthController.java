@@ -278,4 +278,9 @@ public class AuthController {
         model.addAttribute("featuredBooks", bookService.getFeaturedBooks());
         return "books";
     }
+
+    @GetMapping("/borrow")
+    public String borrow() {
+        return "redirect:/reader/borrow";
+    }
 }
