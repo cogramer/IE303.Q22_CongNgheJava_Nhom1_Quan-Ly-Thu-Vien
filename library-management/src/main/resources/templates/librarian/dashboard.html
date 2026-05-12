@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Librarian - HCMC Lib</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/library.css}">
+    <link rel="stylesheet" th:href="@{/css/librarian-dashboard.css}">
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <main class="librarian-shell">
+        <aside class="admin-sidebar">
+            <a class="sidebar-brand" th:href="@{/librarian/dashboard}">
+                <i class="bi bi-grid-1x2-fill"></i>
+                Librarian
+            </a>
+            <nav>
+                <a class="active" th:href="@{/librarian/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a th:href="@{/librarian/books}"><i class="bi bi-book"></i> Quản lý sách</a>
+                <a th:href="@{/librarian/loans}"><i class="bi bi-arrow-left-right"></i> Quản lý mượn trả</a>
+                <a th:href="@{/librarian/reservations}"><i class="bi bi-bookmark-check"></i> Đặt giữ</a>
+                <a th:href="@{/librarian/users}"><i class="bi bi-people"></i> Người dùng</a>
+                <a th:href="@{/librarian/reports}"><i class="bi bi-bar-chart"></i> Báo cáo</a>
+            </nav>
+        </aside>
+
+        <section class="dashboard-content">
+            <section class="welcome-card dashboard-card">
+                <div>
+                    <p class="eyebrow">Dashboard Librarian</p>
+                    <h1>Xin chào Librarian</h1>
+                    <p>Hôm nay hệ thống đang có <strong th:text="${#lists.size(overdueList)}">0</strong> sách quá hạn cần theo dõi.</p>
+                </div>
+                <a class="btn btn-primary" th:href="@{/librarian/loans}">
+                    <i class="bi bi-check2-square"></i>
+                    Quản lý mượn trả
+                </a>
+            </section>
+
+            <section
+                id="dashboard-data"
+                th:data-borrow-months="${#strings.listJoin(borrowByMonth.keySet(), ',')}"
+                th:data-borrow-values="${#strings.listJoin(borrowByMonth.values(), ',')}"
+                th:data-borrowing-rate="${borrowingRate.borrowingRate}"
+                th:data-available-copies="${borrowingRate.availableCopies}"
+                th:data-borrowed-copies="${borrowingRate.borrowedCopies}"
+            ></section>
+
+            <section class="summary-grid">
+                <article class="dashboard-card stat-card">
+                    <span>Tổng sách</span>
+                    <strong th:text="${totalBooks}">0</strong>
+                    <i class="bi bi-bookshelf"></i>
+                </article>
+                <article class="dashboard-card stat-card">
+                    <span>Đang mượn</span>
+                    <strong th:text="${borrowingRate.borrowedCopies}">0</strong>
+                    <i class="bi bi-journal-arrow-up"></i>
+                </article>
+                <article class="dashboard-card stat-card">
+                    <span>Quá hạn</span>
+                    <strong th:text="${#lists.size(overdueList)}">0</strong>
+                    <i class="bi bi-exclamation-triangle"></i>
+                </article>
+                <article class="dashboard-card stat-card">
+                    <span>Độc giả</span>
+                    <strong th:text="${totalUsers}">0</strong>
+                    <i class="bi bi-people"></i>
+                </article>
+            </section>
+
+            <section class="dashboard-grid two-cols">
+                <article class="dashboard-card chart-card">
+                    <div class="section-head">
+                        <h2>Biểu đồ mượn sách theo tháng</h2>
+                        <span class="soft-badge">Năm 2026</span>
+                    </div>
+                    <canvas id="borrowMonthChart" height="120"></canvas>
+                </article>
+
+                <article class="dashboard-card chart-card">
+                    <div class="section-head">
+                        <h2>Tỷ lệ đang mượn</h2>
+                        <span class="soft-badge"><span th:text="${borrowingRate.borrowingRate}">0</span>%</span>
+                    </div>
+                    <canvas id="borrowingRateChart" height="120"></canvas>
+                </article>
+            </section>
+
+            <section class="dashboard-grid two-cols">
+                <article class="dashboard-card">
+                    <div class="section-head">
+                        <h2>Top sách được mượn nhiều nhất</h2>
+                    </div>
+                    <div class="top-book-list">
+                        <div class="top-book-item" th:each="book : ${topBorrowedBooks}">
+                            <div class="book-rank"><i class="bi bi-book"></i></div>
+                            <div class="top-book-info">
+                                <div>
+                                    <strong th:text="${book.title}">Tên sách</strong>
+                                    <span th:text="${book.author}">Tác giả</span>
+                                </div>
+                                <span class="borrow-count-pill">
+                                    <span th:text="${book.count}">0</span>
+                                    <span>lượt</span>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="empty-text" th:if="${topBorrowedBooks == null or #lists.isEmpty(topBorrowedBooks)}">
+                            Chưa có dữ liệu mượn sách.
+                        </p>
+                    </div>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="section-head">
+                        <h2>Sách mới thêm</h2>
+                        <a th:href="@{/librarian/books}">Quản lý sách</a>
+                    </div>
+                    <div class="top-book-list">
+                        <div class="top-book-item" th:each="book : ${newBooks}">
+                            <img th:src="${book.imageUrl != null} ? @{${book.imageUrl}} : @{/img/banner_1.jpg}" th:alt="${book.title}">
+                            <div>
+                                <strong th:text="${book.title}">Tên sách</strong>
+                                <span th:text="${book.author}">Tác giả</span>
+                            </div>
+                        </div>
+                        <p class="empty-text" th:if="${newBooks == null or #lists.isEmpty(newBooks)}">
+                            Chưa có sách mới.
+                        </p>
+                    </div>
+                </article>
+            </section>
+
+            <section class="dashboard-grid two-cols">
+                <article class="dashboard-card">
+                    <div class="section-head">
+                        <h2>Phiếu mượn gần đây</h2>
+                        <a th:href="@{/librarian/loans}">Xem mượn trả</a>
+                    </div>
+                    <div class="compact-table">
+                        <div class="compact-row compact-head">
+                            <span>Độc giả</span>
+                            <span>Sách</span>
+                            <span>Ngày</span>
+                            <span>Trạng thái</span>
+                        </div>
+                        <div class="compact-row" th:each="record : ${recentActivity}">
+                            <span th:text="${record.userName}">User</span>
+                            <span th:text="${record.bookTitle}">Book</span>
+                            <span th:text="${record.borrowDate != null ? #temporals.format(record.borrowDate, 'dd/MM') : '-'}">-</span>
+                            <span
+                                class="status-badge"
+                                th:classappend="${record.status.name() == 'RETURNED'} ? ' returned' : (${record.status.name() == 'OVERDUE'} ? ' overdue' : ' borrowing')"
+                                th:text="${record.status.name() == 'RETURNED'} ? 'Đã trả' : (${record.status.name() == 'OVERDUE'} ? 'Quá hạn' : 'Đang mượn')"
+                            >
+                                Status
+                            </span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="dashboard-card">
+                    <div class="section-head">
+                        <h2>Sách quá hạn</h2>
+                        <a th:href="@{/librarian/loans}">Xem tất cả</a>
+                    </div>
+                    <div class="compact-table overdue-table">
+                        <div class="compact-row compact-head">
+                            <span>Độc giả</span>
+                            <span>Sách</span>
+                            <span>Hạn trả</span>
+                        </div>
+                        <div class="compact-row" th:each="record : ${overdueList}">
+                            <span th:text="${record.userName}">User</span>
+                            <span th:text="${record.bookTitle}">Book</span>
+                            <span th:text="${record.dueDate != null ? #temporals.format(record.dueDate, 'dd/MM') : '-'}">-</span>
+                        </div>
+                        <p class="empty-text" th:if="${overdueList == null or #lists.isEmpty(overdueList)}">
+                            Không có sách quá hạn.
+                        </p>
+                    </div>
+                </article>
+            </section>
+
+            <section class="dashboard-grid three-cols">
+                <article class="dashboard-card">
+                    <div class="section-head">
+                        <h2>Hoạt động gần đây</h2>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item" th:each="record : ${recentActivity}">
+                            <span class="activity-dot"></span>
+                            <p>
+                                <strong th:text="${record.userName}">User</strong>
+                                <span th:text="${record.status.name() == 'RETURNED'} ? ' trả sách ' : ' mượn sách '"> mượn sách </span>
+                                <strong th:text="${record.bookTitle}">Book</strong>
+                            </p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="dashboard-card quick-stats">
+                    <div class="section-head">
+                        <h2>Thống kê nhanh</h2>
+                    </div>
+                    <div>
+                        <span>Thể loại mượn nhiều</span>
+                        <strong th:text="${topCategories != null and !#lists.isEmpty(topCategories) ? topCategories[0].name : 'Chưa có dữ liệu'}">Chưa có dữ liệu</strong>
+                    </div>
+                    <div>
+                        <span>Sách mới thêm</span>
+                        <strong><span th:text="${#lists.size(newBooks)}">0</span> sách</strong>
+                    </div>
+                    <div>
+                        <span>Tỷ lệ đang mượn</span>
+                        <strong><span th:text="${borrowingRate.borrowingRate}">0</span>%</strong>
+                    </div>
+                </article>
+            </section>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script th:src="@{/js/librarian-dashboard.js}"></script>
+</body>
+
+</html>
