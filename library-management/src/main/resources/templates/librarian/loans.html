@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý mượn trả - HCMC Lib</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/library.css}">
+    <link rel="stylesheet" th:href="@{/css/librarian-loans.css}">
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <main class="loans-shell">
+        <aside class="librarian-sidebar">
+            <a class="sidebar-brand" th:href="@{/librarian/dashboard}">
+                <i class="bi bi-grid-1x2-fill"></i>
+                Librarian
+            </a>
+            <nav>
+                <a th:href="@{/librarian/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a th:href="@{/librarian/books}"><i class="bi bi-book"></i> Quản lý sách</a>
+                <a class="active" th:href="@{/librarian/loans}"><i class="bi bi-arrow-left-right"></i> Mượn trả</a>
+                <a th:href="@{/librarian/reservations}"><i class="bi bi-bookmark-check"></i> Đặt giữ</a>
+                <a th:href="@{/librarian/users}"><i class="bi bi-people"></i> Người dùng</a>
+                <a th:href="@{/librarian/reports}"><i class="bi bi-bar-chart"></i> Báo cáo</a>
+            </nav>
+        </aside>
+
+        <section class="loans-page">
+        <div class="loans-heading mb-4">
+            <div>
+                <h1 class="h3 mb-1">Quản lý mượn trả</h1>
+                <p class="text-muted mb-0">Theo dõi toàn bộ phiếu mượn, lọc trạng thái và xác nhận trả sách cho độc giả.</p>
+            </div>
+
+            <div class="loans-counter">
+                <span>Tổng phiếu</span>
+                <strong id="loan-total-count" th:text="${loans != null ? #lists.size(loans) : 0}">0</strong>
+            </div>
+        </div>
+
+        <section class="loans-filter mb-4">
+            <input
+                id="loan-search"
+                class="form-control"
+                type="search"
+                placeholder="Tìm kiếm độc giả hoặc sách"
+                th:value="${keyword}"
+            >
+
+            <select id="loan-status-filter" class="form-select" aria-label="Lọc trạng thái">
+                <option value="">Tất cả trạng thái</option>
+                <option value="BORROWING">Đang mượn</option>
+                <option value="OVERDUE">Quá hạn</option>
+                <option value="RETURNED">Đã trả</option>
+            </select>
+
+            <select id="loan-date-type" class="form-select" aria-label="Chọn loại ngày">
+                <option value="borrow">Ngày mượn</option>
+                <option value="due">Hạn trả</option>
+            </select>
+
+            <input id="loan-date-filter" class="form-control" type="date" aria-label="Lọc theo ngày">
+        </section>
+
+        <div class="loans-card shadow-sm">
+            <div class="loans-card-toolbar">
+                <div>
+                    <strong>Danh sách phiếu mượn</strong>
+                    <span class="selected-loans-pill ms-2">
+                        Đã chọn <span id="selected-loan-count">0</span> phiếu
+                    </span>
+                </div>
+                <button id="return-selected-btn" class="btn btn-warning btn-sm" type="button" disabled>
+                    Trả sách đã chọn
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th class="select-col">
+                                <input id="select-all-loans" class="form-check-input" type="checkbox" aria-label="Chọn tất cả">
+                            </th>
+                            <th>Độc giả</th>
+                            <th>Sách</th>
+                            <th class="loan-date-col">Ngày mượn</th>
+                            <th class="loan-date-col">Hạn trả</th>
+                            <th class="loan-status-col">Trạng thái</th>
+                            <th class="text-end">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${loans == null or #lists.isEmpty(loans)}">
+                            <td colspan="7" class="text-center text-muted py-4">
+                                Không có phiếu mượn nào.
+                            </td>
+                        </tr>
+
+                        <tr
+                            class="loan-row"
+                            th:each="loan : ${loans}"
+                            th:data-loan-id="${loan.id}"
+                            th:data-reader="${loan.userName}"
+                            th:data-book="${loan.bookTitle}"
+                            th:data-status="${loan.status.name()}"
+                            th:data-borrow-date="${loan.borrowDate}"
+                            th:data-due-date-raw="${loan.dueDate}"
+                            th:data-due-date="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}"
+                        >
+                            <td class="select-col">
+                                <input
+                                    class="form-check-input loan-checkbox"
+                                    type="checkbox"
+                                    th:value="${loan.id}"
+                                    th:disabled="${loan.status.name() == 'RETURNED'}"
+                                    th:attr="aria-label='Chọn phiếu mượn ' + ${loan.id}"
+                                >
+                            </td>
+                            <td th:text="${loan.userName}">Nguyễn Văn A</td>
+                            <td>
+                                <strong th:text="${loan.bookTitle}">Tên sách</strong>
+                            </td>
+                            <td class="loan-date-col" th:text="${#temporals.format(loan.borrowDate, 'dd/MM/yyyy')}">01/01/2026</td>
+                            <td class="loan-date-col" th:text="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}">15/01/2026</td>
+                            <td class="loan-status-col">
+                                <span
+                                    class="badge"
+                                    th:classappend="${loan.status.name() == 'OVERDUE'} ? ' text-bg-danger' : (${loan.status.name() == 'RETURNED'} ? ' text-bg-success' : ' text-bg-primary')"
+                                    th:text="${loan.status.name() == 'OVERDUE'} ? 'QUÁ HẠN' : (${loan.status.name() == 'RETURNED'} ? 'ĐÃ TRẢ' : 'ĐANG MƯỢN')"
+                                >
+                                    ĐANG MƯỢN
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <button
+                                    th:if="${loan.status.name() != 'RETURNED'}"
+                                    class="btn btn-outline-warning btn-sm single-return-btn"
+                                    type="button"
+                                >
+                                    Xác nhận trả
+                                </button>
+                                <span
+                                    th:if="${loan.status.name() == 'RETURNED'}"
+                                    class="returned-action"
+                                >
+                                    Đã hoàn tất
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="returnConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content return-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Phiếu xác nhận trả sách</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">
+                        Kiểm tra danh sách bên dưới trước khi xác nhận trả sách.
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Độc giả</th>
+                                    <th>Sách</th>
+                                    <th>Hạn trả</th>
+                                </tr>
+                            </thead>
+                            <tbody id="return-confirm-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Hủy</button>
+                    <form id="return-confirm-form" method="post">
+                        <input type="hidden" name="keyword" th:value="${keyword}">
+                        <div id="return-loan-id-fields"></div>
+                        <button id="confirm-return-btn" class="btn btn-warning" type="submit">
+                            Xác nhận trả
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/library.js}"></script>
+    <script th:src="@{/js/librarian-loans.js}"></script>
+</body>
+
+</html>
