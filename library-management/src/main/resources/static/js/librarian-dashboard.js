@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+    initDashboardAvatars();
+
     const data = document.getElementById("dashboard-data");
 
     if (!data || typeof Chart === "undefined") {
@@ -8,6 +10,21 @@ document.addEventListener("DOMContentLoaded", () => {
     renderBorrowMonthChart(data);
     renderBorrowingRateChart(data);
 });
+
+function initDashboardAvatars() {
+    document.querySelectorAll(".dashboard-avatar[data-name]").forEach(avatar => {
+        avatar.textContent = window.LibraryUI
+            ? LibraryUI.getInitials(avatar.dataset.name)
+            : getFallbackInitials(avatar.dataset.name);
+    });
+}
+
+function getFallbackInitials(value) {
+    const words = String(value || "U").trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return "U";
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase();
+}
 
 function renderBorrowMonthChart(data) {
     const canvas = document.getElementById("borrowMonthChart");

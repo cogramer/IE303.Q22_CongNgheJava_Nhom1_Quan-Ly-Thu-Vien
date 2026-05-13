@@ -145,7 +145,7 @@
                 </article>
             </section>
 
-            <section class="dashboard-grid two-cols">
+            <section class="dashboard-grid">
                 <article class="dashboard-card">
                     <div class="section-head">
                         <h2>Phiếu mượn gần đây</h2>
@@ -159,7 +159,10 @@
                             <span>Trạng thái</span>
                         </div>
                         <div class="compact-row" th:each="record : ${recentActivity}">
-                            <span th:text="${record.userName}">User</span>
+                            <span class="reader-cell">
+                                <span class="dashboard-avatar" th:data-name="${record.userName}">U</span>
+                                <span th:text="${record.userName}">User</span>
+                            </span>
                             <span th:text="${record.bookTitle}">Book</span>
                             <span th:text="${record.borrowDate != null ? #temporals.format(record.borrowDate, 'dd/MM') : '-'}">-</span>
                             <span
@@ -185,7 +188,10 @@
                             <span>Hạn trả</span>
                         </div>
                         <div class="compact-row" th:each="record : ${overdueList}">
-                            <span th:text="${record.userName}">User</span>
+                            <span class="reader-cell">
+                                <span class="dashboard-avatar" th:data-name="${record.userName}">U</span>
+                                <span th:text="${record.userName}">User</span>
+                            </span>
                             <span th:text="${record.bookTitle}">Book</span>
                             <span th:text="${record.dueDate != null ? #temporals.format(record.dueDate, 'dd/MM') : '-'}">-</span>
                         </div>
@@ -235,6 +241,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script th:src="@{/js/library.js}"></script>
     <script th:src="@{/js/librarian-dashboard.js}"></script>
 </body>
 
