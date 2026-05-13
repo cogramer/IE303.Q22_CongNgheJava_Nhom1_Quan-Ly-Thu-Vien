@@ -63,6 +63,7 @@ public class ReaderController {
             model.addAttribute("books", bookService.getAllBooks());
         }
 
+        model.addAttribute("featuredBooks", bookService.getFeaturedBooks());
         model.addAttribute("pendingBookIds", pendingBookIds);
         return "reader/books";
     }
