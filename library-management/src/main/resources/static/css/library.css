@@ -200,6 +200,36 @@ body {
     border-radius: 999px;
 }
 
+.success-message,
+.error-message {
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.success-message {
+    color: #047857;
+    background: #d1fae5;
+    border: 1px solid #a7f3d0;
+}
+
+.error-message {
+    color: #b42318;
+    background: #fee4e2;
+    border: 1px solid #fecdca;
+}
+
+.loading-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+}
+
+.is-hidden {
+    display: none !important;
+}
+
 @media (max-width: 900px) {
     :is(.loans-shell, .reservations-shell, .users-shell, .librarian-books-shell, .reports-shell) {
         grid-template-columns: 1fr;

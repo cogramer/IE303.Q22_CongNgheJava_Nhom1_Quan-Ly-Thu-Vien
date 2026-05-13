@@ -1,5 +1,4 @@
 ﻿let userId = null;
-let allBooks = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
     const user = await getUser();
@@ -50,9 +49,9 @@ async function loadBooks() {
         return;
     }
 
-    allBooks = await res.json();
-    const availableBooks = Array.isArray(allBooks)
-        ? allBooks.filter(book => Number(book.availableCopies) > 0)
+    const books = await res.json();
+    const availableBooks = Array.isArray(books)
+        ? books.filter(book => Number(book.availableCopies) > 0)
         : [];
 
     if (availableBooks.length === 0) {
