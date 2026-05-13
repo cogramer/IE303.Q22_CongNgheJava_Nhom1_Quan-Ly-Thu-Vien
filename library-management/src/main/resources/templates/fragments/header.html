@@ -5,6 +5,11 @@
 <nav th:fragment="header"
      class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
 
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
+
     <div class="container">
 
         <!-- LOGO -->
@@ -35,6 +40,7 @@
                 <li class="nav-item">
 
                     <a class="nav-link"
+                       data-nav-path="/home"
                        th:href="@{/home}">
                         Trang chủ
                     </a>
@@ -44,7 +50,8 @@
                 <li class="nav-item">
 
                     <a class="nav-link"
-                       th:href="@{/books}">
+                       data-nav-path="/reader/books"
+                       th:href="@{/reader/books}">
                         Danh sách sách
                     </a>
 
@@ -88,7 +95,8 @@
                 <li class="nav-item">
 
                     <a class="nav-link"
-                       th:href="@{/cart}">
+                       data-nav-path="/reader/borrow"
+                       th:href="@{/reader/borrow}">
                         Giỏ sách
                     </a>
 
@@ -123,6 +131,7 @@
                         <li>
 
                             <a class="dropdown-item"
+                               data-nav-path="/reader/history"
                                th:href="@{/reader/history}">
                                 Lịch sử mượn sách
                             </a>
@@ -151,6 +160,23 @@
         </div>
 
     </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentPath = window.location.pathname;
+
+        document.querySelectorAll("[data-nav-path]").forEach(link => {
+            const navPath = link.getAttribute("data-nav-path");
+            const isActive = currentPath === navPath
+                || (navPath !== "/home" && currentPath.startsWith(`${navPath}/`));
+
+            if (isActive) {
+                link.classList.add("active");
+                link.setAttribute("aria-current", "page");
+            }
+        });
+    });
+</script>
 
 </nav>
 
