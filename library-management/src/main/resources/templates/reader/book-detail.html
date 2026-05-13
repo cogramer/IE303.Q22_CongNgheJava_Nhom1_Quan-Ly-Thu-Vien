@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${book != null} ? ${book.title} + ' - HCMC Lib' : 'Chi tiết sách - HCMC Lib'"></title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        .book-detail-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .book-cover-container {
+            text-align: center;
+        }
+
+        .book-cover {
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .book-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .book-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 13px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .book-price-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .book-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #e74c3c;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-availability {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .book-action-btn {
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: 0.25s ease;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .btn-borrow {
+            background: #0066ff;
+            color: white;
+        }
+
+        .btn-borrow:hover {
+            background: #0052cc;
+        }
+
+        .book-description {
+            margin-top: 2rem;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+            max-height: 300px;
+            overflow: hidden;
+            text-align: justify;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .similar-books-row {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            margin-bottom: 2rem;
+        }
+
+        .rating-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .rating-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .rating-label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 32px;
+        }
+
+        .star-rating .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: 0.2s ease;
+        }
+
+        .star-rating .star:hover,
+        .star-rating .star.active {
+            color: #ffc107;
+        }
+
+        .review-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .review-textarea:focus {
+            outline: none;
+            border-color: #0066ff;
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        .btn-submit-review {
+            background: #27ae60;
+            color: white;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s ease;
+            width: 100%;
+        }
+
+        .btn-submit-review:hover {
+            background: #229954;
+        }
+
+        .breadcrumb-custom {
+            margin-bottom: 1.5rem;
+        }
+
+        .breadcrumb-custom a {
+            color: #0066ff;
+            text-decoration: none;
+        }
+
+        .breadcrumb-custom a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- MAIN CONTENT -->
+    <div class="container mt-4">
+
+        <!-- BREADCRUMB -->
+        <nav class="breadcrumb-custom">
+            <a th:href="@{/home}">Trang chủ</a>
+            <span> / </span>
+            <span th:text="${book != null} ? ${book.title} : 'Chi tiết sách'"></span>
+        </nav>
+
+        <!-- BOOK DETAIL -->
+        <div class="book-detail-section">
+            <div class="row">
+                <!-- LEFT: COVER IMAGE -->
+                <div class="col-md-4">
+                    <div class="book-cover-container">
+                        <img
+                            th:src="${book.imageUrl != null} ? @{${book.imageUrl}} : @{/img/banner_1.jpg}"
+                            class="book-cover"
+                            alt="Bìa sách"
+                        >
+                    </div>
+                </div>
+
+                <!-- RIGHT: BOOK INFO -->
+                <div class="col-md-8">
+                    <div class="book-info">
+                        <!-- TITLE -->
+                        <h1 class="book-title" th:text="${book.title}"></h1>
+
+                        <!-- META INFO -->
+                        <div class="book-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Tác giả</span>
+                                <span class="meta-value" th:text="${book.author}"></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Chủ đề</span>
+                                <span class="meta-value" th:text="${book.categoryName}"></span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">ISBN</span>
+                                <span class="meta-value" th:text="${book.isbn}"></span>
+                            </div>
+                        </div>
+
+                        <!-- PRICE -->
+                        <div class="book-price-section">
+                            <div class="book-price" th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"></div>
+                        </div>
+
+                        <!-- AVAILABILITY -->
+                        <div class="book-availability">
+                            <span th:text="'Còn ' + ${book.availableCopies} + ' quyển trong thư viện'"></span>
+                        </div>
+
+                        <!-- BORROW BUTTON -->
+                        <button
+                            class="book-action-btn btn-borrow"
+                            th:disabled="${book.availableCopies <= 0}"
+                            th:onclick="'borrowBook(' + ${book.id} + ')'"
+                        >
+                            Mượn sách
+                        </button>
+
+                        <!-- DESCRIPTION -->
+                        <div class="book-description">
+                            <p>
+                                Kể chuyện cho bé trước giờ ngủ là một thói quen tốt giúp bé có giấc ngủ ngon hơn. Những câu chuyện giông như một cánh cửa mở ra cho bé một thế giới kì diệu đầy màu sắc. Việc kể chuyện cho bé trước giờ đi ngủ không chỉ giúp bé phát triển khả năng ngôn ngữ, trí tuệ tưởng tượng mà còn hình thành được tình yêu thương học sách ngay từ khi con nhỏ. Truyện kể trước giờ đi ngủ là những câu chuyện ý nghĩa kết hợp với hình ảnh minh họa đẹp mắt ngộ nghĩnh kiến bé yêu thích. Cuối mỗi câu chuyện đều có lời của me để dẫn dắt những bài học, điều hay lẽ phải cho bé noi theo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIMILAR BOOKS -->
+        <section class="book-detail-section">
+            <h2 class="section-title">Có thể bạn thích đọc</h2>
+            <div class="similar-books-row">
+                <div th:each="book : ${similarBooks}">
+                    <div class="card book-card h-100 shadow-sm">
+                        <img
+                            th:src="${book.imageUrl != null} ? @{${book.imageUrl}} : @{/img/banner_1.jpg}"
+                            class="card-img-top book-img"
+                            alt="Ảnh bìa sách"
+                        >
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="book-title" th:text="${book.title}"></h6>
+                            <p class="text-muted mb-1" th:text="${book.author}"></p>
+                            <p class="book-price" th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"></p>
+                            <a
+                                class="btn btn-primary mt-auto"
+                                th:href="@{/reader/books/{id}(id=${book.id})}"
+                            >
+                                Mượn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RATING SECTION -->
+        <section class="rating-section">
+            <h2 class="section-title">Đánh giá</h2>
+
+            <form id="reviewForm" th:action="@{/reader/reviews}" method="post">
+                <input type="hidden" name="bookId" th:value="${book.id}">
+
+                <!-- RATING STARS -->
+                <div class="rating-form-group">
+                    <label class="rating-label">Đánh giá *</label>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="ratingValue" name="rating" value="0">
+                </div>
+
+                <!-- REVIEW TEXT -->
+                <div class="rating-form-group">
+                    <label class="rating-label">Bình luận *</label>
+                    <textarea
+                        class="review-textarea"
+                        name="reviewText"
+                        placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <button type="submit" class="btn-submit-review">Gửi</button>
+            </form>
+        </section>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Star Rating
+        document.querySelectorAll('.star-rating .star').forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.dataset.value;
+                document.getElementById('ratingValue').value = rating;
+
+                document.querySelectorAll('.star-rating .star').forEach(s => {
+                    s.classList.remove('active');
+                });
+
+                document.querySelectorAll('.star-rating .star').forEach(s => {
+                    if (s.dataset.value <= rating) {
+                        s.classList.add('active');
+                    }
+                });
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const rating = this.dataset.value;
+                document.querySelectorAll('.star-rating .star').forEach(s => {
+                    s.style.color = s.dataset.value <= rating ? '#ffc107' : '#ddd';
+                });
+            });
+        });
+
+        document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+            const activeRating = document.getElementById('ratingValue').value;
+            document.querySelectorAll('.star-rating .star').forEach(s => {
+                s.style.color = s.classList.contains('active') ? '#ffc107' : '#ddd';
+            });
+        });
+
+        // Borrow Book Function
+        function borrowBook(bookId) {
+            alert('Bạn đã mượn sách ID: ' + bookId);
+            // TODO: Implement actual borrow logic
+        }
+
+        // Submit Review
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            const rating = document.getElementById('ratingValue').value;
+            if (rating === '0') {
+                e.preventDefault();
+                alert('Vui lòng chọn số sao đánh giá');
+                return false;
+            }
+        });
+    </script>
+
+</body>
+
+</html>

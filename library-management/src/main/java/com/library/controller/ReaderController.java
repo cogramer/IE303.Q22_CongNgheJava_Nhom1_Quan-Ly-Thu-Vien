@@ -1,5 +1,6 @@
 package com.library.controller;
 
+import com.library.dto.BookDTO;
 import com.library.repository.UserRepository;
 import com.library.service.BookService;
 import com.library.service.BorrowRecordService;
@@ -12,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -51,7 +54,10 @@ public class ReaderController {
     // Chi tiết sách
     @GetMapping("/books/{id}")
     public String bookDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("book", bookService.getBookById(id));
+        BookDTO book = bookService.getBookById(id);
+        model.addAttribute("book", book);
+        // Lấy 5 sách cùng category (hoặc sách khác nếu không đủ)
+        model.addAttribute("similarBooks", bookService.getFeaturedBooks().stream().limit(5).collect(Collectors.toList()));
         return "reader/book-detail";
     }
 
