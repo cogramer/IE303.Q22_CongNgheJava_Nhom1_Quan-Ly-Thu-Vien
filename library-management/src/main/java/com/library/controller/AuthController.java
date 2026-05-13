@@ -273,10 +273,8 @@ public class AuthController {
 
     // Navbar/header trỏ tới /books; route này render trang danh sách sách public/reader.
     @GetMapping("/books")
-    public String booksPage(Model model) {
-        model.addAttribute("books", bookService.getAllBooks());
-        model.addAttribute("featuredBooks", bookService.getFeaturedBooks());
-        return "books";
+    public String booksPage() {
+        return "redirect:/reader/books";
     }
 
     @GetMapping("/borrow")
