@@ -10,6 +10,7 @@
         rel="stylesheet"
     >
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/library.css}">
     <link rel="stylesheet" th:href="@{/css/books.css}">
 </head>
 
@@ -61,17 +62,6 @@
         </section>
 
         <div class="container py-4">
-            <section class="books-toolbar mb-4">
-                <div>
-                    <h2 class="mb-1">Danh sách sách</h2>
-                    <p class="text-muted mb-0">Tìm kiếm, lọc và xem chi tiết các sách hiện có trong thư viện.</p>
-                </div>
-
-                <button id="theme-toggle" class="btn btn-outline-secondary" type="button">
-                    Dark mode
-                </button>
-            </section>
-
             <section class="filter-bar mb-4">
                 <input
                     id="book-search"
@@ -127,9 +117,6 @@
                                 <span th:text="${book.availableCopies + '/' + book.totalCopies + ' cuốn'}">0/0 cuốn</span>
                             </p>
                             <div class="book-actions">
-                                <button class="btn btn-outline-primary btn-sm detail-btn" type="button">
-                                    Chi tiết
-                                </button>
                                 <button
                                     class="btn btn-primary btn-sm borrow-book-btn"
                                     type="button"
@@ -154,35 +141,6 @@
             </section>
         </div>
     </main>
-
-    <div class="modal fade" id="bookDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content book-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title">Chi tiết sách</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="modal-book-layout">
-                        <img id="modal-image" class="modal-book-image" src="" alt="">
-                        <div>
-                            <div id="modal-rating" class="rating mb-2">★★★★★</div>
-                            <p id="modal-author" class="mb-2"></p>
-                            <p id="modal-category" class="mb-2"></p>
-                            <p id="modal-isbn" class="mb-2"></p>
-                            <p id="modal-stock" class="mb-2"></p>
-                            <p id="modal-price" class="mb-0"></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button id="detail-borrow-btn" class="btn btn-primary" type="button">
-                        Đặt giữ
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="modal fade" id="borrowConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

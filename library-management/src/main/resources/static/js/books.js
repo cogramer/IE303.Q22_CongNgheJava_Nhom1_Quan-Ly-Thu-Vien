@@ -11,10 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     buildCategoryFilter(cards);
     bindFilters();
-    bindModal(cards);
     bindBorrowFlow(cards);
+    bindBookDetailNavigation(cards);
     bindPagination();
-    bindThemeToggle();
+    syncFilterBarWithCarousel();
+    window.addEventListener("resize", syncFilterBarWithCarousel);
     applyFilters();
 });
 
@@ -56,54 +57,43 @@ function bindPagination() {
     });
 }
 
-function bindModal(cards) {
-    const modalElement = document.getElementById("bookDetailModal");
-    const modal = new bootstrap.Modal(modalElement);
-
-    cards.forEach(card => {
-        card.querySelector(".detail-btn").addEventListener("click", () => {
-            fillModal(card);
-            booksState.selectedBorrowCard = card;
-            modal.show();
-        });
-    });
-}
-
 function bindBorrowFlow(cards) {
     const confirmModalElement = document.getElementById("borrowConfirmModal");
     const confirmModal = new bootstrap.Modal(confirmModalElement);
 
     cards.forEach(card => {
-        card.querySelector(".borrow-book-btn").addEventListener("click", () => {
+        card.querySelector(".borrow-book-btn")?.addEventListener("click", () => {
             openBorrowConfirm(card, confirmModal);
         });
-    });
-
-    document.getElementById("detail-borrow-btn").addEventListener("click", () => {
-        const detailModal = bootstrap.Modal.getInstance(document.getElementById("bookDetailModal"));
-        if (detailModal) {
-            detailModal.hide();
-        }
-        openBorrowConfirm(booksState.selectedBorrowCard, confirmModal);
     });
 
     document.getElementById("confirm-borrow-btn").addEventListener("click", borrowSelectedBook);
 }
 
-function bindThemeToggle() {
-    const button = document.getElementById("theme-toggle");
-    const savedTheme = localStorage.getItem("books-theme");
+function bindBookDetailNavigation(cards) {
+    cards.forEach(card => {
+        card.addEventListener("click", event => {
+            if (event.target.closest("button, a, input, select, textarea, .book-actions")) {
+                return;
+            }
 
-    if (savedTheme === "dark") {
-        document.body.classList.add("books-dark");
-        button.textContent = "Light mode";
+            window.location.href = `/reader/books/${encodeURIComponent(card.dataset.id)}`;
+        });
+    });
+}
+
+function syncFilterBarWithCarousel() {
+    const carousel = document.getElementById("topBooksCarousel");
+    const filterBar = document.querySelector(".filter-bar");
+
+    if (!carousel || !filterBar) {
+        return;
     }
 
-    button.addEventListener("click", () => {
-        const dark = document.body.classList.toggle("books-dark");
-        button.textContent = dark ? "Light mode" : "Dark mode";
-        localStorage.setItem("books-theme", dark ? "dark" : "light");
-    });
+    const rect = carousel.getBoundingClientRect();
+    filterBar.style.left = `${rect.left}px`;
+    filterBar.style.width = `${rect.width}px`;
+    filterBar.style.transform = "none";
 }
 
 function applyFilters() {
@@ -149,27 +139,6 @@ function renderPage() {
 
 function getTotalPages() {
     return Math.max(1, Math.ceil(booksState.filteredCards.length / booksState.pageSize));
-}
-
-function fillModal(card) {
-    const image = card.dataset.image || "/img/banner_1.jpg";
-    const price = card.dataset.price ? `${Number(card.dataset.price).toLocaleString("vi-VN")}đ` : "Miễn phí";
-    const rating = Number(card.dataset.rating || 4).toFixed(1);
-
-    document.getElementById("modal-title").textContent = card.dataset.title || "Chi tiết sách";
-    document.getElementById("modal-image").src = image;
-    document.getElementById("modal-image").alt = card.dataset.title || "Ảnh bìa sách";
-    document.getElementById("modal-rating").textContent = `★★★★★ ${rating}`;
-    document.getElementById("modal-author").textContent = `Tác giả: ${card.dataset.author || "Không rõ"}`;
-    document.getElementById("modal-category").textContent = `Thể loại: ${card.dataset.category || "Chưa phân loại"}`;
-    document.getElementById("modal-isbn").textContent = `ISBN: ${card.dataset.isbn || "Chưa cập nhật"}`;
-    document.getElementById("modal-stock").textContent = `Kho: ${card.dataset.available || 0}/${card.dataset.total || 0} cuốn`;
-    document.getElementById("modal-price").textContent = `Giá: ${price}`;
-
-    const detailBorrowButton = document.getElementById("detail-borrow-btn");
-    const availableCopies = Number(card.dataset.available || 0);
-    detailBorrowButton.disabled = availableCopies <= 0;
-    detailBorrowButton.textContent = availableCopies > 0 ? "Đặt giữ" : "Hết sách";
 }
 
 function openBorrowConfirm(card, modal) {
