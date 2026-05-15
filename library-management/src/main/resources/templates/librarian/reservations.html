@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý đặt giữ - HCMC Lib</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/library.css}">
+    <link rel="stylesheet" th:href="@{/css/librarian-reservations.css}">
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="reservations-shell">
+        <aside class="reservations-sidebar">
+            <a class="sidebar-brand" th:href="@{/librarian/dashboard}">
+                <i class="bi bi-grid-1x2-fill"></i>
+                Librarian
+            </a>
+            <nav>
+                <a th:href="@{/librarian/dashboard}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                <a th:href="@{/librarian/books}"><i class="bi bi-book"></i> Quản lý sách</a>
+                <a th:href="@{/librarian/loans}"><i class="bi bi-arrow-left-right"></i> Mượn trả</a>
+                <a class="active" th:href="@{/librarian/reservations}"><i class="bi bi-bookmark-check"></i> Đặt giữ</a>
+                <a th:href="@{/librarian/users}"><i class="bi bi-people"></i> Người dùng</a>
+                <a th:href="@{/librarian/reports}"><i class="bi bi-bar-chart"></i> Báo cáo</a>
+            </nav>
+        </aside>
+
+        <section class="reservations-content">
+            <section class="reservations-hero reservations-card">
+                <div>
+                    <h1>Quản lý đặt giữ</h1>
+                    <p>Xem yêu cầu đang chờ và xác nhận cho mượn để tạo phiếu mượn tự động.</p>
+                </div>
+                <div class="hero-icon">
+                    <i class="bi bi-bookmark-check"></i>
+                </div>
+            </section>
+
+            <section class="reservations-stats">
+                <article class="reservations-card stat-card">
+                    <span>Tổng yêu cầu</span>
+                    <strong id="reservation-total-count" th:text="${reservations != null ? #lists.size(reservations) : 0}">0</strong>
+                    <i class="bi bi-inboxes"></i>
+                </article>
+                <article class="reservations-card stat-card stat-pending">
+                    <span>Chờ duyệt</span>
+                    <strong th:text="${reservations != null ? reservations.?[status.name() == 'PENDING'].size() : 0}">0</strong>
+                    <i class="bi bi-hourglass-split"></i>
+                </article>
+                <article class="reservations-card stat-card stat-approved">
+                    <span>Đã duyệt</span>
+                    <strong th:text="${reservations != null ? reservations.?[status.name() == 'FULFILLED'].size() : 0}">0</strong>
+                    <i class="bi bi-check2-circle"></i>
+                </article>
+            </section>
+
+            <section class="reservations-toolbar reservations-card">
+                <input
+                    id="reservation-search"
+                    class="form-control"
+                    type="search"
+                    placeholder="Tìm độc giả hoặc sách..."
+                    aria-label="Tìm đặt giữ"
+                >
+                <select id="reservation-status-filter" class="form-select" aria-label="Lọc trạng thái">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="PENDING">Chờ duyệt</option>
+                    <option value="FULFILLED">Đã duyệt</option>
+                    <option value="CANCELLED">Đã hủy</option>
+                    <option value="NOTIFIED">Đã thông báo</option>
+                </select>
+            </section>
+
+            <section class="reservations-card table-card">
+                <div class="table-card-header">
+                    <div>
+                        <strong>Danh sách đặt giữ</strong>
+                        <span>Đang hiển thị <b id="reservation-visible-count" th:text="${reservations != null ? #lists.size(reservations) : 0}">0</b> yêu cầu</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Độc giả</th>
+                                <th>Sách</th>
+                                <th>Ngày đặt</th>
+                                <th>Tồn kho</th>
+                                <th>Trạng thái</th>
+                                <th class="text-end">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${reservations == null or #lists.isEmpty(reservations)}">
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    Không có yêu cầu đặt giữ đang chờ.
+                                </td>
+                            </tr>
+
+                            <tr
+                                class="reservation-row"
+                                th:each="reservation : ${reservations}"
+                                th:data-reader="${reservation.user.fullName != null ? reservation.user.fullName : reservation.user.username}"
+                                th:data-username="${reservation.user.username}"
+                                th:data-book="${reservation.book.title}"
+                                th:data-date="${reservation.createdAt != null ? #temporals.format(reservation.createdAt, 'dd/MM/yyyy HH:mm') : 'Chưa rõ'}"
+                                th:data-status="${reservation.status.name()}"
+                                th:data-copies="${reservation.book.availableCopies}"
+                            >
+                                <td class="reservation-actions-col">
+                                    <div class="reader-cell">
+                                        <span
+                                            class="avatar"
+                                            th:data-name="${reservation.user.fullName != null and !#strings.isEmpty(reservation.user.fullName) ? reservation.user.fullName : reservation.user.username}"
+                                        >NA</span>
+                                        <div>
+                                            <strong th:text="${reservation.user.fullName != null ? reservation.user.fullName : reservation.user.username}">Nguyễn Văn A</strong>
+                                            <small th:text="${reservation.user.email}">reader@email.com</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="book-cell">
+                                        <strong th:text="${reservation.book.title}">Tên sách</strong>
+                                        <small th:text="${reservation.book.author}">Tác giả</small>
+                                    </div>
+                                </td>
+                                <td th:text="${reservation.createdAt != null ? #temporals.format(reservation.createdAt, 'dd/MM/yyyy HH:mm') : 'Chưa rõ'}">10/05/2026</td>
+                                <td>
+                                    <span
+                                        class="copies-badge"
+                                        th:classappend="${reservation.book.availableCopies > 0} ? ' is-available' : ' is-empty'"
+                                        th:text="${reservation.book.availableCopies + ' còn'}"
+                                    >3 còn</span>
+                                </td>
+                                <td>
+                                    <span
+                                        class="status-badge"
+                                        th:classappend="${reservation.status.name() == 'PENDING'} ? ' status-pending' : (${reservation.status.name() == 'FULFILLED'} ? ' status-fulfilled' : (${reservation.status.name() == 'CANCELLED'} ? ' status-cancelled' : ' status-notified'))"
+                                        th:text="${reservation.status.name() == 'PENDING'} ? 'Chờ duyệt' : (${reservation.status.name() == 'FULFILLED'} ? 'Đã duyệt' : (${reservation.status.name() == 'CANCELLED'} ? 'Đã hủy' : 'Đã thông báo'))"
+                                    >Chờ duyệt</span>
+                                </td>
+                                <td>
+                                    <div class="action-group">
+                                        <form
+                                            th:if="${reservation.status.name() == 'PENDING'}"
+                                            th:action="@{/reservations/fulfill/{id}(id=${reservation.id})}"
+                                            method="post"
+                                        >
+                                            <button
+                                                class="btn btn-approve btn-sm"
+                                                type="submit"
+                                                th:disabled="${reservation.book.availableCopies <= 0}"
+                                            >
+                                                Duyệt
+                                            </button>
+                                        </form>
+                                        <button class="btn btn-outline-primary btn-sm view-reservation-btn" type="button">
+                                            Xem
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <div class="modal fade" id="reservationDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content reservation-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết đặt giữ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-list">
+                        <div><span>Độc giả</span><strong id="detail-reader">Nguyễn Văn A</strong></div>
+                        <div><span>Tài khoản</span><strong id="detail-username">user1</strong></div>
+                        <div><span>Sách</span><strong id="detail-book">Tên sách</strong></div>
+                        <div><span>Ngày đặt</span><strong id="detail-date">10/05/2026</strong></div>
+                        <div><span>Tồn kho</span><strong id="detail-copies">3 còn</strong></div>
+                        <div><span>Trạng thái</span><strong id="detail-status">Chờ duyệt</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/library.js}"></script>
+    <script th:src="@{/js/librarian-reservations.js}"></script>
+</body>
+</html>

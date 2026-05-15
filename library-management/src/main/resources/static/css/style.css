@@ -396,3 +396,100 @@ FOOTER
     background: #0d6efd;
     font-size: 14px;
 }
+body {
+    scroll-padding-top: 84px;
+}
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+}
+
+.navbar .nav-link {
+    position: relative;
+    border-radius: 999px;
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+    transition: background-color 0.28s ease, color 0.28s ease, opacity 0.28s ease;
+}
+
+.navbar .nav-link::before,
+.navbar .dropdown-item::before {
+    display: inline-block;
+    margin-right: 0.42rem;
+    font-family: "bootstrap-icons";
+    font-size: 0.96em;
+    line-height: 1;
+    vertical-align: -0.08em;
+}
+
+.navbar .nav-link[data-nav-path="/home"]::before {
+    content: "\f425";
+}
+
+.navbar .nav-link[data-nav-path="/books"]::before {
+    content: "\f479";
+}
+
+.navbar .nav-link[data-nav-path="/reader/borrow"]::before {
+    content: "\f179";
+}
+
+.navbar .nav-link[href$="/login"]::before {
+    content: "\f1c7";
+}
+
+.navbar .nav-link[href$="/register"]::before {
+    content: "\f4d7";
+}
+
+.navbar .dropdown-item[href$="/profile"]::before {
+    content: "\f4d7";
+}
+
+.navbar .dropdown-item[data-nav-path="/reader/history"]::before {
+    content: "\f292";
+}
+
+.navbar .dropdown-item[href$="/logout"]::before {
+    content: "\f1c6";
+}
+
+.navbar .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    right: 50%;
+    bottom: 4px;
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.95);
+    opacity: 0;
+    transition: left 0.28s ease, right 0.28s ease, opacity 0.28s ease;
+}
+
+.navbar .nav-link.active {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.16);
+    font-weight: 700;
+}
+
+.navbar .nav-link.active::after {
+    left: 0.9rem;
+    right: 0.9rem;
+    opacity: 1;
+}
+
+.navbar .dropdown-item.active {
+    color: #0d6efd !important;
+    background: #eef5ff;
+    font-weight: 700;
+}
+
+.navbar .dropdown-item.active {
+    border-radius: 10px;
+    box-shadow: none;
+}

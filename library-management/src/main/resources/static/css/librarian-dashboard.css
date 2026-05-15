@@ -1,0 +1,355 @@
+.librarian-shell {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    min-height: calc(100vh - 56px);
+    background: #f5f8fc;
+}
+
+.admin-sidebar {
+    background: #fff;
+    border-right: 1px solid #e5ebf3;
+    padding: 22px 16px;
+}
+
+.dashboard-content {
+    padding: 28px;
+    display: grid;
+    gap: 18px;
+}
+
+.dashboard-card {
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+}
+
+.welcome-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.welcome-card h1 {
+    margin: 0 0 8px;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #0f2440;
+}
+
+.welcome-card p {
+    margin: 0;
+    color: #667085;
+}
+
+.eyebrow {
+    margin-bottom: 6px;
+    color: #1d63c7;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card span,
+.empty-text {
+    color: #667085;
+}
+
+.stat-card strong {
+    display: block;
+    margin-top: 6px;
+    color: #0b4fb3;
+    font-size: 2rem;
+    line-height: 1.1;
+}
+
+.stat-card i {
+    position: absolute;
+    right: 18px;
+    bottom: 14px;
+    color: #d6e6ff;
+    font-size: 2.8rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    gap: 18px;
+}
+
+.two-cols {
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+}
+
+.three-cols {
+    grid-template-columns: 1.2fr 0.8fr;
+}
+
+.section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.section-head h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #0f2440;
+}
+
+.section-head a {
+    color: #0d47a1;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.soft-badge,
+.status-badge {
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.soft-badge,
+.status-badge.borrowing {
+    background: #eaf2ff;
+    color: #0d47a1;
+}
+
+.status-badge.overdue {
+    background: #ffe8e8;
+    color: #dc3545;
+}
+
+.status-badge.returned {
+    background: #e9f8ef;
+    color: #198754;
+}
+
+.quick-stats,
+.top-book-list,
+.activity-list {
+    display: grid;
+    gap: 12px;
+}
+
+.top-book-item {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+}
+
+.top-book-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.top-book-info > div {
+    min-width: 0;
+}
+
+.top-book-item img,
+.book-rank {
+    width: 52px;
+    height: 64px;
+    border-radius: 12px;
+    background: #eaf2ff;
+}
+
+.top-book-item img {
+    object-fit: cover;
+}
+
+.book-rank {
+    display: grid;
+    place-items: center;
+    color: #0d47a1;
+    font-size: 1.3rem;
+}
+
+.top-book-item strong,
+.top-book-item span {
+    display: block;
+}
+
+.top-book-item span {
+    color: #667085;
+    font-size: 0.9rem;
+}
+
+.borrow-count-pill {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    min-width: 78px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #eaf2ff;
+    color: #0d47a1 !important;
+    font-size: 0.82rem !important;
+    font-weight: 600;
+}
+
+.compact-table {
+    display: grid;
+    gap: 8px;
+}
+
+.compact-row {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 72px 96px;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+    color: #334155;
+}
+
+.reader-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.reader-cell > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.reservation-head,
+.reservation-row {
+    grid-template-columns: 80px 1fr;
+}
+
+.overdue-table .compact-row {
+    grid-template-columns: 1fr 1.15fr 90px;
+}
+
+.compact-head {
+    background: transparent;
+    color: #667085;
+    font-weight: 600;
+    font-size: 0.82rem;
+}
+
+.quick-stats > div {
+    display: grid;
+    gap: 4px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.quick-stats > div:last-child {
+    border-bottom: 0;
+}
+
+.quick-stats span {
+    color: #667085;
+}
+
+.quick-stats strong {
+    color: #0f2440;
+}
+
+.activity-item {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr);
+    gap: 10px;
+    align-items: start;
+}
+
+.activity-dot {
+    width: 9px;
+    height: 9px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: #0d6efd;
+}
+
+.activity-item p {
+    margin: 0;
+    color: #475467;
+}
+
+@media (max-width: 1100px) {
+    .librarian-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-sidebar {
+        border-right: 0;
+        border-bottom: 1px solid #e5ebf3;
+    }
+
+    .admin-sidebar nav,
+    .summary-grid,
+    .two-cols,
+    .three-cols {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    .dashboard-content {
+        padding: 18px;
+    }
+
+    .welcome-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-sidebar nav,
+    .summary-grid,
+    .two-cols,
+    .three-cols,
+    .compact-row,
+    .overdue-table .compact-row,
+    .reservation-head,
+    .reservation-row {
+        grid-template-columns: 1fr;
+    }
+}

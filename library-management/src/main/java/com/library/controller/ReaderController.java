@@ -1,5 +1,8 @@
 package com.library.controller;
 
+import com.library.dto.BorrowRecordDTO;
+import com.library.model.BorrowRecord;
+import com.library.model.Reservation;
 import com.library.repository.UserRepository;
 import com.library.service.BookService;
 import com.library.service.BorrowRecordService;
@@ -7,6 +10,10 @@ import com.library.service.RecommendService;
 import com.library.service.ReservationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import java.util.stream.Collectors;
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -37,7 +44,17 @@ public class ReaderController {
     @GetMapping("/books")
     public String books(
             @RequestParam(required = false) String keyword,
+            @AuthenticationPrincipal UserDetails userDetails,
             Model model) {
+
+        Long userId = getUserId(userDetails);
+
+        // Lấy danh sách bookId đã đặt giữ PENDING
+        List<Long> pendingBookIds = reservationService
+            .getUserReservations(userId).stream()
+            .filter(r -> r.getStatus() == Reservation.Status.PENDING)
+            .map(r -> r.getBook().getId())
+            .collect(Collectors.toList());
 
         if (keyword != null && !keyword.isEmpty()) {
             model.addAttribute("books", bookService.searchBooks(keyword));
@@ -45,6 +62,9 @@ public class ReaderController {
         } else {
             model.addAttribute("books", bookService.getAllBooks());
         }
+
+        model.addAttribute("featuredBooks", bookService.getFeaturedBooks());
+        model.addAttribute("pendingBookIds", pendingBookIds);
         return "reader/books";
     }
 
@@ -53,6 +73,22 @@ public class ReaderController {
     public String bookDetail(@PathVariable Long id, Model model) {
         model.addAttribute("book", bookService.getBookById(id));
         return "reader/book-detail";
+    }
+
+    @GetMapping("/borrow")
+    public String borrow(
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
+        Long userId = getUserId(userDetails);
+        // Lọc chỉ lấy phiếu đang mượn của user này
+        List<BorrowRecordDTO> activeLoans = borrowRecordService
+            .getUserBorrowHistory(userId).stream()
+            .filter(r -> r.getStatus() == BorrowRecord.Status.BORROWING
+                    || r.getStatus() == BorrowRecord.Status.OVERDUE)
+            .collect(Collectors.toList());
+        model.addAttribute("loans", activeLoans);
+        model.addAttribute("username", userDetails.getUsername());
+        return "reader/borrow";
     }
 
     // Lịch sử mượn

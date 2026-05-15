@@ -270,4 +270,15 @@ public class AuthController {
         model.addAttribute("newBooks", bookService.getNewBooks());
         return "home";
     }
+
+    // Navbar/header trỏ tới /books; route này render trang danh sách sách public/reader.
+    @GetMapping("/books")
+    public String booksPage() {
+        return "redirect:/reader/books";
+    }
+
+    @GetMapping("/borrow")
+    public String borrow() {
+        return "redirect:/reader/borrow";
+    }
 }

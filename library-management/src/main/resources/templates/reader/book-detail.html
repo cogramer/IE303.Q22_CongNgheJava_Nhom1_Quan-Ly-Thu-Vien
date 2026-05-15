@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${book.title + ' - HCMC Lib'}">Chi ti&#7871;t s&#225;ch - HCMC Lib</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/books.css}">
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+
+    <main class="book-detail-page">
+        <section class="book-detail-shell">
+            <a class="btn btn-outline-primary back-link" th:href="@{/reader/books}" aria-label="Quay l&#7841;i danh s&#225;ch">
+                &#8249;
+            </a>
+
+            <div class="book-detail-card">
+                <div class="book-detail-cover">
+                    <img
+                        th:src="${book.imageUrl != null} ? @{${book.imageUrl}} : @{/img/banner_1.jpg}"
+                        th:alt="${book.title}"
+                    >
+                </div>
+
+                <div class="book-detail-content">
+                    <span
+                        class="book-detail-badge"
+                        th:classappend="${book.availableCopies <= 0} ? ' is-muted'"
+                        th:text="${book.availableCopies > 0 ? 'Còn sách' : 'Hết sách'}"
+                    >C&#242;n s&#225;ch</span>
+
+                    <h1 th:text="${book.title}">T&#234;n s&#225;ch</h1>
+                    <p class="book-detail-author" th:text="${book.author}">T&#225;c gi&#7843;</p>
+
+                    <div class="book-detail-grid">
+                        <div>
+                            <span>Th&#7875; lo&#7841;i</span>
+                            <strong th:text="${book.categoryName != null ? book.categoryName : 'Chưa phân loại'}">Th&#7875; lo&#7841;i</strong>
+                        </div>
+                        <div>
+                            <span>ISBN</span>
+                            <strong th:text="${book.isbn != null ? book.isbn : 'Chưa cập nhật'}">ISBN</strong>
+                        </div>
+                        <div>
+                            <span>Kho</span>
+                            <strong th:text="${book.availableCopies + '/' + book.totalCopies + ' cuốn'}">0/0 cu&#7889;n</strong>
+                        </div>
+                        <div>
+                            <span>Gi&#225;</span>
+                            <strong th:text="${book.price != null ? book.price + 'đ' : 'Miễn phí'}">Gi&#225;</strong>
+                        </div>
+                    </div>
+
+                    <div id="book-detail-message"></div>
+
+                    <button
+                        id="reserve-detail-btn"
+                        class="btn btn-primary reserve-detail-btn"
+                        type="button"
+                        th:data-book-id="${book.id}"
+                        th:disabled="${book.availableCopies <= 0}"
+                    >
+                        &#272;&#7863;t gi&#7919; s&#225;ch
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/library.js}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const button = document.getElementById("reserve-detail-btn");
+            const message = document.getElementById("book-detail-message");
+
+            if (!button) {
+                return;
+            }
+
+            button.addEventListener("click", async () => {
+                button.disabled = true;
+                button.textContent = "Đang xử lý...";
+                message.className = "";
+                message.textContent = "";
+
+                const response = await fetch("/reservations/create", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    credentials: "include",
+                    body: new URLSearchParams({ bookId: button.dataset.bookId })
+                });
+
+                const data = await LibraryUI.readJson(response);
+
+                if (!response.ok) {
+                    message.className = "error-message mt-3";
+                    message.textContent = data?.message || "Đặt giữ thất bại.";
+                    button.disabled = false;
+                    button.textContent = "Đặt giữ sách";
+                    return;
+                }
+
+                message.className = "success-message mt-3";
+                message.textContent = "Đặt giữ thành công. Vui lòng chờ thủ thư duyệt.";
+                button.textContent = "Đã đặt giữ";
+            });
+        });
+    </script>
+</body>
+
+</html>
