@@ -36,6 +36,8 @@ public class ReaderController {
     public String home(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         Long userId = getUserId(userDetails);
         model.addAttribute("recommendations", recommendService.recommendBooks(userId));
+        model.addAttribute("featuredBooks", recommendService.recommendBooks(userId)); // dùng AI làm featured
+        model.addAttribute("newBooks", bookService.getNewBooks());
         model.addAttribute("username", userDetails.getUsername());
         return "reader/home";
     }
@@ -118,5 +120,16 @@ public class ReaderController {
         return userRepository.findByUsername(userDetails.getUsername())
             .orElseThrow(() -> new EntityNotFoundException("User không tồn tại"))
             .getId();
+    }
+
+    // Trang gợi ý sách
+    @GetMapping("/recommendations")
+    public String recommendations(
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
+        Long userId = getUserId(userDetails);
+        model.addAttribute("books", recommendService.recommendBooks(userId));
+        model.addAttribute("username", userDetails.getUsername());
+        return "reader/recommendations";
     }
 }
