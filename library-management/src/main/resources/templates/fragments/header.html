@@ -154,10 +154,11 @@
 
                         <li>
 
-                            <a class="dropdown-item text-danger"
-                               th:href="@{/logout}">
-                                Đăng xuất
-                            </a>
+                            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    Đăng xuất
+                                </button>
+                            </form>
 
                         </li>
 
