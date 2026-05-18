@@ -33,7 +33,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
     //Danh sách API public
     private static final List<String> PUBLIC_URLS = List.of(
-            "/login", "/loginProcess", "/register", "/registerProcess", "/forgotPassword", "/forgotPasswordProcess", "/logoutProcess", "/verifyOtpAndResetPassword"
+            "/", "/login", "/login-process", 
+            "/register", "/register-process", 
+            "/forgot-password", "/forgot-password-process", 
+            "/api/auth/reset-password", "/api/auth/verify-otp", "/api/auth/resend-otp"
     );
 
     //Bỏ qua filter cho API public
@@ -44,7 +47,8 @@ public class JwtFilter extends OncePerRequestFilter {
         return PUBLIC_URLS.contains(path)
                 || path.startsWith("/css/")
                 || path.startsWith("/js/")
-                || path.startsWith("/images/");
+                || path.startsWith("/images/")
+                || path.startsWith("/img/");
     }
 
    @Override
@@ -114,14 +118,10 @@ public class JwtFilter extends OncePerRequestFilter {
         if (username != null) {
             // Xác thực thành công
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
             
             filterChain.doFilter(request, response);
-        } else {
-            // Không có JWT, không có Remember Me -> Mời đăng nhập lại
-            response.sendRedirect(request.getContextPath() + "/login");
         }
     }
 }
