@@ -37,7 +37,7 @@
             <label>
                 <input type="checkbox" id="rememberMeCheckBox"> Remember me
             </label>
-            <a th:href="@{/forgotPassword}">Forgot password?</a>
+            <a th:href="@{/forgot-password}">Forgot password?</a>
         </div>
 
         <button class="auth-btn" type="submit">Login</button>
@@ -59,7 +59,7 @@ async function login(event) {
     const password = document.getElementById("password").value;
     const rememberMe = document.getElementById("rememberMeCheckBox").checked.toString();
 
-    const res = await fetch("/loginProcess", {
+    const res = await fetch("/login-process", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
