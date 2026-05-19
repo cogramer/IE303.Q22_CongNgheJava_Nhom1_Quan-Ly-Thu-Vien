@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<aside class="librarian-sidebar" th:fragment="sidebar(activePage)">
+    <a class="sidebar-brand" th:href="@{/librarian/dashboard}">
+        <i class="bi bi-grid-1x2-fill"></i>
+        Librarian
+    </a>
+
+    <nav>
+        <a th:href="@{/librarian/dashboard}"
+           th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+
+        <a th:href="@{/librarian/books}"
+           th:classappend="${activePage == 'books'} ? 'active' : ''">
+            <i class="bi bi-book"></i> Quản lý sách
+        </a>
+
+        <a th:href="@{/librarian/loans}"
+           th:classappend="${activePage == 'loans'} ? 'active' : ''">
+            <i class="bi bi-arrow-left-right"></i> Mượn trả
+        </a>
+
+        <a th:href="@{/librarian/reservations}"
+           th:classappend="${activePage == 'reservations'} ? 'active' : ''">
+            <i class="bi bi-bookmark-check"></i> Đặt giữ
+        </a>
+
+        <a th:href="@{/librarian/users}"
+           th:classappend="${activePage == 'users'} ? 'active' : ''">
+            <i class="bi bi-people"></i> Người dùng
+        </a>
+
+        <a th:href="@{/librarian/reports}"
+           th:classappend="${activePage == 'reports'} ? 'active' : ''">
+            <i class="bi bi-bar-chart"></i> Báo cáo
+        </a>
+    </nav>
+</aside>
+
+</body>
+</html>
