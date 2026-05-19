@@ -31,18 +31,18 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/login-process", "/",
-                    "/api/auth/reset-password", "/api/auth/verify-otp", "/api/auth/resend-otp",
-                    "/register", "/register-process",
-                    "/forgot-password", "/forgot-password-process",
-                    "/css/**", "/js/**", "/images/**", "/error", "/img/**").permitAll()
-                .requestMatchers("/librarian/**").hasAnyRole("ADMIN", "LIBRARIAN")
-                .requestMatchers("/reader/**").hasRole("READER")
+                .requestMatchers("/", "/login", "/register", "/forgot-password",
+                    "/api/auth/**", "/css/**", "/js/**", "/images/**", "/error", "/img/**").permitAll()
+                .requestMatchers("/librarian/**",
+                    "/users/{userId}/feedback", "/feedback/{id}", "/feedback/{id}"
+                ).hasAnyRole("ADMIN", "LIBRARIAN")
+                .requestMatchers("/reader/**").hasAnyRole("READER", "ADMIN", "LIBRARIAN")
                 .anyRequest().authenticated()
             )
             
             .formLogin(form -> form.disable())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            
             .logout(logout -> logout.disable());
 
         return http.build();

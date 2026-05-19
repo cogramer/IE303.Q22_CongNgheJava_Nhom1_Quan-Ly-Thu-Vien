@@ -59,7 +59,7 @@ async function login(event) {
     const password = document.getElementById("password").value;
     const rememberMe = document.getElementById("rememberMeCheckBox").checked.toString();
 
-    const res = await fetch("/login-process", {
+    const res = await fetch("/api/auth/login-process", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

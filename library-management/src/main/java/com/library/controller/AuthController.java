@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +25,7 @@ import com.library.enums.LoginResult;
 import com.library.enums.RegisterResult;
 import com.library.enums.Result;
 import com.library.model.RememberMeToken;
+import com.library.model.User;
 import com.library.security.JwtUtil;
 import com.library.service.AuthService;
 import com.library.service.BookService;
@@ -62,13 +62,15 @@ public class AuthController {
     private static final long OTP_RESEND_COOLDOWN = 60 * 1000; // 1 phút chờ gửi lại
     private static final long OTP_EXPIRATION_TIME = 5 * 60 * 1000; // 5 phút hết hạn mã
 
+    // Hiển thị trang đăng nhập.
     @GetMapping("/login")
     public String loginPage(HttpServletRequest request) {
         return "login";
     }
 
 
-    @PostMapping("/login-process")
+    // Xử lý đăng nhập, tạo JWT cookie và remember-me nếu được chọn.
+    @PostMapping("api/auth/login-process")
     public ResponseEntity<?> loginProcess(@RequestBody LoginRequest loginRequest, HttpServletResponse response, HttpServletRequest request) {
         LoginResult loginResult = authService.checkAccount(loginRequest.getUsername(), loginRequest.getPassword());
 
@@ -112,15 +114,24 @@ public class AuthController {
             response.addCookie(rmCookie);
         }
 
-        return ResponseEntity.ok(Map.of("message", "Đăng nhập thành công"));
+        String redirectUrl = "/reader/home";
+
+        if (user.getRole() == User.Role.LIBRARIAN || user.getRole() == User.Role.ADMIN) {
+            redirectUrl = "/librarian/dashboard";
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Đăng nhập thành công",
+                                        "redirectUrl", redirectUrl));
     }
 
+    // Hiển thị trang đăng ký tài khoản.
     @GetMapping("/register")
     public String registerPage() {
         return "register";
     }
 
-    @PostMapping("/register-process")
+    // Xử lý đăng ký user mới và kiểm tra trùng username/email.
+    @PostMapping("api/auth/register-process")
     public ResponseEntity<?> registerProcess(@RequestBody RegisterRequest registerRequest, HttpServletResponse response) {
         RegisterResult registerResult = userService.addNewUser(registerRequest.getUsername(),
                                 registerRequest.getPassword(),
@@ -140,12 +151,14 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Đăng ký thành công"));
     }
 
+    // Hiển thị trang quên mật khẩu.
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgotPassword";
     }
 
-    @PostMapping("/forgot-password-process")
+    // Tạo OTP và gửi email xác minh để đặt lại mật khẩu.
+    @PostMapping("api/auth/forgot-password-process")
     public ResponseEntity<?> forgetPasswordProcess(@RequestBody ForgotPasswordRequest forgotPasswordRequest, HttpServletRequest request) throws MessagingException {
         HttpSession session = request.getSession();
 
@@ -186,6 +199,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Mã xác minh đang được gửi vào email!"));
     }
 
+    // Xác thực mã OTP trong session.
     @PostMapping("/api/auth/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtpRequest verifyOtpRequest, HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -220,6 +234,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Xác thực OTP thành công!"));
     }
 
+    // Đặt lại mật khẩu sau khi OTP đã được xác thực.
     @PostMapping({"/api/auth/reset-password"})
     public ResponseEntity<?> resetPasswordProcess(@RequestBody ResetPasswordRequest resetPasswordRequest, HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -261,6 +276,7 @@ public class AuthController {
     }
 
     
+    // Gửi lại OTP và kiểm tra thời gian chờ giữa các lần gửi.
     @PostMapping("/api/auth/resend-otp")
     public ResponseEntity<?> resendOtp(
             @RequestBody ResendOtpRequest resendOtpRequest,
@@ -300,6 +316,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Mã xác minh đang được gửi lại vào email!"));
     }
 
+    // Đăng xuất, xóa cookie JWT/remember-me và hủy session.
     @PostMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie jwt = new Cookie("JWT_TOKEN", null);
@@ -327,6 +344,7 @@ public class AuthController {
         return "redirect:/login?logout=true";
     } 
 
+    // Điều hướng route gốc theo trạng thái đăng nhập.
     @GetMapping("/")
     public String handleRootUrl(Authentication authentication) {
 
@@ -334,24 +352,6 @@ public class AuthController {
             return "redirect:/login";
         }
 
-        return "redirect:/home";
-    }
-
-    @GetMapping("/home")
-    public String homePage(Model model) {
-        model.addAttribute("featuredBooks", bookService.getFeaturedBooks());
-        model.addAttribute("newBooks", bookService.getNewBooks());
-        return "home";
-    }
-
-    // Navbar/header trỏ tới /books; route này render trang danh sách sách public/reader.
-    @GetMapping("/books")
-    public String booksPage() {
-        return "redirect:/reader/books";
-    }
-
-    @GetMapping("/borrow")
-    public String borrow() {
-        return "redirect:/reader/borrow";
+        return "redirect:/reader/home";
     }
 }

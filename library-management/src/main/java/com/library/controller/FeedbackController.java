@@ -30,6 +30,7 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
     private final UserService userService;
 
+    // Tạo feedback đánh giá sách cho user đang đăng nhập.
     @PostMapping("feedback")
     public ResponseEntity<?> createFeedback(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -49,6 +50,7 @@ public class FeedbackController {
         }
     }
 
+    // Lấy danh sách feedback của user đang đăng nhập.
     @GetMapping("/feedback/me")
     public ResponseEntity<?> getMyFeedback(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
@@ -63,6 +65,7 @@ public class FeedbackController {
         }
     }
 
+    // Lấy danh sách feedback của một cuốn sách.
     @GetMapping("/books/{bookId}/feedback")
     public ResponseEntity<?> getBookFeedback(@PathVariable Long bookId) {
         try {
@@ -72,6 +75,7 @@ public class FeedbackController {
         }
     }
 
+    // Lấy feedback của một user, chỉ cho admin hoặc librarian.
     @GetMapping("/users/{userId}/feedback")
     public ResponseEntity<?> getUserFeedback(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -93,6 +97,7 @@ public class FeedbackController {
         }
     }
 
+    // Cập nhật feedback theo id nếu có quyền thao tác.
     @PutMapping("/feedback/{id}")
     public ResponseEntity<?> updateFeedback(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -115,6 +120,7 @@ public class FeedbackController {
         }
     }
 
+    // Xóa feedback đánh giá theo id nếu có quyền thao tác.
     @DeleteMapping("/feedback/{id}")
     public ResponseEntity<?> deleteFeedback(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -136,6 +142,7 @@ public class FeedbackController {
         }
     }
 
+    // Kiểm tra user hiện tại có phải admin hoặc thủ thư không.
     private boolean isStaff(UserDTO user) {
         return user.getRole() == User.Role.ADMIN || user.getRole() == User.Role.LIBRARIAN;
     }

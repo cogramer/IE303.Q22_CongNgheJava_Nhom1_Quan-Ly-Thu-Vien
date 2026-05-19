@@ -32,12 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
 
     //Danh sách API public
-    private static final List<String> PUBLIC_URLS = List.of(
-            "/", "/login", "/login-process", 
-            "/register", "/register-process", 
-            "/forgot-password", "/forgot-password-process", 
-            "/api/auth/reset-password", "/api/auth/verify-otp", "/api/auth/resend-otp"
-    );
+    private static final List<String> PUBLIC_URLS = List.of("/", "/login", "/register", "/forgot-password");
 
     //Bỏ qua filter cho API public
     @Override
@@ -48,7 +43,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 || path.startsWith("/css/")
                 || path.startsWith("/js/")
                 || path.startsWith("/images/")
-                || path.startsWith("/img/");
+                || path.startsWith("/img/")
+                || path.startsWith("/api/auth/");
     }
 
    @Override
@@ -83,7 +79,7 @@ public class JwtFilter extends OncePerRequestFilter {
             RememberMeToken rmt = rememberMeService.findByToken(rmToken);
             
             if (rmt != null) {
-                // 🔥 Nếu hết hạn → xóa DB + xóa cookie
+                // Nếu hết hạn → xóa DB + xóa cookie
                 if (rmt.getExpiryDate().isBefore(LocalDateTime.now())) {
                     rememberMeService.removeToken(rmToken);
 
@@ -94,7 +90,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     response.addCookie(rm);
 
                 } else {
-                    // ✔️ Còn hạn → cấp lại JWT
+                    // Còn hạn → cấp lại JWT
                     username = rmt.getUser().getUsername();
 
                     String newJwt = jwtUtil.generateToken(username);
@@ -105,7 +101,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     response.addCookie(newJwtCookie);
                 }
             } else {
-                // 🔥 Token không tồn tại trong DB → xóa cookie luôn
+                // Token không tồn tại trong DB → xóa cookie luôn
                 Cookie rm = new Cookie("REMEMBER_ME", null);
                 rm.setHttpOnly(true);
                 rm.setPath("/");
@@ -120,8 +116,8 @@ public class JwtFilter extends OncePerRequestFilter {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
-            
-            filterChain.doFilter(request, response);
         }
+
+        filterChain.doFilter(request, response);
     }
 }

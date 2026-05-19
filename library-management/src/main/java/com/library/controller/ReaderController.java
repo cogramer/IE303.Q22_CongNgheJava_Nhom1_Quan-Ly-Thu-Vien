@@ -1,5 +1,17 @@
 package com.library.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.library.dto.BorrowRecordDTO;
 import com.library.model.BorrowRecord;
 import com.library.model.Reservation;
@@ -8,17 +20,9 @@ import com.library.service.BookService;
 import com.library.service.BorrowRecordService;
 import com.library.service.RecommendService;
 import com.library.service.ReservationService;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-
-import java.util.stream.Collectors;
-import java.util.List;
-
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,9 +41,10 @@ public class ReaderController {
         Long userId = getUserId(userDetails);
         model.addAttribute("recommendations", recommendService.recommendBooks(userId));
         model.addAttribute("featuredBooks", recommendService.recommendBooks(userId)); // dùng AI làm featured
+        model.addAttribute("featuredBooks", bookService.getFeaturedBooks());
         model.addAttribute("newBooks", bookService.getNewBooks());
         model.addAttribute("username", userDetails.getUsername());
-        return "reader/home";
+        return "home";
     }
 
     // Danh sách sách + tìm kiếm

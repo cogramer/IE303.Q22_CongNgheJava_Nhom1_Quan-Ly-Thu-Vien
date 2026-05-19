@@ -10,11 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.library.dto.AuthDTO.ChangePasswordRequest;
 import com.library.dto.UserDTO;
@@ -30,7 +28,7 @@ public class UserController {
 
     private final UserService userService;
 
-    // Xem profile của chính mình
+    // Hiển thị trang thông tin cá nhân của user đang đăng nhập.
     @GetMapping("/profile")
     public String profile(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -40,7 +38,7 @@ public class UserController {
         return "user/profile";
     }
 
-    // Cập nhật profile
+    // Cập nhật thông tin cá nhân của user đang đăng nhập.
     @PostMapping("/profile/update")
     public String updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -51,27 +49,7 @@ public class UserController {
         return "redirect:/users/profile?success=true";
     }
 
-    // Thủ thư xem danh sách tất cả user
-    @GetMapping("/list")
-    public String listUsers(
-            @RequestParam(required = false) String keyword,
-            Model model) {
-        if (keyword != null && !keyword.isEmpty()) {
-            model.addAttribute("users", userService.searchUsersByName(keyword));
-            model.addAttribute("keyword", keyword);
-        } else {
-            model.addAttribute("users", userService.getAllUsers());
-        }
-        return "librarian/users";
-    }
-
-    // Thủ thư xóa user
-    @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return "redirect:/users/list";
-    }
-
+    // Đổi mật khẩu cho user đang đăng nhập.
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails,
             @RequestBody ChangePasswordRequest changePasswordRequest) {
