@@ -230,6 +230,63 @@ body {
     display: none !important;
 }
 
+.logout-form {
+    margin: 20px 12px 0 12px;
+    padding: 0;
+}
+
+.logout-btn {
+    width: 100%;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+
+    padding: 0 16px;
+    border: none;
+    border-radius: 10px;
+
+    background-color: #fde8ec;
+    color: #e63946;
+
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.logout-btn i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 18px;
+    height: 18px;
+
+    font-size: 17px;
+    line-height: 1;
+}
+
+.logout-btn span {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.logout-btn:hover {
+    background-color: #e63946;
+    color: #ffffff;
+}
+
+.logout-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+}
+
 @media (max-width: 900px) {
     :is(.loans-shell, .reservations-shell, .users-shell, .librarian-books-shell, .reports-shell) {
         grid-template-columns: 1fr;
