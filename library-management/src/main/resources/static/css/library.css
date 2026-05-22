@@ -4,15 +4,19 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-:is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar),
-:is(.users-card, .reservations-card, .report-card, .dashboard-card) {
+:root {
+    --library-sidebar-width: 260px;
+}
+
+:is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar),
+:is(.users-card, .reservations-card, .report-card, .dashboard-card, .profile-card) {
     border: 1px solid #dbe7f5;
     border-radius: 22px;
     background: #ffffff;
     box-shadow: 0 16px 40px rgba(30, 83, 153, 0.08);
 }
 
-:is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar) {
+:is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) {
     position: sticky;
     top: 24px;
     height: fit-content;
@@ -30,8 +34,8 @@ body {
 .sidebar-brand {
     margin-bottom: 24px;
     color: #0d47a1;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.08rem;
+    font-weight: 800;
 }
 
 :is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) nav {
@@ -40,30 +44,102 @@ body {
 }
 
 :is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) nav a {
+    position: relative;
     padding: 12px 14px;
     border-radius: 14px;
     color: #51637a;
-    font-weight: 500;
+    font-weight: 700;
+    transition: color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+:is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) nav a i,
+.sidebar-brand i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    flex: 0 0 22px;
+    font-size: 1.05rem;
+    line-height: 1;
+    transform: translateY(0);
+}
+
+:is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) nav a i::before,
+.sidebar-brand i::before {
+    display: block;
+    line-height: 1;
+}
+
+.librarian-sidebar nav a[href$="/profile"] i {
+    transform: translateY(-1px);
+}
+
+:is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) nav a span,
+.sidebar-brand span {
+    line-height: 1.25;
 }
 
 :is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) nav a:hover,
 :is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) nav a.active {
     background: #eaf2ff;
     color: #0d47a1;
+    box-shadow: 0 10px 24px rgba(13, 71, 161, 0.1);
+    transform: translateX(2px);
 }
 
-:is(.loans-shell, .reservations-shell, .users-shell, .librarian-books-shell, .reports-shell) {
+:is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) nav a.active::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    width: 4px;
+    height: 22px;
+    border-radius: 999px;
+    background: #0d47a1;
+    transform: translateY(-50%);
+}
+
+:is(.librarian-shell, .loans-shell, .reservations-shell, .users-shell, .librarian-books-shell, .reports-shell, .librarian-profile-shell) {
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: var(--library-sidebar-width) minmax(0, 1fr);
     gap: 28px;
     max-width: 1440px;
     margin: 0 auto;
     padding: 28px;
 }
 
-:is(.reservations-content, .users-content, .reports-content) {
+:is(.dashboard-content, .reservations-content, .users-content, .reports-content, .profile-content) {
     display: grid;
     gap: 22px;
+}
+
+:is(.dashboard-card, .profile-card) {
+    padding: 20px;
+}
+
+:is(.welcome-card, .profile-hero) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+:is(.welcome-card, .profile-hero) h1 {
+    margin: 0 0 8px;
+    color: #0f2440;
+    font-size: 1.7rem;
+    font-weight: 700;
+}
+
+:is(.welcome-card, .profile-hero) p {
+    margin: 0;
+    color: #667085;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
 }
 
 :is(.loans-page, .librarian-books-page) {
@@ -231,7 +307,7 @@ body {
 }
 
 .logout-form {
-    margin: 20px 12px 0 12px;
+    margin: 18px 0 0;
     padding: 0;
 }
 
@@ -246,13 +322,13 @@ body {
 
     padding: 0 16px;
     border: none;
-    border-radius: 10px;
+    border-radius: 14px;
 
     background-color: #fde8ec;
     color: #e63946;
 
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1;
 
     cursor: pointer;
@@ -288,12 +364,16 @@ body {
 }
 
 @media (max-width: 900px) {
-    :is(.loans-shell, .reservations-shell, .users-shell, .librarian-books-shell, .reports-shell) {
+    :is(.librarian-shell, .loans-shell, .reservations-shell, .users-shell, .librarian-books-shell, .reports-shell, .librarian-profile-shell) {
         grid-template-columns: 1fr;
         padding: 16px;
     }
 
-    :is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar) {
+    :is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar) {
         position: static;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
     }
 }
