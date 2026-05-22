@@ -53,18 +53,18 @@ public class UserController {
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails,
             @RequestBody ChangePasswordRequest changePasswordRequest) {
-        Result changePasswordResult = userService.changePassword(userDetails.getUsername(), changePasswordRequest.getOldPassword(), changePasswordRequest.getNewPassword());
+        Result changePasswordResult = userService.changePassword(userDetails.getUsername(),
+                changePasswordRequest.getOldPassword(), changePasswordRequest.getNewPassword());
         if (changePasswordResult == Result.NEW_PASSWORD_SAME_AS_OLD_PASSWORD) {
             return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message", "Mật khẩu mới trùng với mật khẩu cũ!"));
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Mật khẩu mới trùng với mật khẩu cũ!"));
         } else if (changePasswordResult == Result.PASSWORD_INCORRECT) {
             return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message", "Mật khẩu cũ không đúng!"));
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Mật khẩu cũ không đúng!"));
         }
         return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công!"));
     }
 
-    
 }
