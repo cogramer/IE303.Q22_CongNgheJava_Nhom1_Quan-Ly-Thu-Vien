@@ -32,14 +32,16 @@
                 <div class="report-actions">
                     <button class="btn btn-outline-primary" type="button" id="export-pdf-btn">
                         <i class="bi bi-filetype-pdf"></i>
-                        Export PDF
+                        Xu&#7845;t PDF
                     </button>
                     <button class="btn btn-primary" type="button" id="export-excel-btn">
                         <i class="bi bi-file-earmark-spreadsheet"></i>
-                        Export Excel
+                        Xu&#7845;t Excel
                     </button>
                 </div>
             </section>
+
+            <div id="export-status" class="export-status d-none" role="status"></div>
 
             <section class="report-card report-filter">
                 <div>
@@ -113,8 +115,8 @@
                         <table class="report-table">
                             <thead>
                                 <tr>
-                                    <th>Book</th>
-                                    <th class="text-end">Borrow Count</th>
+                                    <th>S&#225;ch</th>
+                                    <th class="text-end">L&#432;&#7907;t m&#432;&#7907;n</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -143,8 +145,8 @@
                         <table class="report-table">
                             <thead>
                                 <tr>
-                                    <th>User</th>
-                                    <th class="text-end">Total Borrows</th>
+                                    <th>&#272;&#7897;c gi&#7843;</th>
+                                    <th class="text-end">T&#7893;ng l&#432;&#7907;t m&#432;&#7907;n</th>
                                 </tr>
                             </thead>
                             <tbody id="top-readers-body">
@@ -215,11 +217,11 @@
                     <table class="report-table loan-report-table">
                         <thead>
                             <tr>
-                                <th>User</th>
-                                <th>Book</th>
+                                <th>&#272;&#7897;c gi&#7843;</th>
+                                <th>S&#225;ch</th>
                                 <th>Ngày mượn</th>
                                 <th>Hạn trả</th>
-                                <th class="text-end">Status</th>
+                                <th class="text-end">Tr&#7841;ng th&#225;i</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -232,8 +234,8 @@
                                 th:data-due-date="${loan.dueDate}"
                                 th:data-status="${loan.status.name()}"
                             >
-                                <td th:text="${loan.userName}">User</td>
-                                <td><strong th:text="${loan.bookTitle}">Book</strong></td>
+                                <td th:text="${loan.userName}">&#272;&#7897;c gi&#7843;</td>
+                                <td><strong th:text="${loan.bookTitle}">S&#225;ch</strong></td>
                                 <td th:text="${#temporals.format(loan.borrowDate, 'dd/MM/yyyy')}">01/05/2026</td>
                                 <td th:text="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}">15/05/2026</td>
                                 <td class="text-end">
@@ -263,9 +265,9 @@
                     <table class="report-table overdue-table">
                         <thead>
                             <tr>
-                                <th>User</th>
-                                <th>Book</th>
-                                <th class="text-end">Days Late</th>
+                                <th>&#272;&#7897;c gi&#7843;</th>
+                                <th>S&#225;ch</th>
+                                <th class="text-end">S&#7889; ng&#224;y tr&#7877;</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -273,9 +275,9 @@
                                 th:each="loan : ${overdueList}"
                                 th:data-due-date="${loan.dueDate}"
                             >
-                                <td th:text="${loan.userName}">User</td>
+                                <td th:text="${loan.userName}">&#272;&#7897;c gi&#7843;</td>
                                 <td>
-                                    <strong th:text="${loan.bookTitle}">Book</strong>
+                                    <strong th:text="${loan.bookTitle}">S&#225;ch</strong>
                                     <span th:text="${#temporals.format(loan.dueDate, 'dd/MM/yyyy')}">10/05/2026</span>
                                 </td>
                                 <td class="text-end">

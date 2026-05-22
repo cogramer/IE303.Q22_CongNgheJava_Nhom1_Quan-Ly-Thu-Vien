@@ -178,45 +178,147 @@ function renderDaysLate() {
 }
 
 function bindExportButtons() {
-    const pdfButton = document.getElementById("export-pdf-btn");
-    const excelButton = document.getElementById("export-excel-btn");
-
-    if (pdfButton) {
-        pdfButton.addEventListener("click", () => window.print());
-    }
-
-    if (excelButton) {
-        excelButton.addEventListener("click", exportReportCsv);
-    }
+    document.getElementById("export-pdf-btn")?.addEventListener("click", exportReportPdf);
+    document.getElementById("export-excel-btn")?.addEventListener("click", exportReportExcel);
 }
 
-function exportReportCsv() {
-    const rows = [["Section", "Name", "Value"]];
+function exportReportPdf() {
+    const originalTitle = document.title;
+    document.title = `bao-cao-thu-vien-${getReportTimestamp()}`;
+    showExportStatus("Đang mở hộp thoại in PDF...");
+
+    setTimeout(() => {
+        window.print();
+        document.title = originalTitle;
+    }, 100);
+}
+
+function exportReportExcel() {
+    const sheets = [];
+    const summaryRows = [
+        ["Thời điểm xuất", new Date().toLocaleString("vi-VN")],
+        ["Bộ lọc", getFilterSummary()],
+        [],
+        ["Chỉ số", "Giá trị"]
+    ];
 
     document.querySelectorAll(".stat-card").forEach(card => {
         const label = card.querySelector("span")?.textContent?.trim() || "";
         const value = card.querySelector("strong")?.textContent?.trim() || "";
-        rows.push(["Summary", label, value]);
+        summaryRows.push([label, value]);
     });
 
-    document.querySelectorAll(".report-table tbody tr:not(.d-none)").forEach(row => {
-        const cells = Array.from(row.querySelectorAll("td")).map(cell => cell.textContent.trim().replace(/\s+/g, " "));
-        if (cells.length > 1) {
-            rows.push(["Table", cells[0], cells.slice(1).join(" | ")]);
-        }
-    });
+    sheets.push(createSheet("Tổng quan", summaryRows));
 
-    const csv = rows.map(row => row.map(escapeCsv).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const reportGrids = document.querySelectorAll(".reports-grid");
+    sheets.push(createTableSheet("Top sách", reportGrids[0]?.querySelector("article:nth-child(1) .report-table")));
+    sheets.push(createTableSheet("Top độc giả", reportGrids[0]?.querySelector("article:nth-child(2) .report-table")));
+    sheets.push(createTableSheet("Thể loại", reportGrids[1]?.querySelector("article:nth-child(1) .report-table")));
+    sheets.push(createTableSheet("Lượt mượn", ".loan-report-table"));
+    sheets.push(createTableSheet("Quá hạn", ".overdue-table"));
+
+    const workbook = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+          xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+    ${sheets.filter(Boolean).join("\n")}
+</Workbook>`;
+
+    const blob = new Blob(["\uFEFF" + workbook], { type: "application/vnd.ms-excel;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "library-reports.csv";
+    link.download = `bao-cao-thu-vien-${getReportTimestamp()}.xls`;
     link.click();
     URL.revokeObjectURL(url);
+    showExportStatus("Đã xuất file Excel thành công.");
 }
 
-function escapeCsv(value) {
-    return `"${String(value ?? "").replaceAll('"', '""')}"`;
+function createTableSheet(name, tableOrSelector) {
+    const table = typeof tableOrSelector === "string"
+        ? document.querySelector(tableOrSelector)
+        : tableOrSelector;
+
+    if (!table) {
+        return createSheet(name, [["Không có dữ liệu"]]);
+    }
+
+    const headers = Array.from(table.querySelectorAll("thead th")).map(cleanCellText);
+    const bodyRows = Array.from(table.querySelectorAll("tbody tr:not(.d-none)"))
+        .map(row => Array.from(row.querySelectorAll("td")).map(cleanCellText))
+        .filter(cells => cells.length > 0 && !cells.every(cell => !cell));
+
+    const rows = [];
+    if (headers.length) rows.push(headers);
+    rows.push(...bodyRows);
+
+    if (!bodyRows.length) {
+        rows.push(["Không có dữ liệu"]);
+    }
+
+    return createSheet(name, rows);
+}
+
+function createSheet(name, rows) {
+    const safeName = escapeXml(name).slice(0, 31);
+    const tableRows = rows.map(row => `
+        <Row>
+            ${row.map(cell => `<Cell><Data ss:Type="String">${escapeXml(cell)}</Data></Cell>`).join("")}
+        </Row>
+    `).join("");
+
+    return `
+        <Worksheet ss:Name="${safeName}">
+            <Table>${tableRows}</Table>
+        </Worksheet>
+    `;
+}
+
+function cleanCellText(cell) {
+    return (cell?.textContent || "").trim().replace(/\s+/g, " ");
+}
+
+function getFilterSummary() {
+    const fromDate = document.getElementById("report-from-date")?.value || "Không chọn";
+    const toDate = document.getElementById("report-to-date")?.value || "Không chọn";
+    const statusSelect = document.getElementById("report-status-filter");
+    const status = statusSelect?.selectedOptions?.[0]?.textContent?.trim() || "Tất cả";
+    return `Từ ngày: ${fromDate}; Đến ngày: ${toDate}; Trạng thái: ${status}`;
+}
+
+function getReportTimestamp() {
+    const now = new Date();
+    const pad = value => String(value).padStart(2, "0");
+    return [
+        now.getFullYear(),
+        pad(now.getMonth() + 1),
+        pad(now.getDate())
+    ].join("-") + "-" + [pad(now.getHours()), pad(now.getMinutes())].join("-");
+}
+
+function showExportStatus(message) {
+    const element = document.getElementById("export-status");
+    if (!element) {
+        return;
+    }
+
+    element.textContent = message;
+    element.classList.remove("d-none");
+
+    window.clearTimeout(showExportStatus.timeoutId);
+    showExportStatus.timeoutId = window.setTimeout(() => {
+        element.classList.add("d-none");
+    }, 2600);
+}
+
+function escapeXml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&apos;");
 }
