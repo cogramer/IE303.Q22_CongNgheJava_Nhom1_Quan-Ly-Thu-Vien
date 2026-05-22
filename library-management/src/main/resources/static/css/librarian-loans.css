@@ -125,6 +125,13 @@
     padding-right: 28px !important;
 }
 
+.loan-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    white-space: nowrap;
+}
+
 .badge {
     padding: 8px 14px;
     border-radius: 999px;
@@ -161,15 +168,51 @@
 }
 
 .btn-outline-warning {
-    padding: 8px 14px;
     border-color: #f97316;
     border-width: 1.5px;
     color: #f97316;
 }
 
 .single-return-btn,
+.renew-loan-btn {
+    min-width: 86px;
+    padding: 7px 11px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.renew-loan-btn {
+    min-width: 76px;
+}
+
 #return-selected-btn {
     min-width: 120px;
+}
+
+.renew-summary {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 16px;
+    background: #f8fafc;
+}
+
+.renew-summary div {
+    display: grid;
+    gap: 3px;
+}
+
+.renew-summary span {
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.renew-summary strong {
+    color: #0f172a;
+    font-weight: 700;
 }
 
 #return-selected-btn:disabled {
