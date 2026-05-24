@@ -1,8 +1,10 @@
 package com.library.service;
 
+import com.library.dto.ReservationDTO;
+import com.library.mapper.ReservationMapper;
 import com.library.model.Book;
 import com.library.model.BorrowRecord;
-import com.library.model.Feedback;
+import com.library.model.Feedback; // Nếu bạn có class này
 import com.library.model.Reservation;
 import com.library.model.User;
 import com.library.repository.BookRepository;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,18 +28,20 @@ public class ReservationService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final BorrowRecordRepository borrowRecordRepository;
-    private final FeedbackService feedbackService;
+    private final FeedbackService feedbackService; // Đảm bảo bạn đã Inject FeedbackService
+
+    // Gọi Mapper mới tạo
+    private final ReservationMapper reservationMapper;
 
     // Độc giả đặt giữ sách
     @Transactional
-    public Reservation createReservation(Long userId, Long bookId) {
+    public ReservationDTO createReservation(Long userId, Long bookId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user"));
 
         Book book = bookRepository.findById(bookId)
-            .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sách"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sách"));
 
-        // Kiểm tra đã đặt giữ chưa
         if (reservationRepository.existsByUserIdAndBookIdAndStatus(
                 userId, bookId, Reservation.Status.PENDING)) {
             throw new RuntimeException("Bạn đã đặt giữ cuốn sách này rồi!");
@@ -47,14 +52,14 @@ public class ReservationService {
         reservation.setBook(book);
         reservation.setStatus(Reservation.Status.PENDING);
 
-        return reservationRepository.save(reservation);
+        return reservationMapper.toDTO(reservationRepository.save(reservation));
     }
 
     // Thủ thư xác nhận cho mượn → đổi reservation sang FULFILLED
     @Transactional
-    public Reservation fulfillReservation(Long reservationId) {
+    public ReservationDTO fulfillReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đặt giữ"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đặt giữ"));
 
         Book book = reservation.getBook();
         if (book.getAvailableCopies() <= 0) {
@@ -76,37 +81,43 @@ public class ReservationService {
         bookRepository.save(book);
 
         feedbackService.recordEvent(
-            reservation.getUser().getId(),
-            book.getId(),
-            Feedback.EventType.BORROW
-        );
+                reservation.getUser().getId(),
+                book.getId(),
+                Feedback.EventType.BORROW);
 
-        return reservation;
+        return reservationMapper.toDTO(reservation);
     }
 
-    // Độc giả huỷ đặt giữ
+    // Độc giả huỷ đặt giữ (ĐÃ SỬA: Thêm userId để chặn huỷ trộm)
     @Transactional
-    public Reservation cancelReservation(Long reservationId) {
+    public ReservationDTO cancelReservation(Long reservationId, Long currentUserId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-            .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đặt giữ"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đặt giữ"));
+
+        // Lớp bảo mật: Chặn đứng nếu user đang đăng nhập cố tình huỷ sách của user khác
+        if (!reservation.getUser().getId().equals(currentUserId)) {
+            throw new RuntimeException("Truy cập trái phép: Bạn không có quyền huỷ yêu cầu của người khác!");
+        }
 
         reservation.setStatus(Reservation.Status.CANCELLED);
-        return reservationRepository.save(reservation);
+        return reservationMapper.toDTO(reservationRepository.save(reservation));
     }
 
-    public List<Reservation> getUserReservations(Long userId) {
-        return reservationRepository.findByUserId(userId);
+    public List<ReservationDTO> getUserReservations(Long userId) {
+        return reservationRepository.findByUserId(userId).stream()
+                .map(reservationMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // Thủ thư xem danh sách đặt giữ đang chờ
-    // UI librarian/reservations cần xem tất cả trạng thái để filter:
-    // PENDING, FULFILLED, CANCELLED, NOTIFIED.
-    public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+    public List<ReservationDTO> getAllReservations() {
+        return reservationRepository.findAll().stream()
+                .map(reservationMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // Dashboard chỉ cần số lượng đặt giữ đang chờ xử lý.
-    public List<Reservation> getPendingReservations() {
-        return reservationRepository.findByStatus(Reservation.Status.PENDING);
+    public List<ReservationDTO> getPendingReservations() {
+        return reservationRepository.findByStatus(Reservation.Status.PENDING).stream()
+                .map(reservationMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

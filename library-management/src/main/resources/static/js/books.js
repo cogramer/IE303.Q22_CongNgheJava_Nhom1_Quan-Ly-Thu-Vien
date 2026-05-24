@@ -178,7 +178,8 @@ async function borrowSelectedBook() {
     confirmButton.textContent = "Đang xử lý...";
     clearBorrowConfirmMessage();
 
-    const res = await fetch("/reservations/create", {
+    // SỬA LẠI ENDPOINT TẠI ĐÂY
+    const res = await fetch("/api/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         credentials: "include",

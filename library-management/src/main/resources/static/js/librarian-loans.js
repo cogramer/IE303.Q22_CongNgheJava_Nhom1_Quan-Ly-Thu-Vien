@@ -135,7 +135,6 @@ function openReturnModal(rows, modal) {
 
     modal.show();
 }
-
 async function returnSelectedLoans(event) {
     event.preventDefault();
 
@@ -152,15 +151,22 @@ async function returnSelectedLoans(event) {
     button.textContent = "Đang trả...";
 
     try {
-        for (const loanId of loanIds) {
-            const response = await fetch(`/librarian/loans/return/${encodeURIComponent(loanId)}`, {
-                method: "POST",
-                credentials: "include"
-            });
+        // Tạo form data chứa danh sách các loanIds
+        const formData = new URLSearchParams();
+        loanIds.forEach(id => formData.append("loanIds", id));
 
-            if (!response.ok) {
-                throw new Error("Return request failed");
-            }
+        // Gửi 1 request duy nhất
+        const response = await fetch('/librarian/loans/return', {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error("Return request failed");
         }
 
         window.location.reload();

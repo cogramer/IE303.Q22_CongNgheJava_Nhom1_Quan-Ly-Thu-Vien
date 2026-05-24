@@ -55,7 +55,7 @@ public class UserService {
     }
 
     User user = userOpt.get();
-    
+
     if (!username.equals(user.getUsername())) {
       return Result.USERNAME_NOT_MATCH;
     }
@@ -65,13 +65,13 @@ public class UserService {
   // --- 3. THÊM NGƯỜI DÙNG (ĐĂNG KÝ) ---
   public RegisterResult addNewUser(String username, String password, String email, String fullName) {
     if (userRepository.existsByUsername(username)) {
-        return RegisterResult.USERNAME_EXIST;
+      return RegisterResult.USERNAME_EXIST;
     }
 
     if (userRepository.existsByEmail(email)) {
-        return RegisterResult.EMAIL_EXIST;
-    }  
-    
+      return RegisterResult.EMAIL_EXIST;
+    }
+
     User newUser = new User();
     newUser.setUsername(username);
     newUser.setPassword(passwordEncoder.encode(password));
@@ -90,7 +90,7 @@ public class UserService {
         .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy người dùng ID: " + id));
 
     existingUser.setFullName(dto.getFullName());
-    existingUser.setRole(dto.getRole());
+    // existingUser.setRole(dto.getRole()); Không cho phép lao thang quyền hạn.
 
     // Chỉ cập nhật email nếu không bị trùng với người khác
     if (!existingUser.getEmail().equals(dto.getEmail()) && userRepository.existsByEmail(dto.getEmail())) {
@@ -151,24 +151,71 @@ public class UserService {
     return Result.SUCCESS;
   }
 
-  //Đổi mật khẩu
+  // Đổi mật khẩu
   public Result changePassword(String username, String oldPassword, String newPassword) {
     Optional<User> userOpt = userRepository.findByUsername(username);
     if (userOpt.isEmpty()) {
-        return Result.USERNAME_NOT_FOUND;
+      return Result.USERNAME_NOT_FOUND;
     }
 
     User user = userOpt.get();
 
     if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-        return Result.PASSWORD_INCORRECT;
+      return Result.PASSWORD_INCORRECT;
     } else if (passwordEncoder.matches(newPassword, user.getPassword())) {
-        return Result.NEW_PASSWORD_SAME_AS_OLD_PASSWORD;
+      return Result.NEW_PASSWORD_SAME_AS_OLD_PASSWORD;
     }
-    
+
     user.setPassword(passwordEncoder.encode(newPassword));
     userRepository.save(user);
     return Result.SUCCESS;
+  }
+
+  // --- 8. TẠO TÀI KHOẢN THỦ THƯ (DÀNH CHO ADMIN) ---
+  public RegisterResult createStaff(String username, String password, String email, String fullName, User.Role role) {
+    if (userRepository.existsByUsername(username)) {
+      return RegisterResult.USERNAME_EXIST;
+    }
+
+    if (userRepository.existsByEmail(email)) {
+      return RegisterResult.EMAIL_EXIST;
+    }
+
+    // CHỈ CHẤP NHẬN tạo tài khoản với quyền LIBRARIAN
+    if (role != User.Role.LIBRARIAN) {
+      throw new IllegalArgumentException(
+          "Admin chỉ có quyền tạo tài khoản Thủ thư (LIBRARIAN), không được tạo thêm ADMIN hoặc READER!");
+    }
+
+    User newStaff = new User();
+    newStaff.setUsername(username);
+    newStaff.setPassword(passwordEncoder.encode(password));
+    newStaff.setEmail(email);
+    newStaff.setFullName(fullName);
+
+    newStaff.setRole(role);
+    newStaff.setCreatedAt(java.time.LocalDateTime.now());
+
+    userRepository.save(newStaff);
+    return RegisterResult.SUCCESS;
+  }
+
+  // --- 9. CẤP QUYỀN / ĐỔI QUYỀN CHO USER CÓ SẴN (DÀNH CHO ADMIN) ---
+  @Transactional
+  public UserDTO updateUserRole(Long userId, User.Role newRole) {
+    // Chặn ngay lập tức nếu Admin cố tình truyền newRole là ADMIN
+    if (newRole == User.Role.ADMIN) {
+      throw new IllegalArgumentException("Hệ thống không cho phép cấp quyền ADMIN cho người dùng khác!");
+    }
+
+    User existingUser = userRepository.findById(userId)
+        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy người dùng ID: " + userId));
+
+    // Cập nhật quyền mới (Thường là từ READER lên LIBRARIAN hoặc gỡ LIBRARIAN về
+    // lại READER)
+    existingUser.setRole(newRole);
+
+    return userMapper.toDTO(userRepository.save(existingUser));
   }
 
 }

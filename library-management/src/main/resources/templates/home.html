@@ -2,318 +2,174 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="UTF-8">
     <title>Trang chủ - HCMC Lib</title>
-
     <!-- Bootstrap 5 -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 (Dùng cho thông báo mượn sách) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Custom CSS -->
-    <link
-        rel="stylesheet"
-        th:href="@{/css/style.css}"
-    >
-
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-
 
 <body>
 
-<!-- =============================
-NAVBAR
-============================= -->
+    <!-- NAVBAR -->
+    <div th:replace="fragments/header :: header"></div>
 
-<div th:replace="fragments/header :: header"></div>
+    <!-- MAIN CONTENT -->
+    <div class="container mt-4">
 
-
-<!-- =============================
-MAIN CONTENT
-============================= -->
-
-<div class="container mt-4">
-
-
-    <!-- =============================
-    BANNER
-    ============================== -->
-
-    <div
-        id="homeBanner"
-        class="carousel slide mb-4"
-        data-bs-ride="carousel"
-    >
-
-
-        <!-- INDICATORS (4 chấm tròn) -->
-
-        <div class="carousel-indicators">
-
-            <button
-                type="button"
-                data-bs-target="#homeBanner"
-                data-bs-slide-to="0"
-                class="active"
-            ></button>
-
-            <button
-                type="button"
-                data-bs-target="#homeBanner"
-                data-bs-slide-to="1"
-            ></button>
-
-            <button
-                type="button"
-                data-bs-target="#homeBanner"
-                data-bs-slide-to="2"
-            ></button>
-
-            <button
-                type="button"
-                data-bs-target="#homeBanner"
-                data-bs-slide-to="3"
-            ></button>
-
+        <!-- BANNER -->
+        <div id="homeBanner" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="2"></button>
+                <button type="button" data-bs-target="#homeBanner" data-bs-slide-to="3"></button>
+            </div>
+            <div class="carousel-inner rounded">
+                <div class="carousel-item active"><img th:src="@{/img/banner_1.jpg}" class="d-block w-100"
+                        alt="Banner 1"></div>
+                <div class="carousel-item"><img th:src="@{/img/banner_2.jpg}" class="d-block w-100" alt="Banner 2">
+                </div>
+                <div class="carousel-item"><img th:src="@{/img/banner_3.jpg}" class="d-block w-100" alt="Banner 3">
+                </div>
+                <div class="carousel-item"><img th:src="@{/img/banner_4.jpg}" class="d-block w-100" alt="Banner 4">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#homeBanner" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#homeBanner" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
         </div>
 
+        <div class="row">
+            <div class="col-12">
 
-        <!-- SLIDES -->
-
-        <div class="carousel-inner rounded">
-
-
-            <!-- SLIDE 1 -->
-
-            <div class="carousel-item active">
-
-                <img
-                    th:src="@{/img/banner_1.jpg}"
-                    class="d-block w-100"
-                    alt="Banner 1"
-                >
-
-            </div>
-
-
-            <!-- SLIDE 2 -->
-
-            <div class="carousel-item">
-
-                <img
-                    th:src="@{/img/banner_2.jpg}"
-                    class="d-block w-100"
-                    alt="Banner 2"
-                >
-
-            </div>
-
-
-            <!-- SLIDE 3 -->
-
-            <div class="carousel-item">
-
-                <img
-                    th:src="@{/img/banner_3.jpg}"
-                    class="d-block w-100"
-                    alt="Banner 3"
-                >
-
-            </div>
-
-
-            <!-- SLIDE 4 -->
-
-            <div class="carousel-item">
-
-                <img
-                    th:src="@{/img/banner_4.jpg}"
-                    class="d-block w-100"
-                    alt="Banner 4"
-                >
-
-            </div>
-
-
-        </div>
-
-
-        <!-- NÚT TRÁI -->
-
-        <button
-            class="carousel-control-prev"
-            type="button"
-            data-bs-target="#homeBanner"
-            data-bs-slide="prev"
-        >
-
-            <span class="carousel-control-prev-icon"></span>
-
-        </button>
-
-
-        <!-- NÚT PHẢI -->
-
-        <button
-            class="carousel-control-next"
-            type="button"
-            data-bs-target="#homeBanner"
-            data-bs-slide="next"
-        >
-
-            <span class="carousel-control-next-icon"></span>
-
-        </button>
-
-
-    </div>
-
-
-    <div class="row">
-        <!-- =============================
-        MAIN BOOK AREA
-        ============================== -->
-
-        <div class="col-12">
-
-            <!-- =============================
-            FEATURED BOOKS
-            ============================= -->
-
-            <section class="book-section mt-5">
-
-                <h3 class="section-title">
-                    Sách nổi bật
-                </h3>
-
-                <div class="book-cards-row" th:if="${featuredBooks != null}">
-
-                    <div
-                        class="book-card-col"
-                        th:each="book : ${featuredBooks}"
-                    >
-
-                        <div class="card book-card h-100 shadow-sm">
-
-                            <!-- BOOK IMAGE -->
-                            <img
-                                th:src="${book.imageUrl != null} ? @{${book.imageUrl}} : @{/img/banner_1.jpg}"
-                                class="card-img-top book-img"
-                                alt="Ảnh bìa sách"
-                            />
-
-                            <!-- BODY -->
-                            <div class="card-body d-flex flex-column">
-
-                                <h6
-                                    class="book-title"
-                                    th:text="${book.title}"
-                                ></h6>
-
-                                <p class="text-muted mb-1" th:text="${book.author}"></p>
-
-                                <p
-                                    class="book-price"
-                                    th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"
-                                ></p>
-
-                                <a
-                                    class="btn btn-primary mt-auto"
-                                    th:href="@{/books/{id}(id=${book.id})}"
-                                >
-                                    Mượn
+                <!-- SÁCH NỔI BẬT -->
+                <section class="book-section mt-5">
+                    <h3 class="section-title">Sách nổi bật</h3>
+                    <div class="book-cards-row" th:if="${featuredBooks != null and !#lists.isEmpty(featuredBooks)}">
+                        <div class="book-card-col" th:each="book : ${featuredBooks}">
+                            <div class="card book-card h-100 shadow-sm">
+                                <a th:href="@{/reader/books/{id}(id=${book.id})}">
+                                    <img th:src="${book.imageUrl != null} ? @{${book.imageUrl}} : @{/img/banner_1.jpg}"
+                                        class="card-img-top book-img" alt="Ảnh bìa sách" />
                                 </a>
 
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="book-title">
+                                        <a th:href="@{/reader/books/{id}(id=${book.id})}" th:text="${book.title}"
+                                            class="text-decoration-none text-dark"></a>
+                                    </h6>
+                                    <p class="text-muted mb-1" th:text="${book.author}"></p>
+                                    <p class="book-price"
+                                        th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"></p>
+
+                                    <button class="btn btn-primary mt-auto"
+                                        th:onclick="'borrowBook(' + ${book.id} + ')'">
+                                        Mượn ngay
+                                    </button>
+                                </div>
                             </div>
-
                         </div>
-
                     </div>
+                    <div class="text-muted" th:if="${featuredBooks == null or #lists.isEmpty(featuredBooks)}">
+                        Chưa có sách nổi bật để hiển thị.
+                    </div>
+                </section>
 
-                </div>
-                <div class="text-muted" th:if="${featuredBooks == null or #lists.isEmpty(featuredBooks)}">
-                    Chưa có sách nổi bật để hiển thị.
-                </div>
-
-            </section>
-
-            <!-- =============================
-            NEW BOOKS
-            ============================= -->
-
-            <section class="book-section mt-5">
-
-                <h3 class="section-title">
-                    Sách mới
-                </h3>
-
-                <div class="book-cards-row" th:if="${newBooks != null}">
-
-                    <div
-                        class="book-card-col"
-                        th:each="book : ${newBooks}"
-                    >
-
-                        <div class="card book-card h-100 shadow-sm">
-
-                            <img
-                                th:src="${book.imageUrl != null} ? @{${book.imageUrl}} : @{/img/banner_1.jpg}"
-                                class="card-img-top book-img"
-                                alt="Ảnh bìa sách"
-                            />
-
-                            <div class="card-body d-flex flex-column">
-
-                                <h6
-                                    class="book-title"
-                                    th:text="${book.title}"
-                                ></h6>
-
-                                <p class="text-muted mb-1" th:text="${book.author}"></p>
-
-                                <p
-                                    class="book-price"
-                                    th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"
-                                ></p>
-
-                                <a
-                                    class="btn btn-primary mt-auto"
-                                    th:href="@{/books/{id}(id=${book.id})}"
-                                >
-                                    Mượn
+                <!-- SÁCH MỚI -->
+                <section class="book-section mt-5">
+                    <h3 class="section-title">Sách mới</h3>
+                    <div class="book-cards-row" th:if="${newBooks != null and !#lists.isEmpty(newBooks)}">
+                        <div class="book-card-col" th:each="book : ${newBooks}">
+                            <div class="card book-card h-100 shadow-sm">
+                                <a th:href="@{/reader/books/{id}(id=${book.id})}">
+                                    <img th:src="${book.imageUrl != null} ? @{${book.imageUrl}} : @{/img/banner_1.jpg}"
+                                        class="card-img-top book-img" alt="Ảnh bìa sách" />
                                 </a>
 
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="book-title">
+                                        <a th:href="@{/reader/books/{id}(id=${book.id})}" th:text="${book.title}"
+                                            class="text-decoration-none text-dark"></a>
+                                    </h6>
+                                    <p class="text-muted mb-1" th:text="${book.author}"></p>
+                                    <p class="book-price"
+                                        th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"></p>
+
+                                    <button class="btn btn-primary mt-auto"
+                                        th:onclick="'borrowBook(' + ${book.id} + ')'">
+                                        Mượn ngay
+                                    </button>
+                                </div>
                             </div>
-
                         </div>
-
                     </div>
+                    <div class="text-muted" th:if="${newBooks == null or #lists.isEmpty(newBooks)}">
+                        Chưa có sách mới để hiển thị.
+                    </div>
+                </section>
 
-                </div>
-                <div class="text-muted" th:if="${newBooks == null or #lists.isEmpty(newBooks)}">
-                    Chưa có sách mới để hiển thị.
-                </div>
-
-            </section>
-
+            </div>
         </div>
     </div>
-</div>
 
-<!-- =============================
-FOOTER
-============================== -->
-<div th:replace="fragments/footer :: footer"></div>
+    <!-- FOOTER -->
+    <div th:replace="fragments/footer :: footer"></div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Bootstrap JS -->
+    <!-- API Tương tác -->
+    <script>
+        // Hàm gọi API POST /api/borrow để Độc giả tự mượn sách
+        async function borrowBook(bookId) {
+            try {
+                const response = await fetch('/api/borrow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // Nếu sau này bạn bật CSRF, cần truyền thêm header X-CSRF-TOKEN ở đây
+                    },
+                    // SỬA Ở ĐÂY: Truyền lên một mảng thay vì một object
+                    body: JSON.stringify([bookId])
+                });
 
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-></script>
-
+                // Nếu API trả về thành công (HTTP 201 Created hoặc 200 OK)
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: 'Bạn đã mượn sách thành công!',
+                        confirmButtonColor: '#28a745'
+                    });
+                } else {
+                    // API trả về lỗi (ví dụ 400 Bad Request)
+                    const data = await response.json(); // Đọc nội dung lỗi từ backend
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Không thể mượn!',
+                        text: data.message || 'Có lỗi xảy ra khi mượn sách.',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            } catch (error) {
+                // Lỗi kết nối mạng, server sập...
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi hệ thống',
+                    text: 'Không thể kết nối đến máy chủ.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        }
+    </script>
 
 </body>
+
 </html>

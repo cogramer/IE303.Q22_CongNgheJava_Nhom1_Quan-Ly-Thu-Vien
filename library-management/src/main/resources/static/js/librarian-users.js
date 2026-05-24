@@ -38,13 +38,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const editForm = document.getElementById("edit-user-form");
-    if (editForm) {
-        editForm.addEventListener("submit", event => {
-            const userId = document.getElementById("edit-user-id").value;
-            editForm.action = `/librarian/users/update/${encodeURIComponent(userId)}`;
-        });
-    }
+    // const editForm = document.getElementById("edit-user-form");
+    // if (editForm) {
+    //     editForm.addEventListener("submit", event => {
+    //         const userId = document.getElementById("edit-user-id").value;
+    //         editForm.action = `/librarian/users/update/${encodeURIComponent(userId)}`;
+    //     });
+    // }
 
     applyUserFilters();
 });
@@ -109,10 +109,19 @@ function openDeleteModal(row) {
 
     LibraryUI.setText("delete-user-name", row.dataset.name || row.dataset.username || "");
     const button = document.getElementById("confirm-delete-user");
+
     button.onclick = () => {
         const form = document.createElement("form");
         form.method = "post";
-        form.action = `/librarian/users/delete/${encodeURIComponent(row.dataset.id || "")}`;
+        form.action = "/librarian/users/delete"; // Đường dẫn cố định theo Docs
+
+        // Tạo thẻ input ẩn chứa ID để gửi dưới dạng Form Data (RequestParam)
+        const idInput = document.createElement("input");
+        idInput.type = "hidden";
+        idInput.name = "id";
+        idInput.value = row.dataset.id || "";
+        form.appendChild(idInput);
+
         document.body.appendChild(form);
         form.submit();
     };
