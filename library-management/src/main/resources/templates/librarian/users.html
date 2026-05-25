@@ -18,6 +18,14 @@
         <div th:replace="~{fragments/librarian-sidebar :: sidebar('users')}"></div>
 
         <section class="users-content">
+            <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMsg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${errorMsg}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             <section class="users-hero users-card">
                 <div>
                     <h1>Quản lý người dùng</h1>
@@ -208,14 +216,42 @@
     <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content user-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title">Thêm user</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-muted mb-0">Chức năng thêm user cần backend tạo tài khoản theo role. Hiện trang đang
-                        hỗ trợ xem, lọc và thao tác UI.</p>
-                </div>
+                <form method="post" th:action="@{/librarian/users/add}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Thêm User Mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tài khoản (Username) <span class="text-danger">*</span></label>
+                            <input class="form-control" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                            <input class="form-control" type="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input class="form-control" name="fullName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input class="form-control" type="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Vai trò</label>
+                            <select class="form-select" name="role">
+                                <option value="READER">Độc giả (Reader)</option>
+                                <option value="LIBRARIAN">Thủ thư (Librarian)</option>
+                            </select>
+                            <small class="text-muted">Chỉ được phép tạo Độc giả hoặc Thủ thư.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Tạo tài khoản</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -223,17 +259,20 @@
     <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content user-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xóa user</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-                </div>
-                <div class="modal-body">
-                    Bạn có chắc muốn xóa người dùng <strong id="delete-user-name"></strong> không?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button id="confirm-delete-user" type="button" class="btn btn-danger">Xóa</button>
-                </div>
+                <form method="post" th:action="@{/librarian/users/delete}">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Xóa user</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="delete-user-id" name="id">
+                        Bạn có chắc muốn xóa người dùng <strong id="delete-user-name"></strong> không?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

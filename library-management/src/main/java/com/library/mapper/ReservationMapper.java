@@ -17,6 +17,13 @@ public class ReservationMapper {
     dto.setId(entity.getId());
     dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
 
+    // 1. Ánh xạ ngày đặt giữ
+    // (Lưu ý: Đổi getReservationDate() thành getCreatedAt() nếu Entity của bạn dùng
+    // tên đó)
+    if (entity.getCreatedAt() != null) {
+      dto.setReservationDate(entity.getCreatedAt().toLocalDate());
+    }
+
     if (entity.getUser() != null) {
       dto.setUserId(entity.getUser().getId());
       dto.setUsername(entity.getUser().getUsername());
@@ -26,6 +33,9 @@ public class ReservationMapper {
     if (entity.getBook() != null) {
       dto.setBookId(entity.getBook().getId());
       dto.setBookTitle(entity.getBook().getTitle());
+
+      // 2. Ánh xạ số lượng tồn kho từ thực thể Book
+      dto.setAvailableCopies(entity.getBook().getAvailableCopies());
     }
 
     return dto;

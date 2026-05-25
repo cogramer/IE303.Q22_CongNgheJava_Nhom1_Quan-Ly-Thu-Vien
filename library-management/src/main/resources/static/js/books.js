@@ -178,13 +178,17 @@ async function borrowSelectedBook() {
     confirmButton.textContent = "Đang xử lý...";
     clearBorrowConfirmMessage();
 
-    // SỬA LẠI ENDPOINT TẠI ĐÂY
+    // =============== ĐÃ SỬA TẠI ĐÂY ===============
     const res = await fetch("/api/reservations", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+            "Content-Type": "application/json" // Đổi thành JSON
+        },
         credentials: "include",
-        body: new URLSearchParams({ bookId: card.dataset.id })
+        // Chuyển đổi object thành chuỗi JSON và ép kiểu ID sang Number
+        body: JSON.stringify({ bookId: Number(card.dataset.id) })
     });
+    // ===============================================
 
     const data = await LibraryUI.readJson(res);
 
@@ -200,7 +204,6 @@ async function borrowSelectedBook() {
 
     confirmButton.textContent = "Đã đặt giữ";
 }
-
 function markCardAfterReservation(card) {
     const borrowButton = card.querySelector(".borrow-book-btn");
     if (borrowButton) {

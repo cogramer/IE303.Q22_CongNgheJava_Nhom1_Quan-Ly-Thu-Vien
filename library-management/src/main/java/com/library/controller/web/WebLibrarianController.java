@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.library.dto.BookDTO;
 import com.library.dto.UserDTO;
@@ -19,6 +20,8 @@ import com.library.service.BorrowRecordService;
 import com.library.service.CategoryService;
 import com.library.service.ReservationService;
 import com.library.service.UserService;
+import com.library.enums.RegisterResult;
+import com.library.model.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -94,12 +97,19 @@ public class WebLibrarianController {
 
   // Xử lý Thêm mới và Cập nhật sách
   @PostMapping("/books/save")
-  public String saveBook(@ModelAttribute BookDTO bookDTO) {
-    // Gọi service lưu sách (Service của bạn đã handle cả logic Create lẫn Update
-    // dựa trên ID)
-    bookService.saveBook(bookDTO);
+  public String saveBook(@ModelAttribute BookDTO bookDTO, RedirectAttributes redirectAttributes) {
+    try {
+      bookService.saveBook(bookDTO);
+      // Nếu thành công, gửi thông báo màu xanh
+      redirectAttributes.addFlashAttribute("successMsg", "Lưu sách thành công!");
+    } catch (IllegalArgumentException e) {
+      // Bắt lỗi trùng ISBN hoặc lỗi số lượng, gửi thông báo màu đỏ
+      redirectAttributes.addFlashAttribute("errorMsg", e.getMessage());
+    } catch (Exception e) {
+      // Bắt các lỗi hệ thống khác
+      redirectAttributes.addFlashAttribute("errorMsg", "Đã xảy ra lỗi không xác định: " + e.getMessage());
+    }
 
-    // Lưu thành công thì load lại trang quản lý sách
     return "redirect:/librarian/books";
   }
 
@@ -113,15 +123,16 @@ public class WebLibrarianController {
   }
 
   // Xử lý Duyệt (Fulfill) đặt trước sách
-  @PostMapping("/reservations/fulfill/{id}")
-  public String fulfillReservation(@PathVariable Long id) {
-    // Gọi service để xử lý logic duyệt đặt trước (chuyển trạng thái FULFILLED, tự
-    // động tạo phiếu mượn...)
-    // Lưu ý: Đảm bảo tên hàm trong reservationService khớp với hàm thực tế của bạn
-    // (ví dụ: fulfillReservation)
-    reservationService.fulfillReservation(id);
+  // Trong WebLibrarianController.java
 
-    // Sau khi duyệt xong thì load lại trang danh sách đặt giữ
+  @PostMapping("/reservations/fulfill/{id}")
+  public String fulfillReservation(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    try {
+      reservationService.fulfillReservation(id);
+      redirectAttributes.addFlashAttribute("successMsg", "Duyệt yêu cầu đặt giữ thành công!");
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMsg", "Không thể duyệt: " + e.getMessage());
+    }
     return "redirect:/librarian/reservations";
   }
 
@@ -133,24 +144,62 @@ public class WebLibrarianController {
     return "redirect:/librarian/loans";
   }
 
-  // Xử lý Cập nhật người dùng
   @PostMapping("/users/save")
-  public String saveUser(@ModelAttribute UserDTO userDTO) {
-    // Cần lấy ID từ DTO truyền vào hàm updateUser của UserService
-    if (userDTO.getId() != null) {
-      userService.updateUser(userDTO.getId(), userDTO);
+  public String saveUser(@ModelAttribute UserDTO userDTO, RedirectAttributes redirectAttributes) {
+    try {
+      if (userDTO.getId() != null) {
+        // Cập nhật thông tin cơ bản
+        userService.updateUser(userDTO.getId(), userDTO);
 
-      // Nếu bạn cho phép đổi cả Role từ form này, cần gọi thêm:
-      // userService.updateUserRole(userDTO.getId(), userDTO.getRole());
+        // Cập nhật vai trò (Role)
+        if (userDTO.getRole() != null) {
+          userService.updateUserRole(userDTO.getId(), userDTO.getRole());
+        }
+        redirectAttributes.addFlashAttribute("successMsg", "Cập nhật người dùng thành công!");
+      }
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMsg", "Lỗi cập nhật: " + e.getMessage());
     }
     return "redirect:/librarian/users";
   }
 
-  // Xử lý Xóa người dùng
+  // THÊM MỚI TÍNH NĂNG: Thêm người dùng
+  @PostMapping("/users/add")
+  public String addUser(@RequestParam String username,
+      @RequestParam String password,
+      @RequestParam String fullName,
+      @RequestParam String email,
+      @RequestParam User.Role role,
+      RedirectAttributes redirectAttributes) {
+    try {
+      RegisterResult result;
+      // Tuỳ theo role mà gọi hàm Service tương ứng
+      if (role == User.Role.LIBRARIAN) {
+        result = userService.createStaff(username, password, email, fullName, role);
+      } else {
+        result = userService.addNewUser(username, password, email, fullName);
+      }
+
+      if (result == RegisterResult.SUCCESS) {
+        redirectAttributes.addFlashAttribute("successMsg", "Thêm người dùng thành công!");
+      } else {
+        redirectAttributes.addFlashAttribute("errorMsg", "Thất bại: " + result.name());
+      }
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMsg", "Lỗi hệ thống: " + e.getMessage());
+    }
+    return "redirect:/librarian/users";
+  }
+
+  // Xử lý Xóa người dùng (Bổ sung thông báo)
   @PostMapping("/users/delete")
-  public String deleteUser(@RequestParam("id") Long id) {
-    // Gọi hàm deleteUser đã có sẵn trong UserService
-    userService.deleteUser(id);
+  public String deleteUser(@RequestParam("id") Long id, RedirectAttributes redirectAttributes) {
+    try {
+      userService.deleteUser(id);
+      redirectAttributes.addFlashAttribute("successMsg", "Đã xóa người dùng!");
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMsg", "Không thể xóa: " + e.getMessage());
+    }
     return "redirect:/librarian/users";
   }
 }

@@ -38,13 +38,13 @@
                 <article class="reservations-card stat-card stat-pending">
                     <span>Chờ duyệt</span>
                     <strong
-                        th:text="${reservations != null ? reservations.?[status == 'PENDING'].size() : 0}">0</strong>
+                        th:text="${reservations != null ? reservations.?[status.toString() == 'PENDING'].size() : 0}">0</strong>
                     <i class="bi bi-hourglass-split"></i>
                 </article>
                 <article class="reservations-card stat-card stat-approved">
                     <span>Đã duyệt</span>
                     <strong
-                        th:text="${reservations != null ? reservations.?[status == 'FULFILLED'].size() : 0}">0</strong>
+                        th:text="${reservations != null ? reservations.?[status.toString() == 'FULFILLED'].size() : 0}">0</strong>
                     <i class="bi bi-check2-circle"></i>
                 </article>
             </section>
@@ -92,8 +92,9 @@
                             <tr class="reservation-row" th:each="reservation : ${reservations}"
                                 th:data-reader="${reservation.fullName != null ? reservation.fullName : reservation.username}"
                                 th:data-username="${reservation.username}" th:data-book="${reservation.bookTitle}"
-                                th:data-date="'Chưa rõ'" th:data-status="${reservation.status}"
-                                th:data-copies="'Không rõ'">
+                                th:data-date="${reservation.reservationDate != null ? #temporals.format(reservation.reservationDate, 'dd/MM/yyyy') : 'Chưa rõ'}"
+                                th:data-status="${reservation.status}"
+                                th:data-copies="${reservation.availableCopies != null ? reservation.availableCopies : 0}">
 
                                 <td class="reservation-actions-col">
                                     <div class="reader-cell">
@@ -107,6 +108,7 @@
                                         </div>
                                     </div>
                                 </td>
+
                                 <td>
                                     <div class="book-cell">
                                         <strong th:text="${reservation.bookTitle}">Tên sách</strong>
@@ -114,21 +116,29 @@
                                     </div>
                                 </td>
 
-                                <td>Chưa rõ</td>
+                                <td
+                                    th:text="${reservation.reservationDate != null ? #temporals.format(reservation.reservationDate, 'dd/MM/yyyy') : 'Chưa rõ'}">
+                                    Ngày đặt</td>
 
                                 <td>
-                                    <span class="copies-badge is-available">Không rõ</span>
+                                    <span class="copies-badge"
+                                        th:classappend="${reservation.availableCopies != null && reservation.availableCopies > 0 ? 'is-available' : 'is-empty'}"
+                                        th:text="${reservation.availableCopies != null ? reservation.availableCopies + ' còn' : '0 còn'}">
+                                    </span>
                                 </td>
 
                                 <td>
                                     <span class="status-badge"
-                                        th:classappend="${reservation.status == 'PENDING'} ? ' status-pending' : (${reservation.status == 'FULFILLED'} ? ' status-fulfilled' : (${reservation.status == 'CANCELLED'} ? ' status-cancelled' : ' status-notified'))"
-                                        th:text="${reservation.status == 'PENDING'} ? 'Chờ duyệt' : (${reservation.status == 'FULFILLED'} ? 'Đã duyệt' : (${reservation.status == 'CANCELLED'} ? 'Đã hủy' : 'Đã thông báo'))">Chờ
-                                        duyệt</span>
+                                        th:classappend="${reservation.status != null and reservation.status.toString() == 'PENDING'} ? ' status-pending' : (${reservation.status != null and reservation.status.toString() == 'FULFILLED'} ? ' status-fulfilled' : (${reservation.status != null and reservation.status.toString() == 'CANCELLED'} ? ' status-cancelled' : ' status-notified'))"
+                                        th:text="${reservation.status != null and reservation.status.toString() == 'PENDING'} ? 'Chờ duyệt' : (${reservation.status != null and reservation.status.toString() == 'FULFILLED'} ? 'Đã duyệt' : (${reservation.status != null and reservation.status.toString() == 'CANCELLED'} ? 'Đã hủy' : 'Đã thông báo'))">Chờ
+                                        duyệt
+                                    </span>
                                 </td>
+
                                 <td>
                                     <div class="action-group">
-                                        <form th:if="${reservation.status == 'PENDING'}"
+                                        <form
+                                            th:if="${reservation.status != null and reservation.status.toString() == 'PENDING'}"
                                             th:action="@{/librarian/reservations/fulfill/{id}(id=${reservation.id})}"
                                             method="post">
                                             <button class="btn btn-approve btn-sm" type="submit">

@@ -12,12 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.core.Authentication;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserApiController {
 
@@ -32,6 +32,15 @@ public class UserApiController {
       return ResponseEntity.ok(userService.searchUsersByName(name));
     }
     return ResponseEntity.ok(userService.getAllUsers());
+  }
+
+  @GetMapping("/me")
+  public ResponseEntity<UserDTO> getCurrentUser(Authentication authentication) {
+    if (authentication == null || !authentication.isAuthenticated()) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    // Lấy thông tin chi tiết của user dựa trên username lưu trong Session/Token
+    return ResponseEntity.ok(userService.getUserByUsername(authentication.getName()));
   }
 
   // --- 2. LẤY CHI TIẾT 1 USER THEO USERNAME ---

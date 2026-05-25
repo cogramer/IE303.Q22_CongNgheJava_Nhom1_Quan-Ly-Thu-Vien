@@ -135,44 +135,28 @@ function openReturnModal(rows, modal) {
 
     modal.show();
 }
-async function returnSelectedLoans(event) {
-    event.preventDefault();
 
-    const button = document.getElementById("confirm-return-btn");
-    const loanIds = Array.from(document.querySelectorAll("#return-loan-id-fields input[name='loanIds']"))
-        .map(input => input.value)
-        .filter(Boolean);
+function returnSelectedLoans(event) {
+    const loanIds = document.querySelectorAll("#return-loan-id-fields input[name='loanIds']");
 
-    if (!loanIds.length) {
+    // Chặn submit form nếu không có phiếu mượn nào được chọn
+    if (!loanIds || loanIds.length === 0) {
+        event.preventDefault();
         return;
     }
 
-    button.disabled = true;
-    button.textContent = "Đang trả...";
+    const button = document.getElementById("confirm-return-btn");
 
-    try {
-        // Tạo form data chứa danh sách các loanIds
-        const formData = new URLSearchParams();
-        loanIds.forEach(id => formData.append("loanIds", id));
-
-        // Gửi 1 request duy nhất
-        const response = await fetch('/librarian/loans/return', {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error("Return request failed");
-        }
-
-        window.location.reload();
-    } catch (error) {
-        button.disabled = false;
-        button.textContent = loanIds.length > 1 ? `Xác nhận trả ${loanIds.length} sách` : "Xác nhận trả";
-        alert("Trả sách thất bại. Vui lòng thử lại.");
+    // Khóa nút bấm để tránh người dùng spam click (double submit)
+    if (button.dataset.submitting === "true") {
+        event.preventDefault();
+        return;
     }
+
+    button.dataset.submitting = "true";
+    button.textContent = "Đang xử lý...";
+
+    // ĐIỂM MẤU CHỐT: Không gọi event.preventDefault() ở nhánh thành công.
+    // Hãy để trình duyệt tự động POST data lên server. 
+    // Hệ thống sẽ tự redirect và tải lại giao diện hoàn chỉnh.
 }

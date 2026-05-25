@@ -107,25 +107,13 @@ function openEditModal(row) {
 function openDeleteModal(row) {
     if (!row) return;
 
+    // Gán tên user để hiển thị dòng cảnh báo
     LibraryUI.setText("delete-user-name", row.dataset.name || row.dataset.username || "");
-    const button = document.getElementById("confirm-delete-user");
 
-    button.onclick = () => {
-        const form = document.createElement("form");
-        form.method = "post";
-        form.action = "/librarian/users/delete"; // Đường dẫn cố định theo Docs
+    // Gán ID vào thẻ input ẩn trong form xóa
+    document.getElementById("delete-user-id").value = row.dataset.id || "";
 
-        // Tạo thẻ input ẩn chứa ID để gửi dưới dạng Form Data (RequestParam)
-        const idInput = document.createElement("input");
-        idInput.type = "hidden";
-        idInput.name = "id";
-        idInput.value = row.dataset.id || "";
-        form.appendChild(idInput);
-
-        document.body.appendChild(form);
-        form.submit();
-    };
-
+    // Mở Modal lên, khi người dùng bấm "Xóa" thì Form sẽ tự động submit kèm CSRF token
     bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteUserModal")).show();
 }
 

@@ -32,25 +32,15 @@ public class WebAuthController {
         || authentication instanceof AnonymousAuthenticationToken) {
       return "redirect:/login";
     }
+
+    // Nếu là ADMIN hoặc THỦ THƯ -> Đẩy về Dashboard
+    if (authentication.getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") ||
+            a.getAuthority().equals("ROLE_LIBRARIAN"))) {
+      return "redirect:/librarian/dashboard";
+    }
+
+    // Nếu là ĐỘC GIẢ -> Đẩy về Home
     return "redirect:/reader/home";
   }
-
-  // se cấu hình sau khi cần cho thủ thư và admin
-  // @GetMapping("/")
-  // public String handleRootUrl(Authentication authentication) {
-  // if (authentication == null || !authentication.isAuthenticated()
-  // || authentication instanceof AnonymousAuthenticationToken) {
-  // return "redirect:/login";
-  // }
-
-  // // Nếu là ADMIN hoặc THỦ THƯ -> Đẩy về Dashboard
-  // if (authentication.getAuthorities().stream()
-  // .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") ||
-  // a.getAuthority().equals("ROLE_LIBRARIAN"))) {
-  // return "redirect:/librarian/dashboard";
-  // }
-
-  // // Nếu là ĐỘC GIẢ -> Đẩy về Home
-  // return "redirect:/reader/home";
-  // }
 }
