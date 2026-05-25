@@ -55,27 +55,40 @@ async function borrowSelectedBook() {
     confirmButton.disabled = true;
     confirmButton.textContent = "Đang xử lý...";
 
-    const res = await fetch("/reservations/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        credentials: "include",
-        body: new URLSearchParams({ bookId: card.dataset.id })
-    });
+    try {
+        // Sửa endpoint thành /api/reservations và dùng định dạng JSON
+        const res = await fetch("/api/reservations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                bookId: Number(card.dataset.id)
+            })
+        });
 
-    const data = await LibraryUI.readJson(res);
-    const msgEl = document.getElementById("borrow-confirm-message");
+        const data = await LibraryUI.readJson(res);
+        const msgEl = document.getElementById("borrow-confirm-message");
 
-    if (!res.ok) {
-        msgEl.textContent = data?.message || "Đặt giữ thất bại.";
-        msgEl.className = "error-message mt-3";
+        if (!res.ok) {
+            msgEl.textContent = data?.message || "Đặt giữ thất bại.";
+            msgEl.className = "error-message mt-3";
+            confirmButton.disabled = false;
+            confirmButton.textContent = "Xác nhận đặt giữ";
+            return;
+        }
+
+        msgEl.textContent = "Đặt giữ thành công. Vui lòng chờ thủ thư duyệt.";
+        msgEl.className = "success-message mt-3";
+        card.querySelector(".borrow-book-btn").disabled = true;
+        card.querySelector(".borrow-book-btn").textContent = "Đã đặt giữ";
+        confirmButton.textContent = "Đã đặt giữ";
+
+    } catch (error) {
+        document.getElementById("borrow-confirm-message").textContent = "Lỗi kết nối tới máy chủ.";
+        document.getElementById("borrow-confirm-message").className = "error-message mt-3";
         confirmButton.disabled = false;
         confirmButton.textContent = "Xác nhận đặt giữ";
-        return;
     }
-
-    msgEl.textContent = "Đặt giữ thành công. Vui lòng chờ thủ thư duyệt.";
-    msgEl.className = "success-message mt-3";
-    card.querySelector(".borrow-book-btn").disabled = true;
-    card.querySelector(".borrow-book-btn").textContent = "Đã đặt giữ";
-    confirmButton.textContent = "Đã đặt giữ";
 }

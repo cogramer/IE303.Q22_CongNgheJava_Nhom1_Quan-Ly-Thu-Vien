@@ -7,10 +7,17 @@ import java.util.List;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
+    boolean existsByIsbn(String isbn);
+
     List<Book> findByTitleContainingIgnoreCase(String title);
+
     List<Book> findByAuthorContainingIgnoreCase(String author);
+
     List<Book> findByCategoryId(Long categoryId);
+
     List<Book> findByAvailableCopiesGreaterThan(int copies);
+
     List<Book> findTop8ByAvailableCopiesGreaterThanOrderByTotalCopiesDesc(int copies);
+
     List<Book> findTop8ByOrderByCreatedAtDesc();
 }

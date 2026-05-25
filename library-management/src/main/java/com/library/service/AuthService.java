@@ -1,6 +1,6 @@
 package com.library.service;
 
-import java.time.LocalDateTime;
+// import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -9,26 +9,25 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.mail.MailSender;
+// import org.springframework.mail.MailSender;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+// import org.springframework.mail.javamail.MimeMessageHelper;
 
 import com.library.model.User;
 import com.library.repository.UserRepository;
 import com.library.enums.LoginResult;
 
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.MessagingException;
-
+// import jakarta.mail.MessagingException;
 
 @Service
 public class AuthService {
     @Autowired
-    private UserRepository userRepository; 
-    
+    private UserRepository userRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private JavaMailSender mailSender;
 
@@ -73,10 +72,11 @@ public class AuthService {
                 + "<div class='container' style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.05);'>"
 
                 + "  <div class='content' style='padding: 40px 30px; color: #000000; line-height: 1.7; font-size: 16px;'>"
-                + "    <h2 style='color: #000000; margin-top: 0; text-align: center; font-weight: bold;'>" + title + "</h2>"
+                + "    <h2 style='color: #000000; margin-top: 0; text-align: center; font-weight: bold;'>" + title
+                + "</h2>"
 
                 + "    <div style='color: #000000 !important;'>"
-                +          bodyContent
+                + bodyContent
                 + "    </div>"
 
                 + "  </div>"

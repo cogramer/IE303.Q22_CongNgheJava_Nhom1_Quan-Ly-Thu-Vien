@@ -111,11 +111,14 @@ async function borrowBooks() {
     const failed = [];
 
     for (const book of selected) {
-        const res = await fetch("/reservations/create", {
+        // ĐÃ SỬA: Gửi Content-Type là application/json và body là chuỗi JSON
+        const res = await fetch("/api/reservations", {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: {
+                "Content-Type": "application/json" // <-- Đổi thành JSON
+            },
             credentials: "include",
-            body: new URLSearchParams({ bookId: book.id })
+            body: JSON.stringify({ bookId: Number(book.id) }) // <-- Đóng gói thành object JSON
         });
 
         if (!res.ok) {
@@ -131,25 +134,27 @@ async function borrowBooks() {
     showMessage(`Đã tạo yêu cầu đặt giữ cho ${selected.length} sách. Vui lòng chờ thủ thư duyệt.`, true);
     await loadBooks();
 }
-
 async function loadBorrowedBooks() {
     const tbody = document.getElementById("borrowed-body");
     const summary = document.getElementById("return-summary");
     tbody.innerHTML = "<tr><td colspan='4'>Đang tải...</td></tr>";
     summary.innerHTML = "";
 
-    if (!userId) {
+    // SỬA ENDPOINT TẠI ĐÂY: Dùng /api/borrow/me cực kỳ tiện lợi
+    const res = await fetch("/api/borrow/me", { credentials: "include" });
+
+    // Nếu API trả về 401/403 nghĩa là chưa đăng nhập
+    if (res.status === 401 || res.status === 403) {
         tbody.innerHTML = "<tr><td colspan='4'>Bạn cần đăng nhập để xem sách đang mượn.</td></tr>";
         return;
     }
-
-    const res = await fetch(`/api/users/${userId}/borrow-history`, { credentials: "include" });
-    const data = await LibraryUI.readJson(res);
 
     if (!res.ok) {
         tbody.innerHTML = "<tr><td colspan='4'>Lấy danh sách đang mượn thất bại.</td></tr>";
         return;
     }
+
+    const data = await LibraryUI.readJson(res);
 
     const activeRecords = Array.isArray(data)
         ? data.filter(record => record.status !== "RETURNED")

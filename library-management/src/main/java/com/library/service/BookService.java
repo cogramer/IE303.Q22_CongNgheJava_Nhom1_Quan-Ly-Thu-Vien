@@ -1,6 +1,6 @@
 package com.library.service;
 
-import java.io.IOException;
+// import java.io.IOException;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 import java.util.stream.*;
@@ -27,7 +27,7 @@ public class BookService {
 
   // --- 1. LẤY DANH SÁCH ---
   private static final Pattern DIACRITICS_PATTERN = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-  private static final String[] IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"};
+  private static final String[] IMAGE_EXTENSIONS = { "jpg", "jpeg", "png", "webp", "gif" };
 
   public List<BookDTO> getAllBooks() {
     return bookRepository.findAll().stream()
@@ -55,7 +55,7 @@ public class BookService {
     String candidateBase = normalized.replaceAll("[^a-z0-9]+", "-").replaceAll("(^-+|-+$)", "");
     String candidateBaseUnderscore = candidateBase.replace('-', '_');
 
-    for (String base : new String[] {candidateBase, candidateBaseUnderscore}) {
+    for (String base : new String[] { candidateBase, candidateBaseUnderscore }) {
       for (String ext : IMAGE_EXTENSIONS) {
         String fileName = base + "." + ext;
         if (classPathResourceExists("static/img/" + fileName)) {
@@ -68,7 +68,8 @@ public class BookService {
   }
 
   private static String stripDiacritics(String value) {
-    // Ten file anh bia tieng Viet can doi d/D thu cong vi Unicode normalize khong tu bo ky tu nay.
+    // Ten file anh bia tieng Viet can doi d/D thu cong vi Unicode normalize khong
+    // tu bo ky tu nay.
     String normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
         .replace('đ', 'd')
         .replace('Đ', 'D');
@@ -93,13 +94,47 @@ public class BookService {
   // --- 3. THÊM & SỬA ---
   @Transactional
   public BookDTO saveBook(BookDTO dto) {
-    Book entity = bookMapper.toEntity(dto);
-    // Khi tạo mới, ta mặc định sẵn có = tổng số lượng nếu không được set
-    if (dto.getId() == null) {
+    if (dto.getId() != null) {
+      // 1. CẬP NHẬT SÁCH
+      Book existingBook = bookRepository.findById(dto.getId())
+          .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sách ID: " + dto.getId()));
+
+      // Tính toán chênh lệch tổng số lượng để điều chỉnh số lượng sẵn có
+      int diff = dto.getTotalCopies() - existingBook.getTotalCopies();
+      int newAvailable = existingBook.getAvailableCopies() + diff;
+
+      if (newAvailable < 0) {
+        throw new IllegalArgumentException(
+            "Không thể giảm tổng số lượng! Số lượng sách đang được mượn lớn hơn tổng số mới.");
+      }
+
+      // Tạo một entity tạm từ DTO để lấy object Category (vì bookMapper đã xử lý phần
+      // map ID sang Object rồi)
+      Book tempMappedBook = bookMapper.toEntity(dto);
+
+      // Cập nhật các trường
+      existingBook.setTitle(dto.getTitle());
+      existingBook.setIsbn(dto.getIsbn());
+      existingBook.setAuthor(dto.getAuthor());
+
+      // SỬA LỖI CHÍNH LÀ Ở ĐÂY: Lấy Object Category từ entity tạm gán qua
+      existingBook.setCategory(tempMappedBook.getCategory());
+
+      existingBook.setPrice(dto.getPrice());
+      existingBook.setImageUrl(dto.getImageUrl());
+      existingBook.setTotalCopies(dto.getTotalCopies());
+      existingBook.setAvailableCopies(newAvailable);
+
+      return bookMapper.toDTO(bookRepository.save(existingBook));
+    } else {
+      // 2. THÊM SÁCH MỚI
+      if (bookRepository.existsByIsbn(dto.getIsbn())) {
+        throw new IllegalArgumentException("Mã ISBN này đã tồn tại trong hệ thống. Vui lòng nhập mã khác!");
+      }
+      Book entity = bookMapper.toEntity(dto);
       entity.setAvailableCopies(dto.getTotalCopies());
+      return bookMapper.toDTO(bookRepository.save(entity));
     }
-    Book saved = bookRepository.save(entity);
-    return bookMapper.toDTO(saved);
   }
 
   // --- 4. XÓA ---
@@ -119,7 +154,7 @@ public class BookService {
         .distinct()
         .map(this::toBookDTO)
         .collect(Collectors.toList());
-}
+  }
 
   public List<BookDTO> getFeaturedBooks() {
     return bookRepository.findTop8ByAvailableCopiesGreaterThanOrderByTotalCopiesDesc(0).stream()

@@ -38,13 +38,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const editForm = document.getElementById("edit-user-form");
-    if (editForm) {
-        editForm.addEventListener("submit", event => {
-            const userId = document.getElementById("edit-user-id").value;
-            editForm.action = `/librarian/users/update/${encodeURIComponent(userId)}`;
-        });
-    }
+    // const editForm = document.getElementById("edit-user-form");
+    // if (editForm) {
+    //     editForm.addEventListener("submit", event => {
+    //         const userId = document.getElementById("edit-user-id").value;
+    //         editForm.action = `/librarian/users/update/${encodeURIComponent(userId)}`;
+    //     });
+    // }
 
     applyUserFilters();
 });
@@ -107,16 +107,13 @@ function openEditModal(row) {
 function openDeleteModal(row) {
     if (!row) return;
 
+    // Gán tên user để hiển thị dòng cảnh báo
     LibraryUI.setText("delete-user-name", row.dataset.name || row.dataset.username || "");
-    const button = document.getElementById("confirm-delete-user");
-    button.onclick = () => {
-        const form = document.createElement("form");
-        form.method = "post";
-        form.action = `/librarian/users/delete/${encodeURIComponent(row.dataset.id || "")}`;
-        document.body.appendChild(form);
-        form.submit();
-    };
 
+    // Gán ID vào thẻ input ẩn trong form xóa
+    document.getElementById("delete-user-id").value = row.dataset.id || "";
+
+    // Mở Modal lên, khi người dùng bấm "Xóa" thì Form sẽ tự động submit kèm CSRF token
     bootstrap.Modal.getOrCreateInstance(document.getElementById("deleteUserModal")).show();
 }
 

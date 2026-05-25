@@ -1,195 +1,170 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <body>
 
-<nav th:fragment="header"
-     class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        rel="stylesheet"
-    >
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
-    <div class="container">
+        <div class="container">
 
-        <!-- LOGO -->
-        <a class="navbar-brand fw-bold"
-           th:href="@{/reader/home}">
-            HCMC Lib
-        </a>
+            <!-- LOGO -->
+            <a class="navbar-brand fw-bold" th:href="@{/reader/home}">
+                HCMC Lib
+            </a>
 
 
-        <!-- MOBILE BUTTON -->
-        <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarContent">
+            <!-- MOBILE BUTTON -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
 
-            <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
 
-        </button>
+            </button>
 
 
-        <!-- MENU -->
-        <div class="collapse navbar-collapse"
-             id="navbarContent">
+            <!-- MENU -->
+            <div class="collapse navbar-collapse" id="navbarContent">
 
-            <!-- LEFT MENU -->
-            <ul class="navbar-nav me-auto">
+                <!-- LEFT MENU -->
+                <ul class="navbar-nav me-auto">
 
-                <li class="nav-item">
+                    <li class="nav-item">
+                        <!-- Sửa data-nav-path="/home" thành "/reader/home" -->
+                        <a class="nav-link" data-nav-path="/reader/home" th:href="@{/reader/home}">
+                            Trang chủ
+                        </a>
+                    </li>
 
-                    <a class="nav-link"
-                       data-nav-path="/home"
-                       th:href="@{/reader/home}">
-                        Trang chủ
-                    </a>
+                    <li class="nav-item">
 
-                </li>
+                        <a class="nav-link" data-nav-path="/reader/books" th:href="@{/reader/books}">
+                            Danh sách sách
+                        </a>
 
-                <li class="nav-item">
+                    </li>
 
-                    <a class="nav-link"
-                       data-nav-path="/reader/books"
-                       th:href="@{/reader/books}">
-                        Danh sách sách
-                    </a>
+                    <li class="nav-item">
 
-                </li>
+                        <a class="nav-link" data-nav-path="/reader/recommendations"
+                            th:href="@{/reader/recommendations}">
+                            <i class="bi bi-stars"></i> Gợi ý cho tôi
+                        </a>
 
-                <li class="nav-item">
+                    </li>
 
-                    <a class="nav-link"
-                    data-nav-path="/reader/recommendations"
-                    th:href="@{/reader/recommendations}">
-                        <i class="bi bi-stars"></i> Gợi ý cho tôi
-                    </a>
-
-                </li>
-
-            </ul>
+                </ul>
 
 
-            <!-- RIGHT MENU -->
+                <!-- RIGHT MENU -->
 
-            <!-- CHƯA LOGIN -->
-            <ul class="navbar-nav"
-                th:if="${username == null}">
+                <!-- CHƯA LOGIN -->
+                <ul class="navbar-nav" th:if="${username == null}">
 
-                <li class="nav-item">
+                    <li class="nav-item">
 
-                    <a class="nav-link"
-                       th:href="@{/login}">
-                        Đăng nhập
-                    </a>
+                        <a class="nav-link" th:href="@{/login}">
+                            Đăng nhập
+                        </a>
 
-                </li>
+                    </li>
 
-                <li class="nav-item">
+                    <li class="nav-item">
 
-                    <a class="nav-link"
-                       th:href="@{/register}">
-                        Đăng ký
-                    </a>
+                        <a class="nav-link" th:href="@{/register}">
+                            Đăng ký
+                        </a>
 
-                </li>
+                    </li>
 
-            </ul>
+                </ul>
 
 
-            <!-- ĐÃ LOGIN -->
-            <ul class="navbar-nav"
-                th:if="${username != null}">
+                <!-- ĐÃ LOGIN -->
+                <ul class="navbar-nav" th:if="${username != null}">
 
-                <!-- CART -->
-                <li class="nav-item">
+                    <!-- CART -->
+                    <li class="nav-item">
 
-                    <a class="nav-link"
-                       data-nav-path="/reader/borrow"
-                       th:href="@{/reader/borrow}">
-                        Giỏ sách
-                    </a>
+                        <a class="nav-link" data-nav-path="/reader/borrow" th:href="@{/reader/borrow}">
+                            Giỏ sách
+                        </a>
 
-                </li>
+                    </li>
 
 
-                <!-- USER DROPDOWN -->
-                <li class="nav-item dropdown">
+                    <!-- USER DROPDOWN -->
+                    <li class="nav-item dropdown">
 
-                    <a class="nav-link dropdown-toggle"
-                       href="#"
-                       role="button"
-                       data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
 
-                        Xin chào,
-                        <span th:text="${username}"></span>
+                            Xin chào,
+                            <span th:text="${username}"></span>
 
-                    </a>
+                        </a>
 
 
-                    <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end">
 
-                        <li>
+                            <li>
+                                <!-- Sửa /profile thành /users/profile -->
+                                <a class="dropdown-item" th:href="@{/users/profile}">
+                                    Thông tin tài khoản
+                                </a>
+                            </li>
 
-                            <a class="dropdown-item"
-                               th:href="@{/profile}">
-                                Thông tin tài khoản
-                            </a>
+                            <li>
 
-                        </li>
+                                <a class="dropdown-item" data-nav-path="/reader/history" th:href="@{/reader/history}">
+                                    Lịch sử mượn sách
+                                </a>
 
-                        <li>
+                            </li>
 
-                            <a class="dropdown-item"
-                               data-nav-path="/reader/history"
-                               th:href="@{/reader/history}">
-                                Lịch sử mượn sách
-                            </a>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
 
-                        </li>
+                            <li>
 
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
+                                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        Đăng xuất
+                                    </button>
+                                </form>
 
-                        <li>
+                            </li>
 
-                            <form th:action="@{/logout}" method="post" style="margin: 0;">
-                                <button type="submit" class="dropdown-item text-danger">
-                                    Đăng xuất
-                                </button>
-                            </form>
+                        </ul>
 
-                        </li>
+                    </li>
 
-                    </ul>
+                </ul>
 
-                </li>
-
-            </ul>
+            </div>
 
         </div>
 
-    </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const currentPath = window.location.pathname;
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const currentPath = window.location.pathname;
+                document.querySelectorAll("[data-nav-path]").forEach(link => {
+                    const navPath = link.getAttribute("data-nav-path");
+                    // Sửa điều kiện ngoại trừ "/home" thành "/reader/home"
+                    const isActive = currentPath === navPath
+                        || (navPath !== "/reader/home" && currentPath.startsWith(`${navPath}/`));
 
-        document.querySelectorAll("[data-nav-path]").forEach(link => {
-            const navPath = link.getAttribute("data-nav-path");
-            const isActive = currentPath === navPath
-                || (navPath !== "/home" && currentPath.startsWith(`${navPath}/`));
+                    if (isActive) {
+                        link.classList.add("active");
+                        link.setAttribute("aria-current", "page");
+                    }
+                });
+            });
+        </script>
 
-            if (isActive) {
-                link.classList.add("active");
-                link.setAttribute("aria-current", "page");
-            }
-        });
-    });
-</script>
-
-</nav>
+    </nav>
 
 </body>
+
 </html>

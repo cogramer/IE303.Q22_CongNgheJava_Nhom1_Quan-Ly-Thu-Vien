@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "LibraryManagementApplication",
+      "request": "launch",
+      "mainClass": "com.library.LibraryManagementApplication",
+      "projectName": "library-management"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-LibraryManagementApplication<library-management>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.library.library_management.LibraryManagementApplication",
+      "projectName": "library-management",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

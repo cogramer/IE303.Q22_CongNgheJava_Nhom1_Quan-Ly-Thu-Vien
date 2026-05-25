@@ -102,30 +102,29 @@ public class BorrowRecordService {
   // --- 4. TRẢ SÁCH ---
   @Transactional
   public BorrowRecordDTO returnBook(Long recordId) {
-      BorrowRecord record = borrowRepository.findById(recordId)
-          .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phiếu mượn!"));
+    BorrowRecord record = borrowRepository.findById(recordId)
+        .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phiếu mượn!"));
 
-      if (record.getStatus() == BorrowRecord.Status.RETURNED) {
-          throw new RuntimeException("Sách này đã được trả trước đó.");
-      }
+    if (record.getStatus() == BorrowRecord.Status.RETURNED) {
+      throw new RuntimeException("Sách này đã được trả trước đó.");
+    }
 
-      record.setStatus(BorrowRecord.Status.RETURNED);
-      record.setReturnDate(LocalDate.now());
+    record.setStatus(BorrowRecord.Status.RETURNED);
+    record.setReturnDate(LocalDate.now());
 
-      Book book = record.getBook();
-      book.setAvailableCopies(book.getAvailableCopies() + 1);
-      bookRepository.save(book);
+    Book book = record.getBook();
+    book.setAvailableCopies(book.getAvailableCopies() + 1);
+    bookRepository.save(book);
 
-      BorrowRecord saved = borrowRepository.save(record);
+    BorrowRecord saved = borrowRepository.save(record);
 
-      // Ghi feedback RETURN trước khi return
-      feedbackService.recordEvent(
-          record.getUser().getId(),
-          record.getBook().getId(),
-          Feedback.EventType.RETURN
-      );
+    // Ghi feedback RETURN trước khi return
+    feedbackService.recordEvent(
+        record.getUser().getId(),
+        record.getBook().getId(),
+        Feedback.EventType.RETURN);
 
-      return borrowMapper.toDTO(saved);
+    return borrowMapper.toDTO(saved);
   }
 
   @Transactional
@@ -153,21 +152,23 @@ public class BorrowRecordService {
 
   public List<BorrowRecordDTO> getUserBorrowHistory(Long userId) {
     if (!userRepository.existsById(userId)) {
-        throw new EntityNotFoundException("Không tìm thấy người dùng ID: " + userId);
+      throw new EntityNotFoundException("Không tìm thấy người dùng ID: " + userId);
     }
     return borrowRepository.findByUserId(userId).stream()
         .map(borrowMapper::toDTO)
         .collect(Collectors.toList());
   }
 
-  // UI dashboard cần danh sách hoạt động gần đây; giữ lại để tránh lỗi model recentActivity.
+  // UI dashboard cần danh sách hoạt động gần đây; giữ lại để tránh lỗi model
+  // recentActivity.
   public List<BorrowRecordDTO> getRecentActivity() {
     return borrowRepository.findTop10ByOrderByBorrowDateDesc().stream()
         .map(borrowMapper::toDTO)
         .collect(Collectors.toList());
   }
 
-  // UI dashboard/reports cần top sách mượn nhiều; trả về title/author/count cho Thymeleaf.
+  // UI dashboard/reports cần top sách mượn nhiều; trả về title/author/count cho
+  // Thymeleaf.
   public List<Map<String, Object>> getTopBorrowedBooks() {
     Pageable top5 = PageRequest.of(0, 5);
     List<Object[]> results = borrowRepository.findTopBorrowedBooks(top5);
@@ -185,7 +186,8 @@ public class BorrowRecordService {
     return topBooks;
   }
 
-  // UI dashboard/reports cần dữ liệu biểu đồ theo 12 tháng, tháng không có dữ liệu trả về 0.
+  // UI dashboard/reports cần dữ liệu biểu đồ theo 12 tháng, tháng không có dữ
+  // liệu trả về 0.
   public Map<Integer, Long> getBorrowCountByMonth(int year) {
     List<Object[]> results = borrowRepository.countByMonth(year);
     Map<Integer, Long> monthlyData = new LinkedHashMap<>();
@@ -235,4 +237,18 @@ public class BorrowRecordService {
         .collect(Collectors.toList());
   }
 
+  // --- 5. TRẢ SÁCH HÀNG LOẠT ---
+  @Transactional
+  public void returnMultipleBooks(List<Long> recordIds) {
+    // Lặp qua từng ID và gọi lại hàm returnBook đã có sẵn
+    for (Long id : recordIds) {
+      try {
+        returnBook(id);
+      } catch (Exception e) {
+        // Ghi log lỗi nếu 1 cuốn thất bại (ví dụ: sách đã trả rồi),
+        // nhưng vẫn tiếp tục vòng lặp cho các cuốn khác.
+        System.err.println("Lỗi khi trả phiếu mượn ID " + id + ": " + e.getMessage());
+      }
+    }
+  }
 }

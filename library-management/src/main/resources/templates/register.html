@@ -1,101 +1,111 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Đăng ký - Hệ thống Thư viện</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="auth-body">
 
-<div class="auth-card">
+    <div class="auth-card">
 
-    <div class="auth-title">Register an account</div>
+        <div class="auth-title">Đăng ký tài khoản</div>
 
-    <div th:if="${error}" class="alert alert-danger">
-        <p th:text="${error}"></p>
+        <div th:if="${error}" class="alert alert-danger">
+            <p th:text="${error}"></p>
+        </div>
+
+        <form onsubmit="register(event)">
+
+            <div class="input-group custom-input">
+                <input type="text" id="username" class="form-control" placeholder="Tên đăng nhập" required>
+                <i class="bi bi-person-fill"></i>
+            </div>
+
+            <div class="input-group custom-input">
+                <input type="password" id="password" class="form-control" placeholder="Mật khẩu" required>
+                <i class="bi bi-lock-fill"></i>
+            </div>
+
+            <div class="input-group custom-input">
+                <input type="email" id="email" class="form-control" placeholder="Email" required>
+                <i class="bi bi-envelope-fill"></i>
+            </div>
+
+            <div class="input-group custom-input">
+                <input type="text" id="fullName" class="form-control" placeholder="Họ và tên" required>
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+
+            <button class="auth-btn" type="submit">Đăng ký</button>
+
+        </form>
+
+        <div class="text-center auth-footer-text">
+            Đã có tài khoản?
+            <a th:href="@{/login}">Đăng nhập ngay</a>
+        </div>
+
     </div>
 
-    <form onsubmit="register(event)">
+    <script>
+        async function register(event) {
+            event.preventDefault();
 
-        <div class="input-group custom-input">
-            <input type="text" id="username" class="form-control"
-                   placeholder="Username" required>
-            <i class="bi bi-person-fill"></i>
-        </div>
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const email = document.getElementById("email").value;
+            const fullName = document.getElementById("fullName").value;
 
-        <div class="input-group custom-input">
-            <input type="password" id="password" class="form-control"
-                   placeholder="Password" required>
-            <i class="bi bi-lock-fill"></i>
-        </div>
+            try {
+                // Đã cập nhật đúng API AuthController
+                const res = await fetch("/api/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password, email, fullName })
+                });
 
-        <div class="input-group custom-input">
-            <input type="email" id="email" class="form-control"
-                   placeholder="Email" required>
-            <i class="bi bi-envelope-fill"></i>
-        </div>
+                const data = await res.json();
 
-        <div class="input-group custom-input">
-            <input type="text" id="fullName" class="form-control"
-                   placeholder="Full name" required>
-            <i class="bi bi-person-badge-fill"></i>
-        </div>
+                if (!res.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Thất bại!',
+                        // Lấy message trả về từ Map.of("message", "...") trong AuthController
+                        text: data.message || 'Đăng ký không thành công. Vui lòng thử lại!',
+                        confirmButtonColor: '#d33'
+                    });
+                    return;
+                }
 
-        <button class="auth-btn" type="submit">Register</button>
-
-    </form>
-
-    <div class="text-center auth-footer-text">
-        Already have an account?
-        <a th:href="@{/login}">Login</a>
-    </div>
-
-</div>
-
-<script>
-async function register(event) {
-    event.preventDefault();
-
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    const email = document.getElementById("email").value;
-    const fullName = document.getElementById("fullName").value;
-
-    const res = await fetch("/api/auth/register-process", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, email, fullName })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Thất bại!',
-            text: data.message || 'Đăng ký không thành công!',
-            confirmButtonColor: '#d33'
-        });
-        return;
-    }
-
-    Swal.fire({
-        icon: 'success',
-        title: 'Đăng ký thành công!',
-        text: 'Đang chuyển sang trang đăng nhập...',
-        showConfirmButton: false,
-        timer: 1000
-    }).then(() => {
-        window.location.href = "/login";
-    });
-}
-</script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công!',
+                    text: data.message || 'Đăng ký tài khoản thành công!',
+                    confirmButtonColor: '#28a745',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.href = "/login";
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi kết nối!',
+                    text: 'Không thể kết nối tới máy chủ. Vui lòng thử lại sau.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        }
+    </script>
 
 </body>
+
 </html>

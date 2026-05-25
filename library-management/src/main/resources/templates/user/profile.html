@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Thông tin tài khoản - HCMC Lib</title>
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/library.css}">
 </head>
+
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
 
@@ -23,7 +19,7 @@
                 <section class="dashboard-card p-4">
                     <div class="d-flex align-items-center gap-3 mb-4">
                         <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center"
-                             style="width: 54px; height: 54px;">
+                            style="width: 54px; height: 54px;">
                             <i class="bi bi-person fs-4"></i>
                         </div>
                         <div>
@@ -94,6 +90,9 @@
 
             const button = document.getElementById("change-password-btn");
             const message = document.getElementById("password-message");
+
+            // SỬA LỖI 1: Lấy thêm giá trị username từ ô input (đã được fill sẵn do Thymeleaf)
+            const username = document.getElementById("username").value;
             const oldPassword = document.getElementById("oldPassword").value;
             const newPassword = document.getElementById("newPassword").value;
 
@@ -102,18 +101,22 @@
             message.innerHTML = "";
 
             try {
-                const response = await fetch("/users/change-password", {
+                // SỬA LỖI 2: Đổi URL thành /api/users/change-password
+                const response = await fetch("/api/users/change-password", {
                     method: "POST",
                     credentials: "include",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ oldPassword, newPassword })
+                    // SỬA LỖI 3: Truyền thêm username vào body payload
+                    body: JSON.stringify({ username, oldPassword, newPassword })
                 });
 
                 const data = await LibraryUI.readJson(response);
+
                 if (!response.ok) {
-                    throw new Error(data?.message || "Đổi mật khẩu thất bại.");
+                    // Backend của bạn trả về field "error" khi thất bại (Map.of("error", result.name()))
+                    throw new Error(data?.error || data?.message || "Đổi mật khẩu thất bại.");
                 }
 
                 window.location.href = "/users/profile?success=true";
@@ -126,4 +129,5 @@
         });
     </script>
 </body>
+
 </html>

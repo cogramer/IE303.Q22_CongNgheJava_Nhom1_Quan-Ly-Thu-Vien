@@ -1,62 +1,46 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-    <body>
-        <aside class="librarian-sidebar" th:fragment="sidebar(activePage)">
-            <a class="sidebar-brand" th:href="@{/librarian/dashboard}">
-                <i class="bi bi-grid-1x2-fill"></i>
-                <span>Th&#432; vi&#7879;n</span>
+
+<body>
+    <aside class="librarian-sidebar" th:fragment="sidebar(activePage)">
+        <a class="sidebar-brand" th:href="@{/librarian/dashboard}">
+            <i class="bi bi-grid-1x2-fill"></i>
+            Librarian
+        </a>
+
+        <nav>
+            <a th:href="@{/librarian/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
+                <i class="bi bi-speedometer2"></i> Dashboard
             </a>
 
-            <nav>
-                <a th:href="@{/librarian/dashboard}"
-                   th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>T&#7893;ng quan</span>
-                </a>
+            <a th:href="@{/librarian/books}" th:classappend="${activePage == 'books'} ? 'active' : ''">
+                <i class="bi bi-book"></i> Quản lý sách
+            </a>
 
-                <a th:href="@{/librarian/books}"
-                   th:classappend="${activePage == 'books'} ? 'active' : ''">
-                    <i class="bi bi-book"></i>
-                    <span>Qu&#7843;n l&#253; s&#225;ch</span>
-                </a>
+            <a th:href="@{/librarian/loans}" th:classappend="${activePage == 'loans'} ? 'active' : ''">
+                <i class="bi bi-arrow-left-right"></i> Mượn trả
+            </a>
 
-                <a th:href="@{/librarian/loans}"
-                   th:classappend="${activePage == 'loans'} ? 'active' : ''">
-                    <i class="bi bi-arrow-left-right"></i>
-                    <span>M&#432;&#7907;n tr&#7843;</span>
-                </a>
+            <a th:href="@{/librarian/reservations}" th:classappend="${activePage == 'reservations'} ? 'active' : ''">
+                <i class="bi bi-bookmark-check"></i> Đặt giữ
+            </a>
 
-                <a th:href="@{/librarian/reservations}"
-                   th:classappend="${activePage == 'reservations'} ? 'active' : ''">
-                    <i class="bi bi-bookmark-check"></i>
-                    <span>&#272;&#7863;t gi&#7919;</span>
-                </a>
+            <a th:href="@{/librarian/users}" th:classappend="${activePage == 'users'} ? 'active' : ''">
+                <i class="bi bi-people"></i> Người dùng
+            </a>
 
-                <a th:href="@{/librarian/users}"
-                   th:classappend="${activePage == 'users'} ? 'active' : ''">
-                    <i class="bi bi-people"></i>
-                    <span>Ng&#432;&#7901;i d&#249;ng</span>
-                </a>
+            <a th:href="@{/librarian/reports}" th:classappend="${activePage == 'reports'} ? 'active' : ''">
+                <i class="bi bi-bar-chart"></i> Báo cáo
+            </a>
 
-                <a th:href="@{/librarian/reports}"
-                   th:classappend="${activePage == 'reports'} ? 'active' : ''">
-                    <i class="bi bi-bar-chart"></i>
-                    <span>B&#225;o c&#225;o</span>
-                </a>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="logout-btn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Đăng xuất</span>
+                </button>
+            </form>
+        </nav>
+    </aside>
+</body>
 
-                <a th:href="@{/librarian/profile}"
-                   th:classappend="${activePage == 'profile'} ? 'active' : ''">
-                    <i class="bi bi-person-circle"></i>
-                    <span>T&#224;i kho&#7843;n</span>
-                </a>
-
-                <form th:action="@{/logout}" method="post" class="logout-form">
-                    <button type="submit" class="logout-btn">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>&#272;&#259;ng xu&#7845;t</span>
-                    </button>
-                </form>
-            </nav>
-        </aside>
-    </body>
 </html>
