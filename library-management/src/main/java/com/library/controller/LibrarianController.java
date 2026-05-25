@@ -1,13 +1,21 @@
 package com.library.controller;
 
+import java.util.Map;
+
+import com.library.dto.AuthDTO.ChangePasswordRequest;
 import com.library.dto.BookDTO;
 import com.library.dto.UserDTO;
+import com.library.enums.Result;
 import com.library.service.BookService;
 import com.library.service.BorrowRecordService;
 import com.library.service.CategoryService;
 import com.library.service.ReservationService;
 import com.library.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -89,6 +97,49 @@ public class LibrarianController {
 
     // UI librarian/loans cần tất cả phiếu, gồm BORROWING, OVERDUE và RETURNED.
     // Search/filter trạng thái/ngày hiện xử lý phía frontend bằng librarian-loans.js.
+    @GetMapping("/profile")
+    public String profile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model) {
+        model.addAttribute("user", userService.getUserByUsername(userDetails.getUsername()));
+        return "librarian/profile";
+    }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ModelAttribute UserDTO userDTO) {
+        UserDTO current = userService.getUserByUsername(userDetails.getUsername());
+        userDTO.setRole(current.getRole());
+        userDTO.setUsername(current.getUsername());
+        userService.updateUser(current.getId(), userDTO);
+        return "redirect:/librarian/profile?success=true";
+    }
+
+    @PostMapping("/change-password")
+    @ResponseBody
+    public ResponseEntity<?> changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ChangePasswordRequest changePasswordRequest) {
+        Result result = userService.changePassword(
+            userDetails.getUsername(),
+            changePasswordRequest.getOldPassword(),
+            changePasswordRequest.getNewPassword()
+        );
+
+        if (result == Result.NEW_PASSWORD_SAME_AS_OLD_PASSWORD) {
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", "Mật khẩu mới trùng với mật khẩu cũ!"));
+        } else if (result == Result.PASSWORD_INCORRECT) {
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", "Mật khẩu cũ không đúng!"));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công!"));
+    }
+
     @GetMapping("/loans")
     public String loans(
             @RequestParam(required = false) String keyword,
@@ -102,6 +153,14 @@ public class LibrarianController {
     @PostMapping("/loans/return/{id}")
     public String returnBook(@PathVariable Long id) {
         borrowService.returnBook(id);
+        return "redirect:/librarian/loans";
+    }
+
+    @PostMapping("/loans/renew/{id}")
+    public String renewLoan(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "7") int days) {
+        borrowService.renewLoan(id, days);
         return "redirect:/librarian/loans";
     }
 

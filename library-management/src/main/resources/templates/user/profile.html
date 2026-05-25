@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông tin tài khoản - HCMC Lib</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/library.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="container py-4">
+        <div class="row justify-content-center g-4">
+            <div class="col-lg-5">
+                <section class="dashboard-card p-4">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center"
+                             style="width: 54px; height: 54px;">
+                            <i class="bi bi-person fs-4"></i>
+                        </div>
+                        <div>
+                            <h1 class="h4 mb-1">Thông tin tài khoản</h1>
+                            <p class="text-muted mb-0" th:text="${user.role}">READER</p>
+                        </div>
+                    </div>
+
+                    <div th:if="${param.success}" class="alert alert-success">
+                        Cập nhật thông tin thành công.
+                    </div>
+
+                    <form th:action="@{/users/profile/update}" method="post" th:object="${user}">
+                        <div class="mb-3">
+                            <label class="form-label" for="username">Tên đăng nhập</label>
+                            <input id="username" class="form-control" th:field="*{username}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="fullName">Họ tên</label>
+                            <input id="fullName" class="form-control" th:field="*{fullName}">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="email">Email</label>
+                            <input id="email" class="form-control" type="email" th:field="*{email}" required>
+                        </div>
+
+                        <button class="btn btn-primary w-100" type="submit">
+                            <i class="bi bi-check2-circle"></i>
+                            Lưu thay đổi
+                        </button>
+                    </form>
+                </section>
+            </div>
+
+            <div class="col-lg-5">
+                <section class="dashboard-card p-4">
+                    <h2 class="h5 mb-3">Đổi mật khẩu</h2>
+                    <div id="password-message"></div>
+
+                    <form id="change-password-form">
+                        <div class="mb-3">
+                            <label class="form-label" for="oldPassword">Mật khẩu hiện tại</label>
+                            <input id="oldPassword" class="form-control" type="password" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="newPassword">Mật khẩu mới</label>
+                            <input id="newPassword" class="form-control" type="password" minlength="6" required>
+                        </div>
+
+                        <button id="change-password-btn" class="btn btn-outline-primary w-100" type="submit">
+                            <i class="bi bi-shield-lock"></i>
+                            Đổi mật khẩu
+                        </button>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/library.js}"></script>
+    <script>
+        document.getElementById("change-password-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const button = document.getElementById("change-password-btn");
+            const message = document.getElementById("password-message");
+            const oldPassword = document.getElementById("oldPassword").value;
+            const newPassword = document.getElementById("newPassword").value;
+
+            button.disabled = true;
+            button.textContent = "Đang đổi...";
+            message.innerHTML = "";
+
+            try {
+                const response = await fetch("/users/change-password", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ oldPassword, newPassword })
+                });
+
+                const data = await LibraryUI.readJson(response);
+                if (!response.ok) {
+                    throw new Error(data?.message || "Đổi mật khẩu thất bại.");
+                }
+
+                window.location.href = "/users/profile?success=true";
+            } catch (error) {
+                message.innerHTML = `<div class="alert alert-danger">${LibraryUI.escapeHtml(error.message)}</div>`;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="bi bi-shield-lock"></i> Đổi mật khẩu';
+            }
+        });
+    </script>
+</body>
+</html>

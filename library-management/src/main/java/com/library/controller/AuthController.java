@@ -352,6 +352,30 @@ public class AuthController {
             return "redirect:/login";
         }
 
+        boolean isStaff = authentication.getAuthorities().stream()
+            .anyMatch(authority -> "ROLE_LIBRARIAN".equals(authority.getAuthority())
+                || "ROLE_ADMIN".equals(authority.getAuthority()));
+
+        if (isStaff) {
+            return "redirect:/librarian/dashboard";
+        }
+
         return "redirect:/reader/home";
+    }
+
+    @GetMapping("/profile")
+    public String profileShortcut(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            boolean isStaff = authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_LIBRARIAN".equals(authority.getAuthority())
+                    || "ROLE_ADMIN".equals(authority.getAuthority()));
+
+            if (isStaff) {
+                return "redirect:/librarian/profile";
+            }
+        }
+
+        return "redirect:/users/profile";
     }
 }

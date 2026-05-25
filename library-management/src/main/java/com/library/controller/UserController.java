@@ -45,6 +45,8 @@ public class UserController {
             @ModelAttribute UserDTO dto,
             Model model) {
         UserDTO current = userService.getUserByUsername(userDetails.getUsername());
+        dto.setRole(current.getRole());
+        dto.setUsername(current.getUsername());
         userService.updateUser(current.getId(), dto);
         return "redirect:/users/profile?success=true";
     }

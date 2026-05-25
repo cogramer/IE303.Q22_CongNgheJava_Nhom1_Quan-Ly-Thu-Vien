@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     const modalElement = document.getElementById("returnConfirmModal");
     const returnModal = new bootstrap.Modal(modalElement);
+    const renewModalElement = document.getElementById("renewConfirmModal");
+    const renewModal = renewModalElement ? new bootstrap.Modal(renewModalElement) : null;
     const selectAll = document.getElementById("select-all-loans");
     const returnSelectedButton = document.getElementById("return-selected-btn");
     const searchInput = document.getElementById("loan-search");
@@ -35,6 +37,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    document.querySelectorAll(".renew-loan-btn").forEach(button => {
+        button.addEventListener("click", () => {
+            const row = button.closest("tr");
+            openRenewModal(row, renewModal);
+        });
+    });
+
     if (returnSelectedButton) {
         returnSelectedButton.addEventListener("click", () => {
             const selectedRows = getSelectedRows();
@@ -43,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.getElementById("return-confirm-form").addEventListener("submit", returnSelectedLoans);
+    document.getElementById("renew-confirm-form")?.addEventListener("submit", renewLoan);
 
     if (searchInput) {
         searchInput.focus();
@@ -53,6 +63,70 @@ document.addEventListener("DOMContentLoaded", () => {
     applyLoanFilters();
     updateSelectionState();
 });
+
+function openRenewModal(row, modal) {
+    if (!row || !modal) {
+        return;
+    }
+
+    const form = document.getElementById("renew-confirm-form");
+    const daysInput = document.getElementById("renew-days");
+    const errorMessage = document.getElementById("renew-error-message");
+
+    form.action = `/librarian/loans/renew/${encodeURIComponent(row.dataset.loanId || "")}`;
+    daysInput.value = "7";
+    errorMessage.textContent = "";
+
+    LibraryUI.setText("renew-reader-name", row.dataset.reader || "");
+    LibraryUI.setText("renew-book-title", row.dataset.book || "");
+    LibraryUI.setText("renew-current-due-date", row.dataset.dueDate || "");
+
+    modal.show();
+}
+
+async function renewLoan(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    const daysInput = document.getElementById("renew-days");
+    const errorMessage = document.getElementById("renew-error-message");
+    const button = document.getElementById("confirm-renew-btn");
+    const days = Number(daysInput.value);
+
+    if (!Number.isInteger(days) || days < 1 || days > 30) {
+        errorMessage.textContent = "Số ngày gia hạn phải từ 1 đến 30 ngày.";
+        daysInput.focus();
+        return;
+    }
+
+    const body = new URLSearchParams();
+    body.set("days", String(days));
+
+    button.disabled = true;
+    button.textContent = "Đang gia hạn...";
+    errorMessage.textContent = "";
+
+    try {
+        const response = await fetch(form.action, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+            },
+            body
+        });
+
+        if (!response.ok) {
+            throw new Error("Renew request failed");
+        }
+
+        window.location.reload();
+    } catch (error) {
+        button.disabled = false;
+        button.textContent = "Xác nhận gia hạn";
+        errorMessage.textContent = "Gia hạn thất bại. Vui lòng kiểm tra lại số ngày.";
+    }
+}
 
 function updateSelectionState() {
     const checkboxes = Array.from(document.querySelectorAll(".loan-row:not(.d-none) .loan-checkbox:not(:disabled)"));
