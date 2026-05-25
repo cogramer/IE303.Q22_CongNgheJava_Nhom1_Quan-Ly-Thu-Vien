@@ -87,7 +87,7 @@ public class BorrowRecordService {
         .collect(Collectors.toList());
   }
 
-  // --- 3. HÀM CẬP NHẬT TRẠNG THÁI QUÁ HẠN (CHẠY TỰ ĐỘNG) ---
+  // --- 3. HÀM CẬP NHẬT TRẠNG THÁI QUÁ HẠN (CHẠY TỰ ĐỘNG) --- Chưa có hàm nào gọi 
   @Transactional
   public void updateOverdueStatus() {
     LocalDate today = LocalDate.now();
@@ -125,6 +125,29 @@ public class BorrowRecordService {
         Feedback.EventType.RETURN);
 
     return borrowMapper.toDTO(saved);
+  }
+
+  @Transactional
+  public BorrowRecordDTO renewLoan(Long recordId, int extensionDays) {
+      if (extensionDays < 1 || extensionDays > 30) {
+          throw new IllegalArgumentException("Số ngày gia hạn phải nằm trong khoảng 1 đến 30 ngày.");
+      }
+
+      BorrowRecord record = borrowRepository.findById(recordId)
+          .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phiếu mượn!"));
+
+      if (record.getStatus() == BorrowRecord.Status.RETURNED) {
+          throw new IllegalStateException("Không thể gia hạn phiếu đã trả sách.");
+      }
+
+      LocalDate baseDate = record.getDueDate().isBefore(LocalDate.now())
+          ? LocalDate.now()
+          : record.getDueDate();
+
+      record.setDueDate(baseDate.plusDays(extensionDays));
+      record.setStatus(BorrowRecord.Status.BORROWING);
+
+      return borrowMapper.toDTO(borrowRepository.save(record));
   }
 
   public List<BorrowRecordDTO> getUserBorrowHistory(Long userId) {

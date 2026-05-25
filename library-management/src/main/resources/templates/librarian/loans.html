@@ -166,6 +166,48 @@
         </div>
     </div>
 
+    <div class="modal fade" id="renewConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content return-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Gia h&#7841;n m&#432;&#7907;n s&#225;ch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="&#272;&#243;ng"></button>
+                </div>
+                <form id="renew-confirm-form" method="post">
+                    <div class="modal-body">
+                        <p class="text-muted mb-3">
+                            Nh&#7853;p s&#7889; ng&#224;y gia h&#7841;n cho phi&#7871;u m&#432;&#7907;n n&#224;y.
+                        </p>
+                        <div class="renew-summary mb-3">
+                            <div><span>&#272;&#7897;c gi&#7843;</span><strong id="renew-reader-name"></strong></div>
+                            <div><span>S&#225;ch</span><strong id="renew-book-title"></strong></div>
+                            <div><span>H&#7841;n tr&#7843; hi&#7879;n t&#7841;i</span><strong id="renew-current-due-date"></strong></div>
+                        </div>
+                        <label class="form-label" for="renew-days">S&#7889; ng&#224;y gia h&#7841;n</label>
+                        <input
+                            id="renew-days"
+                            name="days"
+                            class="form-control"
+                            type="number"
+                            min="1"
+                            max="30"
+                            value="7"
+                            required
+                        >
+                        <div class="form-text">Ch&#7881; cho ph&#233;p gia h&#7841;n t&#7915; 1 &#273;&#7871;n 30 ng&#224;y.</div>
+                        <div id="renew-error-message" class="text-danger small mt-2"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">H&#7911;y</button>
+                        <button id="confirm-renew-btn" class="btn btn-primary" type="submit">
+                            X&#225;c nh&#7853;n gia h&#7841;n
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script th:src="@{/js/library.js}"></script>
     <script th:src="@{/js/librarian-loans.js}"></script>
