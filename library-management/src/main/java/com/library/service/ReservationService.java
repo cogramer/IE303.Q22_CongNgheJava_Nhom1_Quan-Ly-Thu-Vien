@@ -4,13 +4,14 @@ import com.library.dto.ReservationDTO;
 import com.library.mapper.ReservationMapper;
 import com.library.model.Book;
 import com.library.model.BorrowRecord;
-import com.library.model.Feedback; // Nếu bạn có class này
+import com.library.model.Feedback;
 import com.library.model.Reservation;
 import com.library.model.User;
 import com.library.repository.BookRepository;
 import com.library.repository.BorrowRecordRepository;
 import com.library.repository.ReservationRepository;
 import com.library.repository.UserRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,10 +29,11 @@ public class ReservationService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final BorrowRecordRepository borrowRecordRepository;
-    private final FeedbackService feedbackService; // Đảm bảo bạn đã Inject FeedbackService
-
-    // Gọi Mapper mới tạo
+    private final FeedbackService feedbackService;
     private final ReservationMapper reservationMapper;
+
+    // ĐÃ SỬA: Đổi EmailService thành EmailNotificationService
+    private final EmailNotificationService emailService;
 
     // Độc giả đặt giữ sách
     @Transactional
@@ -85,6 +87,16 @@ public class ReservationService {
                 book.getId(),
                 Feedback.EventType.BORROW);
 
+        String subject = "THÔNG BÁO: Yêu cầu mượn sách đã được duyệt!";
+        String content = String.format(
+                "Chào %s,\n\nCuốn sách '%s' bạn đặt giữ đã được thủ thư duyệt.\n" +
+                        "Vui lòng đến thư viện nhận sách. Thời hạn mượn của bạn là 14 ngày kể từ hôm nay.\n\n" +
+                        "Trân trọng,\nHCMC Lib",
+                reservation.getUser().getFullName(),
+                reservation.getBook().getTitle());
+
+        // Gọi service gửi email
+        emailService.sendEmail(reservation.getUser().getEmail(), subject, content);
         return reservationMapper.toDTO(reservation);
     }
 

@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -15,6 +17,10 @@ public interface BorrowRecordRepository extends JpaRepository<BorrowRecord, Long
     List<BorrowRecord> findByBookId(Long bookId);
 
     List<BorrowRecord> findByStatus(BorrowRecord.Status status);
+
+    List<BorrowRecord> findByStatusAndDueDate(BorrowRecord.Status status, LocalDate dueDate);
+
+    List<BorrowRecord> findByStatusAndDueDateLessThan(BorrowRecord.Status status, LocalDate date);
 
     boolean existsByUserIdAndBookIdAndStatus(Long userId, Long bookId, BorrowRecord.Status status);
 
@@ -27,7 +33,6 @@ public interface BorrowRecordRepository extends JpaRepository<BorrowRecord, Long
 
     // Thống kê theo tháng
     @Query("SELECT MONTH(b.borrowDate), COUNT(b) FROM BorrowRecord b " +
-        "WHERE YEAR(b.borrowDate) = :year GROUP BY MONTH(b.borrowDate) ORDER BY MONTH(b.borrowDate)")
+            "WHERE YEAR(b.borrowDate) = :year GROUP BY MONTH(b.borrowDate) ORDER BY MONTH(b.borrowDate)")
     List<Object[]> countByMonth(@Param("year") int year);
 }
-

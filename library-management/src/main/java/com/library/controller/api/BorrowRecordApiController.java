@@ -123,4 +123,21 @@ public class BorrowRecordApiController {
   public ResponseEntity<Map<Integer, Long>> getBorrowCountByMonth(@RequestParam int year) {
     return ResponseEntity.ok(borrowService.getBorrowCountByMonth(year));
   }
+
+  // 3b. Gia hạn thời gian mượn sách (Dành cho thủ thư/admin)
+  @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+  @PutMapping("/{id}/renew")
+  public ResponseEntity<?> renewLoan(
+      @PathVariable Long id,
+      @RequestParam(defaultValue = "7") int extensionDays) {
+    try {
+      // extensionDays mặc định là 7 ngày nếu frontend không truyền vào
+      BorrowRecordDTO renewedRecord = borrowService.renewLoan(id, extensionDays);
+      return ResponseEntity.ok(renewedRecord);
+    } catch (RuntimeException e) {
+      // Bắt các lỗi từ service (IllegalArgumentException, IllegalStateException,
+      // EntityNotFoundException)
+      return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+    }
+  }
 }

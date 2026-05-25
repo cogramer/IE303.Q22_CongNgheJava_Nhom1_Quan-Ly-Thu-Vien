@@ -111,12 +111,14 @@ async function borrowBooks() {
     const failed = [];
 
     for (const book of selected) {
-        // SỬA ENDPOINT TẠI ĐÂY
+        // ĐÃ SỬA: Gửi Content-Type là application/json và body là chuỗi JSON
         const res = await fetch("/api/reservations", {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            headers: {
+                "Content-Type": "application/json" // <-- Đổi thành JSON
+            },
             credentials: "include",
-            body: new URLSearchParams({ bookId: book.id })
+            body: JSON.stringify({ bookId: Number(book.id) }) // <-- Đóng gói thành object JSON
         });
 
         if (!res.ok) {
@@ -132,7 +134,6 @@ async function borrowBooks() {
     showMessage(`Đã tạo yêu cầu đặt giữ cho ${selected.length} sách. Vui lòng chờ thủ thư duyệt.`, true);
     await loadBooks();
 }
-
 async function loadBorrowedBooks() {
     const tbody = document.getElementById("borrowed-body");
     const summary = document.getElementById("return-summary");

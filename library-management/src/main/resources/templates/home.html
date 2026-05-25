@@ -70,8 +70,8 @@
                                         th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"></p>
 
                                     <button class="btn btn-primary mt-auto"
-                                        th:onclick="'borrowBook(' + ${book.id} + ')'">
-                                        Mượn ngay
+                                        th:onclick="'reserveBook(' + ${book.id} + ')'">
+                                        Đặt giữ
                                     </button>
                                 </div>
                             </div>
@@ -103,8 +103,8 @@
                                         th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"></p>
 
                                     <button class="btn btn-primary mt-auto"
-                                        th:onclick="'borrowBook(' + ${book.id} + ')'">
-                                        Mượn ngay
+                                        th:onclick="'reserveBook(' + ${book.id} + ')'">
+                                        Đặt giữ
                                     </button>
                                 </div>
                             </div>
@@ -127,17 +127,17 @@
 
     <!-- API Tương tác -->
     <script>
-        // Hàm gọi API POST /api/borrow để Độc giả tự mượn sách
-        async function borrowBook(bookId) {
+        // Hàm gọi API POST /api/reservations để Độc giả đặt giữ sách
+        async function reserveBook(bookId) {
             try {
-                const response = await fetch('/api/borrow', {
+                const response = await fetch('/api/reservations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                         // Nếu sau này bạn bật CSRF, cần truyền thêm header X-CSRF-TOKEN ở đây
                     },
-                    // SỬA Ở ĐÂY: Truyền lên một mảng thay vì một object
-                    body: JSON.stringify([bookId])
+                    // ĐÃ SỬA: API reservations yêu cầu một Object chứa bookId thay vì Array
+                    body: JSON.stringify({ bookId: bookId })
                 });
 
                 // Nếu API trả về thành công (HTTP 201 Created hoặc 200 OK)
@@ -145,16 +145,19 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Thành công!',
-                        text: 'Bạn đã mượn sách thành công!',
+                        text: 'Bạn đã đặt mượn sách thành công! Vui lòng chờ thủ thư duyệt.',
                         confirmButtonColor: '#28a745'
+                    }).then(() => {
+                        // Tải lại trang để cập nhật trạng thái nếu cần
+                        window.location.reload();
                     });
                 } else {
                     // API trả về lỗi (ví dụ 400 Bad Request)
-                    const data = await response.json(); // Đọc nội dung lỗi từ backend
+                    const data = await response.json();
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Không thể mượn!',
-                        text: data.message || 'Có lỗi xảy ra khi mượn sách.',
+                        title: 'Không thể đặt mượn!',
+                        text: data.message || 'Có lỗi xảy ra khi đặt sách.',
                         confirmButtonColor: '#d33'
                     });
                 }
