@@ -101,7 +101,29 @@ public class WebReaderController {
   @GetMapping("/history")
   public String borrowHistory(@AuthenticationPrincipal UserDetails userDetails, Model model) {
     Long userId = getUserId(userDetails);
-    model.addAttribute("records", borrowRecordService.getUserBorrowHistory(userId));
+    
+    // Lấy tất cả records
+    List<BorrowRecordDTO> allRecords = borrowRecordService.getUserBorrowHistory(userId);
+    
+    // Lọc chỉ RETURNED records
+    List<BorrowRecordDTO> returnedRecords = allRecords.stream()
+        .filter(r -> BorrowRecord.Status.RETURNED.name().equals(r.getStatus()))
+        .collect(Collectors.toList());
+    
+    // Tính thống kê
+    long totalReturned = returnedRecords.size();
+    long lateCount = allRecords.stream()
+        .filter(r -> BorrowRecord.Status.OVERDUE.name().equals(r.getStatus()))
+        .count();
+    
+    // Phí phạt (tạm thời đặt là 0 - có thể tính từ số ngày trễ hạn sau)
+    double lateFee = lateCount * 5000; // 5000đ/ngày trễ (ví dụ)
+    
+    model.addAttribute("records", returnedRecords);
+    model.addAttribute("totalReturned", totalReturned);
+    model.addAttribute("lateCount", lateCount);
+    model.addAttribute("lateFee", lateFee);
+    
     return "reader/history";
   }
 

@@ -69,10 +69,6 @@
                                     <p class="book-price"
                                         th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"></p>
 
-                                    <button class="btn btn-primary mt-auto"
-                                        th:onclick="'reserveBook(' + ${book.id} + ')'">
-                                        Đặt giữ
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -102,10 +98,6 @@
                                     <p class="book-price"
                                         th:text="${book.price != null} ? book.price + 'đ' : 'Miễn phí'"></p>
 
-                                    <button class="btn btn-primary mt-auto"
-                                        th:onclick="'reserveBook(' + ${book.id} + ')'">
-                                        Đặt giữ
-                                    </button>
                                 </div>
                             </div>
                         </div>
