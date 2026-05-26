@@ -13,18 +13,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RecommendService {
-
     private final CollaborativeFilter collaborativeFilter;
-    private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+    private final BookService bookService;
 
     public List<BookDTO> recommendBooks(Long userId) {
         List<Long> bookIds = collaborativeFilter.recommend(userId);
-
         return bookIds.stream()
-                .map(bookRepository::findById)
-                .filter(Optional::isPresent)
-                .map(optional -> bookMapper.toDTO(optional.get()))
+                .map(bookService::getBookById)
                 .collect(Collectors.toList());
     }
 }
