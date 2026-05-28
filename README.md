@@ -65,63 +65,165 @@ Hệ thống sử dụng thuật toán **Collaborative Filtering** để gợi �
 ## Cấu trúc thư mục
 
 ```ini
-library-management/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/
-│   │   │       └── library/
-│   │   │           ├── ai/
-│   │   │           │   ├── CollaborativeFilter.java
-│   │   │           │   └── SimilarityUtil.java
-│   │   │           ├── config/
-│   │   │           │   └── SecurityConfig.java
-│   │   │           ├── controller/
-│   │   │           │   ├── AuthController.java
-│   │   │           │   ├── BookController.java
-│   │   │           │   ├── BorrowController.java
-│   │   │           │   └── UserController.java
-│   │   │           ├── dto/
-│   │   │           │   ├── BookDTO.java
-│   │   │           │   ├── BorrowRecordDTO.java
-│   │   │           │   └── UserDTO.java
-│   │   │           ├── model/
-│   │   │           │   ├── Book.java
-│   │   │           │   ├── BorrowRecord.java
-│   │   │           │   ├── Category.java
-│   │   │           │   └── User.java
-│   │   │           ├── repository/
-│   │   │           │   ├── BookRepository.java
-│   │   │           │   ├── BorrowRecordRepository.java
-│   │   │           │   ├── CategoryRepository.java
-│   │   │           │   └── UserRepository.java
-│   │   │           ├── service/
-│   │   │           │   ├── BookService.java
-│   │   │           │   ├── BorrowService.java
-│   │   │           │   ├── RecommendService.java
-│   │   │           │   └── UserService.java
-│   │   │           └── LibraryManagementApplication.java
-│   │   └── resources/
-│   │       ├── static/
-│   │       │   ├── css/
-│   │       │   ├── js/
-│   │       │   └── images/
-│   │       ├── templates/
-│   │       │   ├── books/
-│   │       │   ├── borrow/
-│   │       │   ├── users/
-│   │       │   └── layout.html
-│   │       └── application.properties
-│   └── test/
-│       └── java/
-│           └── com/
-│               └── library/
-│                   └── LibraryManagementApplicationTests.java
-├── .gitignore
-├── mvnw
-├── mvnw.cmd
-├── pom.xml
-└── README.md
+src
+├───main
+│   ├───java
+│   │   └───com
+│   │       └───library
+│   │           │   LibraryManagementApplication.java
+│   │           │
+│   │           ├───ai
+│   │           │       CollaborativeFilter.java
+│   │           │       SimilarityUtil.java
+│   │           │
+│   │           ├───config
+│   │           │       SecurityConfig.java
+│   │           │
+│   │           ├───controller
+│   │           │   ├───api
+│   │           │   │       AuthController.java
+│   │           │   │       BookApiController.java
+│   │           │   │       BorrowRecordApiController.java
+│   │           │   │       CategoryApiController.java
+│   │           │   │       FeedbackApiController.java
+│   │           │   │       RecommendApiController.java
+│   │           │   │       ReservationApiController.java
+│   │           │   │       UserApiController.java
+│   │           │   │
+│   │           │   └───web
+│   │           │           GlobalWebAdvice.java
+│   │           │           WebAuthController.java
+│   │           │           WebLibrarianController.java
+│   │           │           WebReaderController.java
+│   │           │           WebUserController.java
+│   │           │
+│   │           ├───dto
+│   │           │       AuthDTO.java
+│   │           │       BookDTO.java
+│   │           │       BorrowRecordDTO.java
+│   │           │       CategoryDTO.java
+│   │           │       FeedbackDTO.java
+│   │           │       ReservationDTO.java
+│   │           │       UserDTO.java
+│   │           │
+│   │           ├───enums
+│   │           │       LoginResult.java
+│   │           │       RegisterResult.java
+│   │           │       Result.java
+│   │           │
+│   │           ├───mapper
+│   │           │       BookMapper.java
+│   │           │       BorrowRecordMapper.java
+│   │           │       CategoryMapper.java
+│   │           │       ReservationMapper.java
+│   │           │       UserMapper.java
+│   │           │
+│   │           ├───model
+│   │           │       Book.java
+│   │           │       BorrowRecord.java
+│   │           │       Category.java
+│   │           │       Feedback.java
+│   │           │       RememberMeToken.java
+│   │           │       Reservation.java
+│   │           │       User.java
+│   │           │
+│   │           ├───repository
+│   │           │       BookRepository.java
+│   │           │       BorrowRecordRepository.java
+│   │           │       CategoryRepository.java
+│   │           │       FeedbackRepository.java
+│   │           │       RememberMeRepository.java
+│   │           │       ReservationRepository.java
+│   │           │       UserRepository.java
+│   │           │
+│   │           ├───scheduler
+│   │           │       BorrowRecordScheduler.java
+│   │           │       BorrowReminderScheduler.java
+│   │           │
+│   │           ├───security
+│   │           │       CustomUserDetailsService.java
+│   │           │       JwtFilter.java
+│   │           │       JwtUtil.java
+│   │           │
+│   │           └───service
+│   │                   AuthService.java
+│   │                   BookService.java
+│   │                   BorrowRecordService.java
+│   │                   CategoryService.java
+│   │                   EmailNotificationService.java
+│   │                   FeedbackService.java
+│   │                   RecommendService.java
+│   │                   RememberMeService.java
+│   │                   ReservationService.java
+│   │                   UserService.java
+│   │
+│   └───resources
+│       │   application.properties
+│       │
+│       ├───static
+│       │   ├───css
+│       │   │       books.css
+│       │   │       borrow.css
+│       │   │       history.css
+│       │   │       librarian-books.css
+│       │   │       librarian-dashboard.css
+│       │   │       librarian-loans.css
+│       │   │       librarian-reports.css
+│       │   │       librarian-reservations.css
+│       │   │       librarian-users.css
+│       │   │       library.css
+│       │   │       style.css
+│       │   │
+│       │   ├───img
+│       │   └───js
+│       │           books.js
+│       │           borrow.js
+│       │           history.js
+│       │           librarian-books.js
+│       │           librarian-dashboard.js
+│       │           librarian-loans.js
+│       │           librarian-reports.js
+│       │           librarian-reservations.js
+│       │           librarian-users.js
+│       │           library.js
+│       │           recommendations.js
+│       │
+│       └───templates
+│           │   forgotPassword.html
+│           │   home.html
+│           │   login.html
+│           │   register.html
+│           │
+│           ├───fragments
+│           │       footer.html
+│           │       header.html
+│           │       librarian-sidebar.html
+│           │
+│           ├───librarian
+│           │       books.html
+│           │       dashboard.html
+│           │       loans.html
+│           │       profile.html
+│           │       reports.html
+│           │       reservations.html
+│           │       users.html
+│           │
+│           ├───reader
+│           │       book-detail.html
+│           │       books.html
+│           │       borrow.html
+│           │       history.html
+│           │       recommendations.html
+│           │
+│           └───user
+│                   profile.html
+│
+└───test
+    └───java
+        └───com
+            └───library
+                └───library_management
+                        LibraryManagementApplicationTests.java
 ```
 
 ---
