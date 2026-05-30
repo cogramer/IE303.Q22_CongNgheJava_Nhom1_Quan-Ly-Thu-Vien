@@ -1,3 +1,19 @@
+.books-hero {
+    padding: 26px;
+}
+
+.books-hero h1 {
+    margin-bottom: 8px;
+    color: #0f2440;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.books-hero p {
+    margin: 0;
+    color: #607086;
+}
+
 .books-heading {
     display: flex;
     align-items: flex-start;

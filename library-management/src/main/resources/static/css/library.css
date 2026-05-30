@@ -9,7 +9,7 @@ body {
 }
 
 :is(.librarian-sidebar, .users-sidebar, .reservations-sidebar, .reports-sidebar, .admin-sidebar),
-:is(.users-card, .reservations-card, .report-card, .dashboard-card, .profile-card) {
+:is(.users-card, .reservations-card, .report-card, .dashboard-card, .profile-card, .books-card, .loans-card) {
     border: 1px solid #dbe7f5;
     border-radius: 22px;
     background: #ffffff;
