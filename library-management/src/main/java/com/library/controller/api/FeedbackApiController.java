@@ -5,6 +5,8 @@ import com.library.model.User;
 import com.library.service.FeedbackService;
 import com.library.service.UserService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +34,8 @@ public class FeedbackApiController {
 
   // Lấy danh sách đánh giá của một cuốn sách cụ thể
   @GetMapping("/books/{bookId}")
-  public ResponseEntity<List<FeedbackDTO.Response>> getFeedbackByBookId(@PathVariable Long bookId) {
-    return ResponseEntity.ok(feedbackService.getFeedbackByBookId(bookId));
+  public ResponseEntity<Page<FeedbackDTO.Response>> getFeedbackByBookId(@PathVariable Long bookId, @RequestParam(defaultValue = "0") Long page, @RequestParam(defaultValue = "6") Long size, @RequestParam(defaultValue = "desc") String sortDir) {
+    return ResponseEntity.ok(feedbackService.getFeedbackByBookId(bookId, page, size, sortDir));
   }
 
   // ==========================================
@@ -41,9 +44,9 @@ public class FeedbackApiController {
 
   // 1. Lấy danh sách đánh giá/tương tác của chính mình
   @GetMapping("/me")
-  public ResponseEntity<List<FeedbackDTO.Response>> getMyFeedbacks(Authentication authentication) {
+  public ResponseEntity<Page<FeedbackDTO.Response>> getMyFeedbacks(Authentication authentication, @RequestParam(defaultValue = "0") Long page, @RequestParam(defaultValue = "10") Long size, @RequestParam(defaultValue = "desc") String sortDir) {
     Long currentUserId = userService.getUserByUsername(authentication.getName()).getId();
-    return ResponseEntity.ok(feedbackService.getFeedbackByUserId(currentUserId));
+    return ResponseEntity.ok(feedbackService.getFeedbackByUserId(currentUserId, page, size, sortDir));
   }
 
   // 2. Tạo đánh giá (RATING) cho sách
@@ -91,6 +94,17 @@ public class FeedbackApiController {
     }
   }
 
+  @GetMapping("/books/{bookId}/average-score")
+  public ResponseEntity<Map<String, Object>> getAverageScoreForBook(@PathVariable Long bookId) {
+      double averageScore = feedbackService.getAverageScoreForBook(bookId);
+
+      Map<String, Object> response = new HashMap<>();
+      response.put("bookId", bookId);
+      response.put("averageScore", averageScore);
+
+      return ResponseEntity.ok(response);
+  }
+
   // ==========================================
   // HÀM HỖ TRỢ (HELPER METHOD)
   // ==========================================
@@ -100,5 +114,5 @@ public class FeedbackApiController {
     return authentication.getAuthorities().stream()
         .map(GrantedAuthority::getAuthority)
         .anyMatch(role -> role.equals("ROLE_ADMIN") || role.equals("ROLE_LIBRARIAN"));
-  }
+  } 
 }

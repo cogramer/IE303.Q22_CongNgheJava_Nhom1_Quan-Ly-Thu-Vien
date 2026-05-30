@@ -33,7 +33,7 @@ public class FeedbackDTO {
     public static class Response {
         private Long id;
         private Long userId;
-        private String username;
+        private String fullName;
         private Long bookId;
         private String bookTitle;
         private Feedback.EventType eventType;
