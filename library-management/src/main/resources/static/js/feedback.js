@@ -1,6 +1,10 @@
 const feedbackState = {
     books: [],
     feedbacks: [],
+    currentPage: 0,
+    pageSize: 6,
+    totalPages: 1,
+    totalElements: 0,
     editModal: null,
     deleteModal: null,
     editingOriginal: null
@@ -12,6 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     bindFeedbackForm();
     bindEditForm();
     bindDeleteConfirm();
+    bindFeedbackPagination();
     await Promise.all([loadBooks(), loadMyFeedbacks()]);
 });
 
@@ -33,6 +38,20 @@ function bindDeleteConfirm() {
     document.getElementById("feedback-delete-confirm").addEventListener("click", deleteSelectedFeedback);
 }
 
+function bindFeedbackPagination() {
+    document.getElementById("feedback-prev-page")?.addEventListener("click", () => {
+        if (feedbackState.currentPage > 0) {
+            loadMyFeedbacks(feedbackState.currentPage - 1);
+        }
+    });
+
+    document.getElementById("feedback-next-page")?.addEventListener("click", () => {
+        if (feedbackState.currentPage < feedbackState.totalPages - 1) {
+            loadMyFeedbacks(feedbackState.currentPage + 1);
+        }
+    });
+}
+
 async function loadBooks() {
     const select = document.getElementById("feedback-book");
 
@@ -52,19 +71,32 @@ async function loadBooks() {
     }
 }
 
-async function loadMyFeedbacks() {
+async function loadMyFeedbacks(page = feedbackState.currentPage) {
     try {
-        const response = await fetch("/api/feedbacks/me", { credentials: "include" });
-        const feedbacks = await LibraryUI.readJson(response);
+        const response = await fetch(
+            `/api/feedbacks/me?page=${page}&size=${feedbackState.pageSize}&sortDir=desc`,
+            { credentials: "include" }
+        );
+        const data = await LibraryUI.readJson(response);
 
-        if (!response.ok || !Array.isArray(feedbacks)) {
-            throw new Error(feedbacks?.message || "Không tải được đánh giá.");
+        if (!response.ok || !Array.isArray(data.content)) {
+            throw new Error(data?.message || "Không tải được đánh giá.");
         }
 
-        feedbackState.feedbacks = feedbacks;
-        renderFeedbackList(feedbacks);
+        feedbackState.feedbacks = data.content;
+        feedbackState.currentPage = data.number || 0;
+        feedbackState.totalPages = data.totalPages || 1;
+        feedbackState.totalElements = data.totalElements || 0;
+
+        renderFeedbackList(data.content);
+        renderFeedbackPagination();
     } catch (error) {
+        feedbackState.feedbacks = [];
+        feedbackState.currentPage = 0;
+        feedbackState.totalPages = 1;
+        feedbackState.totalElements = 0;
         renderFeedbackList([]);
+        renderFeedbackPagination();
         showFormMessage(error.message, false);
     }
 }
@@ -85,11 +117,10 @@ function renderBookOptions(books) {
 function renderFeedbackList(feedbacks) {
     const tableBody = document.getElementById("feedbackTableBody");
     const totalCount = document.getElementById("totalFeedbackCount");
-    const ratingFeedbacks = feedbacks.filter(item => item.eventType === "RATING");
 
-    totalCount.textContent = ratingFeedbacks.length;
+    totalCount.textContent = feedbackState.totalElements;
 
-    if (!ratingFeedbacks.length) {
+    if (!feedbacks.length) {
         tableBody.innerHTML = `
             <tr class="empty-state">
                 <td colspan="6" class="text-center py-5">
@@ -103,7 +134,7 @@ function renderFeedbackList(feedbacks) {
         return;
     }
 
-    tableBody.innerHTML = ratingFeedbacks.map((item, index) => {
+    tableBody.innerHTML = feedbacks.map((item, index) => {
         const title = LibraryUI.escapeHtml(item.bookTitle || "Sách không tên");
         const date = LibraryUI.formatDate(item.eventDate);
         const score = Number(item.score || 0);
@@ -112,11 +143,12 @@ function renderFeedbackList(feedbacks) {
         const commentHtml = escapedComment
             ? `<div class="feedback-comment">${escapedComment}</div>`
             : '<div class="feedback-comment is-empty">Chưa có bình luận</div>';
+        const order = feedbackState.currentPage * feedbackState.pageSize + index + 1;
 
         return `
             <tr data-feedback-id="${item.id}">
                 <td class="col-stt">
-                    <span>${index + 1}</span>
+                    <span>${order}</span>
                 </td>
                 <td class="col-book">
                     <span class="book-title">${title}</span>
@@ -143,11 +175,20 @@ function renderFeedbackList(feedbacks) {
     bindFeedbackActions();
 }
 
-function renderScoreOptions(selectedScore) {
-    return [5, 4, 3, 2, 1].map(score => {
-        const selected = Number(selectedScore) === score ? "selected" : "";
-        return `<option value="${score}" ${selected}>${score}</option>`;
-    }).join("");
+function renderFeedbackPagination() {
+    const pagination = document.getElementById("feedback-pagination");
+    const pageInfo = document.getElementById("feedback-page-info");
+    const prevButton = document.getElementById("feedback-prev-page");
+    const nextButton = document.getElementById("feedback-next-page");
+
+    if (!pagination || !pageInfo || !prevButton || !nextButton) {
+        return;
+    }
+
+    pagination.hidden = feedbackState.totalPages <= 1;
+    pageInfo.textContent = `Trang ${feedbackState.currentPage + 1} / ${feedbackState.totalPages}`;
+    prevButton.disabled = feedbackState.currentPage <= 0;
+    nextButton.disabled = feedbackState.currentPage >= feedbackState.totalPages - 1;
 }
 
 function renderStars(score) {
@@ -195,8 +236,9 @@ async function submitFeedback() {
 
         document.getElementById("feedback-form").reset();
         document.getElementById("feedback-score").value = "5";
+        feedbackState.currentPage = 0;
         notifyFeedback("Gửi đánh giá thành công.", true);
-        await loadMyFeedbacks();
+        await loadMyFeedbacks(0);
     } catch (error) {
         notifyFeedback(error.message, false);
     } finally {
@@ -252,7 +294,7 @@ async function submitEditFeedback() {
     try {
         await updateFeedbackById(id, score, comment);
         notifyFeedback("Cập nhật đánh giá thành công.", true);
-        await loadMyFeedbacks();
+        await loadMyFeedbacks(feedbackState.currentPage);
         feedbackState.editModal.hide();
     } catch (error) {
         notifyFeedback(error.message, false);
@@ -310,9 +352,13 @@ async function deleteSelectedFeedback() {
             throw new Error(data?.message || "Xóa đánh giá thất bại.");
         }
 
-        await loadMyFeedbacks();
+        const nextPage = feedbackState.feedbacks.length === 1 && feedbackState.currentPage > 0
+            ? feedbackState.currentPage - 1
+            : feedbackState.currentPage;
+
         feedbackState.deleteModal.hide();
         notifyFeedback("Xóa đánh giá thành công.", true);
+        await loadMyFeedbacks(nextPage);
     } catch (error) {
         notifyFeedback(error.message, false);
     } finally {
@@ -329,7 +375,7 @@ function notifyFeedback(message, success) {
         icon: success ? "success" : "error",
         title: success ? "Thành công" : "Lỗi",
         text: message,
-        timer: 1500,
+        timer: 2000,
         timerProgressBar: true,
         showConfirmButton: false
     });

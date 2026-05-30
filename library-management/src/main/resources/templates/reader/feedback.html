@@ -21,14 +21,14 @@
         <div class="container">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Đánh giá sách</li>
+                <li class="breadcrumb-item active" aria-current="page">Danh sách đánh giá</li>
             </ol>
         </div>
     </nav>
 
     <main class="container feedback-container">
         <div class="page-heading mb-5">
-            <h1 class="page-title mb-2">ĐÁNH GIÁ SÁCH</h1>
+            <h1 class="page-title mb-2">DANH SÁCH ĐÁNH GIÁ</h1>
             <p class="text-muted mb-0">Gửi đánh giá, bình luận và xem lại các đánh giá sách bạn đã tạo</p>
         </div>
 
@@ -94,6 +94,12 @@
                     </tbody>
                 </table>
             </div>
+
+            <nav id="feedback-pagination" class="feedback-pagination-wrap" aria-label="Phân trang danh sách đánh giá" hidden>
+                <button id="feedback-prev-page" class="btn btn-outline-primary btn-sm" type="button">Trước</button>
+                <span id="feedback-page-info">Trang 1 / 1</span>
+                <button id="feedback-next-page" class="btn btn-outline-primary btn-sm" type="button">Sau</button>
+            </nav>
         </section>
     </main>
 
