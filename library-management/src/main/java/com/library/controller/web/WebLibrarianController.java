@@ -144,6 +144,18 @@ public class WebLibrarianController {
     return "redirect:/librarian/loans";
   }
 
+  @PostMapping("/loans/renew/{id}")
+  public String renewLoanWeb(@PathVariable Long id, @RequestParam(name = "days", defaultValue = "7") int days,
+      RedirectAttributes redirectAttributes) {
+    try {
+      borrowService.renewLoan(id, days);
+      redirectAttributes.addFlashAttribute("successMsg", "Gia hạn phiếu mượn thành công!");
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMsg", "Không thể gia hạn: " + e.getMessage());
+    }
+    return "redirect:/librarian/loans";
+  }
+
   @PostMapping("/users/save")
   public String saveUser(@ModelAttribute UserDTO userDTO, RedirectAttributes redirectAttributes) {
     try {
