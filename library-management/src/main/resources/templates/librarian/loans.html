@@ -113,6 +113,10 @@
                                 </td>
                                 <td class="text-end">
                                     <button th:if="${loan.status.name() != 'RETURNED'}"
+                                        class="btn btn-outline-primary btn-sm renew-loan-btn" type="button">
+                                        Gia hạn
+                                    </button>
+                                    <button th:if="${loan.status.name() != 'RETURNED'}"
                                         class="btn btn-outline-warning btn-sm single-return-btn" type="button">
                                         Xác nhận trả
                                     </button>
