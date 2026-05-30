@@ -97,7 +97,6 @@
                     <li class="nav-item dropdown">
 
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-
                             Xin chào,
                             <span th:text="${username}"></span>
 
@@ -117,6 +116,14 @@
 
                                 <a class="dropdown-item" data-nav-path="/reader/history" th:href="@{/reader/history}">
                                     Lịch sử mượn sách
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a class="dropdown-item" data-nav-path="/reader/feedback" th:href="@{/reader/feedback}">
+                                    Đánh giá sách
                                 </a>
 
                             </li>
