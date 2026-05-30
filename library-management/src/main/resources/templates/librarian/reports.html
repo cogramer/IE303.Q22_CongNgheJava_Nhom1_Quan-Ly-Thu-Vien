@@ -211,9 +211,9 @@
             <section class="report-card">
                 <div class="section-head">
                     <h2>Tất cả lượt mượn</h2>
-                    <span class="soft-badge"><span id="visible-loan-count">0</span> dòng</span>
+                    <span class="soft-badge"><span id="visible-loan-count">0</span>&nbsp;phiếu</span>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive report-scroll-table">
                     <table class="report-table loan-report-table">
                         <thead>
                             <tr>
@@ -261,7 +261,7 @@
                     <h2>Sách quá hạn</h2>
                     <span class="soft-badge" th:text="${overdueList != null ? #lists.size(overdueList) : 0} + ' phiếu'">0 phiếu</span>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive report-scroll-table">
                     <table class="report-table overdue-table">
                         <thead>
                             <tr>
