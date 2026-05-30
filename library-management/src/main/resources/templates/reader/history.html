@@ -8,7 +8,6 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/library.css}">
     <link rel="stylesheet" th:href="@{/css/history.css}">
@@ -17,171 +16,132 @@
 <body>
     <div th:replace="fragments/header :: header"></div>
 
-    <!-- Breadcrumb Navigation -->
-    <nav aria-label="breadcrumb" class="breadcrumb-section">
-        <div class="container">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Lịch sử mượn sách</li>
-            </ol>
-        </div>
-    </nav>
-
-    <main class="container history-container">
-        <!-- Page Heading -->
-        <div class="page-heading mb-5">
-            <h1 class="page-title mb-2">LỊCH SỬ MƯỢN SÁCH</h1>
-            <p class="text-muted mb-0">Xem lại toàn bộ những cuốn sách bạn đã mượn và hoàn tất</p>
-        </div>
-
-        <!-- Summary Cards -->
-        <div class="summary-section mb-5">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="summary-card">
-                        <div class="summary-icon total-icon">
-                            <i class="bi bi-book-half"></i>
-                        </div>
-                        <div class="summary-content">
-                            <h3 class="summary-value" th:text="${totalReturned}">25</h3>
-                            <p class="summary-label">Tổng sách đã trả</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="summary-card">
-                        <div class="summary-icon late-icon">
-                            <i class="bi bi-exclamation-circle"></i>
-                        </div>
-                        <div class="summary-content">
-                            <h3 class="summary-value" th:text="${lateCount}">3</h3>
-                            <p class="summary-label">Lần trễ hạn</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="summary-card">
-                        <div class="summary-icon fee-icon">
-                            <i class="bi bi-cash-coin"></i>
-                        </div>
-                        <div class="summary-content">
-                            <h3 class="summary-value" th:text="${#numbers.formatInteger(lateFee, 0)} + 'đ'">45.000đ</h3>
-                            <p class="summary-label">Phí phạt tích lũy</p>
-                        </div>
-                    </div>
-                </div>
+    <main class="history-page">
+        <section class="history-hero">
+            <div>
+                <span class="eyebrow">Tài khoản độc giả</span>
+                <h1>Lịch sử mượn sách</h1>
+                <p>Theo dõi phiếu đang chờ duyệt, sách đang mượn và các lần trả sách trước đây.</p>
             </div>
-        </div>
+            <a class="btn btn-primary" th:href="@{/reader/books}">
+                <i class="bi bi-search"></i>
+                Tìm sách mới
+            </a>
+        </section>
 
-        <!-- Filter & Search Section -->
-        <div class="filter-section mb-4">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-5">
-                    <label for="searchInput" class="form-label">Tìm kiếm</label>
-                    <input 
-                        type="text" 
-                        class="form-control search-input" 
-                        id="searchInput" 
-                        placeholder="Tìm theo tên sách hoặc tác giả..."
-                    >
+        <section class="history-stats">
+            <article class="history-stat-card">
+                <span>Tổng sách đã trả</span>
+                <strong id="history-total-returned" th:text="${totalReturned}">0</strong>
+            </article>
+            <article class="history-stat-card">
+                <span>Lần trễ hạn</span>
+                <strong id="history-late-count" th:text="${lateCount}">0</strong>
+            </article>
+            <article class="history-stat-card">
+                <span>Phí phạt tạm tính</span>
+                <strong id="history-late-fee" th:text="${#numbers.formatInteger(lateFee, 0)} + 'đ'">0đ</strong>
+            </article>
+        </section>
+
+        <section class="history-toolbar">
+            <input
+                id="history-search"
+                class="form-control"
+                type="search"
+                placeholder="Tìm theo tên sách..."
+                aria-label="Tìm lịch sử mượn"
+            >
+            <input id="history-month" class="form-control" type="month" aria-label="Lọc theo tháng">
+            <select id="history-status" class="form-select" aria-label="Lọc trạng thái">
+                <option value="">Tất cả trạng thái</option>
+                <option value="BORROWING">Đang mượn</option>
+                <option value="RETURNED">Đã trả</option>
+                <option value="OVERDUE">Quá hạn</option>
+                <option value="on-time">Trả đúng hạn</option>
+                <option value="late">Trả trễ hạn</option>
+            </select>
+        </section>
+
+        <section class="history-card">
+            <div class="history-card-head">
+                <div>
+                    <h2>Danh sách phiếu mượn</h2>
+                    <p>Đang hiển thị <strong id="history-visible-count" th:text="${records != null ? #lists.size(records) : 0}">0</strong> phiếu</p>
                 </div>
-
-                <div class="col-md-4">
-                    <label for="dateRangeInput" class="form-label">Khoảng thời gian</label>
-                    <input 
-                        type="month" 
-                        class="form-control" 
-                        id="dateRangeInput"
-                    >
-                </div>
-
-                <div class="col-md-3">
-                    <label for="statusFilter" class="form-label">Trạng thái</label>
-                    <select class="form-select" id="statusFilter">
-                        <option value="">Tất cả</option>
-                        <option value="on-time">Trả đúng hạn</option>
-                        <option value="late">Trễ hạn</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Data Table -->
-        <div class="table-section">
-            <div class="table-header mb-3">
-                <h3 class="h5">Danh sách chi tiết</h3>
-                <span class="record-count text-muted">
-                    Tổng: <span id="totalRecordCount" th:text="${#lists.size(records)}">0</span> phiếu
-                </span>
+                <button id="history-clear-filter" class="btn btn-outline-primary btn-sm" type="button">
+                    Xóa lọc
+                </button>
             </div>
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle history-table mb-0">
-                    <thead class="table-header-custom">
+                <table class="table history-table align-middle mb-0">
+                    <thead>
                         <tr>
-                            <th scope="col" class="col-stt">STT</th>
-                            <th scope="col" class="col-book">Sách</th>
-                            <th scope="col" class="col-borrow-date">Ngày mượn</th>
-                            <th scope="col" class="col-return-date">Ngày trả thực tế</th>
-                            <th scope="col" class="col-status">Trạng thái</th>
-                            <th scope="col" class="col-fee">Phí phạt</th>
+                            <th>Sách</th>
+                            <th>Ngày mượn</th>
+                            <th>Hạn trả</th>
+                            <th>Ngày trả</th>
+                            <th>Trạng thái</th>
                         </tr>
                     </thead>
-                    <tbody id="historyTableBody">
-                        <!-- Rows will be populated by JavaScript -->
-                        <tr th:each="record, iterator : ${records}">
-                            <td class="col-stt" th:text="${iterator.count}">1</td>
-                            <td class="col-book">
-                                <div class="book-info">
-                                    <div class="book-details">
-                                        <div class="book-title" th:text="${record.bookTitle}">Tên sách</div>
-                                    </div>
-                                </div>
+                    <tbody id="history-table-body">
+                        <tr
+                            class="history-row"
+                            th:each="record : ${records}"
+                            th:with="late=${record.returnDate != null and record.dueDate != null and record.returnDate.isAfter(record.dueDate)}"
+                            th:data-title="${record.bookTitle}"
+                            th:data-month="${record.borrowDate != null ? #temporals.format(record.borrowDate, 'yyyy-MM') : ''}"
+                            th:data-status="${late ? 'late' : 'RETURNED'}"
+                            th:data-raw-status="${record.status}"
+                        >
+                            <td>
+                                <strong th:text="${record.bookTitle}">Tên sách</strong>
                             </td>
-                            <td class="col-borrow-date" th:text="${#temporals.format(record.borrowDate, 'dd/MM/yyyy')}">01/01/2025</td>
-                            <td class="col-return-date" th:text="${record.returnDate != null ? #temporals.format(record.returnDate, 'dd/MM/yyyy') : '-'}">15/01/2025</td>
-                            <td class="col-status">
-                                <span 
-                                    class="status-badge"
-                                    th:classappend="${record.status == 'RETURNED' ? 'status-returned' : 'status-overdue'}"
-                                    th:text="${record.status == 'RETURNED' ? 'Đã trả' : 'Trễ hạn'}"
-                                >Đã trả</span>
-                            </td>
-                            <td class="col-fee text-end">
-                                <span class="fee-amount" th:text="${record.status == 'RETURNED' ? '-' : '50.000đ'}">-</span>
+                            <td th:text="${record.borrowDate != null ? #temporals.format(record.borrowDate, 'dd/MM/yyyy') : '-'}">-</td>
+                            <td th:text="${record.dueDate != null ? #temporals.format(record.dueDate, 'dd/MM/yyyy') : '-'}">-</td>
+                            <td th:text="${record.returnDate != null ? #temporals.format(record.returnDate, 'dd/MM/yyyy') : '-'}">-</td>
+                            <td>
+                                <span
+                                    class="history-status"
+                                    th:classappend="${late} ? ' late' : ' on-time'"
+                                    th:text="${late} ? 'Trả trễ hạn' : 'Trả đúng hạn'"
+                                >
+                                    Trả đúng hạn
+                                </span>
                             </td>
                         </tr>
-
-                        <!-- Empty state -->
-                        <tr th:if="${#lists.isEmpty(records)}" class="empty-state">
-                            <td colspan="6" class="text-center py-5">
-                                <div class="empty-state-content">
+                        <tr id="history-empty-row" th:classappend="${records != null and !#lists.isEmpty(records)} ? ' d-none'">
+                            <td colspan="5">
+                                <div class="history-empty">
                                     <i class="bi bi-inbox"></i>
-                                    <p class="mb-0">Bạn chưa có lịch sử mượn sách</p>
+                                    <span>Chưa có lịch sử mượn sách phù hợp.</span>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
 
-        <!-- Pagination -->
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-end">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">Trước</a>
-                </li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">Tiếp</a>
-                </li>
-            </ul>
-        </nav>
+        <section class="history-card reservation-card">
+            <div class="history-card-head">
+                <div>
+                    <h2>Yêu cầu đang chờ duyệt</h2>
+                    <p>Các sách bạn đã đặt giữ nhưng thủ thư chưa duyệt.</p>
+                </div>
+                <span class="reservation-count">
+                    <strong id="pending-reservation-count">0</strong> yêu cầu
+                </span>
+            </div>
+
+            <div id="pending-reservations" class="pending-reservations">
+                <div class="history-empty">
+                    <i class="bi bi-hourglass-split"></i>
+                    <span>Đang tải yêu cầu đặt giữ...</span>
+                </div>
+            </div>
+        </section>
     </main>
 
     <div th:replace="fragments/footer :: footer"></div>

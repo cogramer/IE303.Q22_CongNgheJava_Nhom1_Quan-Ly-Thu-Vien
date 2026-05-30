@@ -1,3 +1,20 @@
+.books-heading > .alert {
+    display: none;
+}
+
+.books-toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1080;
+    max-width: min(360px, calc(100vw - 32px));
+}
+
+.books-toast-container .toast {
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
 .books-heading {
     display: flex;
     align-items: flex-start;

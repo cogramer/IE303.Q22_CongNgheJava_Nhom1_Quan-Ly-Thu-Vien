@@ -3,6 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryFilter = document.getElementById("category-filter");
     const deleteForm = document.getElementById("delete-book-form");
     const deleteTitle = document.getElementById("delete-book-title");
+    const flashToasts = document.querySelectorAll(".books-flash-toast");
+
+    if (window.bootstrap) {
+        flashToasts.forEach(toast => bootstrap.Toast.getOrCreateInstance(toast).show());
+    }
 
     [searchInput, categoryFilter].forEach(element => {
         if (element) {
