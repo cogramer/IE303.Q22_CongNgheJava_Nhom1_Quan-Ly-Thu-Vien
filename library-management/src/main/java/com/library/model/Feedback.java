@@ -46,6 +46,14 @@ public class Feedback {
     @Column(name = "event_date", updatable = false)
     private LocalDateTime eventDate;
 
+    // ===== THÊM MỚI =====
+
+    @Column
+    private Integer score;
+
+    @Column(columnDefinition = "TEXT")
+    private String comment;
+
     @PrePersist
     protected void onCreate() {
         eventDate = LocalDateTime.now();
