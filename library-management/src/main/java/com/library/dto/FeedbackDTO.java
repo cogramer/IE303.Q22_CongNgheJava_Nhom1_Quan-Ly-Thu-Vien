@@ -15,15 +15,16 @@ public class FeedbackDTO {
     @AllArgsConstructor
     public static class CreateRequest {
         private Long bookId;
-        private Feedback.EventType eventType;
+        private Integer score;
+        private String comment;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpdateRequest {
-        private Feedback.EventType eventType;
-        private Float weight;
+        private Integer score;
+        private String comment;
     }
 
     @Data
@@ -38,6 +39,8 @@ public class FeedbackDTO {
         private Feedback.EventType eventType;
         private Float weight;
         private LocalDateTime eventDate;
+        private Integer score;
+        private String comment;
     }
 
     @Data

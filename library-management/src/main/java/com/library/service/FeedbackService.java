@@ -43,6 +43,7 @@ public class FeedbackService {
     @Transactional
     public FeedbackDTO.Response createFeedback(Long userId, FeedbackDTO.CreateRequest request) {
         validateCreateRequest(request);
+        validateScoreAndComment(request.getScore(), request.getComment());
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user"));
@@ -54,6 +55,8 @@ public class FeedbackService {
         feedback.setBook(book);
         feedback.setEventType(Feedback.EventType.RATING);
         feedback.setWeight(getWeightForEventType(Feedback.EventType.RATING));
+        feedback.setScore(request.getScore());
+        feedback.setComment(request.getComment());
 
         return toResponse(feedbackRepository.save(feedback));
     }
@@ -88,9 +91,10 @@ public class FeedbackService {
 
         validateEditableFeedback(feedback);
         validateOwnership(feedback, actorUserId, isStaff);
+        validateScoreAndComment(request.getScore(), request.getComment());
 
-        feedback.setEventType(request.getEventType());
-        feedback.setWeight(request.getWeight());
+        feedback.setScore(request.getScore());
+        feedback.setComment(request.getComment());
 
         return toResponse(feedbackRepository.save(feedback));
     }
@@ -112,11 +116,17 @@ public class FeedbackService {
         if (request.getBookId() == null) {
             throw new IllegalArgumentException("bookId là bắt buộc");
         }
-        if (request.getEventType() == null) {
-            throw new IllegalArgumentException("eventType là bắt buộc");
+    }
+
+    private void validateScoreAndComment(Integer score, String comment) {
+        if (score == null) {
+            throw new IllegalArgumentException("Điểm đánh giá là bắt buộc");
         }
-        if (request.getEventType() != Feedback.EventType.RATING) {
-            throw new IllegalArgumentException("Chỉ hỗ trợ tạo feedback loại RATING qua API này");
+        if (score < 1 || score > 5) {
+            throw new IllegalArgumentException("Điểm đánh giá phải từ 1 đến 5");
+        }
+        if (comment != null && comment.length() > 1000) {
+            throw new IllegalArgumentException("Bình luận không được vượt quá 1000 ký tự");
         }
     }
 
@@ -149,7 +159,9 @@ public class FeedbackService {
             feedback.getBook().getTitle(),
             feedback.getEventType(),
             feedback.getWeight(),
-            feedback.getEventDate()
+            feedback.getEventDate(),
+            feedback.getScore(),
+            feedback.getComment()
         );
     }
 }
