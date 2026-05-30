@@ -140,4 +140,9 @@ public class WebReaderController {
     model.addAttribute("books", recommendService.recommendBooks(userId));
     return "reader/recommendations";
   }
+
+  @GetMapping("/feedback")
+  public String feedback() {
+    return "reader/feedback";
+  }
 }
