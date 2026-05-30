@@ -82,7 +82,8 @@ public class BorrowRecordService {
     LocalDate today = LocalDate.now();
     // Tìm các phiếu đang mượn (BORROWING) mà dueDate đã qua so với hôm nay
     return borrowRepository.findAll().stream()
-        .filter(r -> r.getStatus() == BorrowRecord.Status.BORROWING && r.getDueDate().isBefore(today))
+        .filter(r -> r.getStatus() == BorrowRecord.Status.OVERDUE
+            || (r.getStatus() == BorrowRecord.Status.BORROWING && r.getDueDate().isBefore(today)))
         .map(borrowMapper::toDTO)
         .collect(Collectors.toList());
   }

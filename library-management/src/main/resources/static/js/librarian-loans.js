@@ -101,6 +101,10 @@ async function renewLoan(event) {
 
     const body = new URLSearchParams();
     body.set("days", String(days));
+    const csrfInput = form.querySelector("input[name='_csrf']");
+    if (csrfInput) {
+        body.set(csrfInput.name, csrfInput.value);
+    }
 
     button.disabled = true;
     button.textContent = "Đang gia hạn...";
