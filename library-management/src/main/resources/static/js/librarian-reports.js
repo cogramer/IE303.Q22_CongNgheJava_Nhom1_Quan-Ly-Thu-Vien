@@ -160,20 +160,14 @@ function renderTopReaders() {
 }
 
 function renderDaysLate() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     document.querySelectorAll(".overdue-table tbody tr[data-due-date]").forEach(row => {
-        const dueDate = new Date(row.dataset.dueDate);
         const target = row.querySelector(".days-late");
 
-        if (!target || Number.isNaN(dueDate.getTime())) {
+        if (!target) {
             return;
         }
 
-        dueDate.setHours(0, 0, 0, 0);
-        const diff = Math.max(0, Math.ceil((today - dueDate) / 86400000));
-        target.textContent = diff;
+        target.textContent = getDaysLate(row.dataset.dueDate);
     });
 }
 
@@ -215,8 +209,6 @@ function exportReportExcel() {
     sheets.push(createTableSheet("Top độc giả", reportGrids[0]?.querySelector("article:nth-child(2) .report-table")));
     sheets.push(createTableSheet("Thể loại", reportGrids[1]?.querySelector("article:nth-child(1) .report-table")));
     sheets.push(createTableSheet("Lượt mượn", ".loan-report-table"));
-    sheets.push(createTableSheet("Quá hạn", ".overdue-table"));
-
     const workbook = `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
@@ -260,6 +252,19 @@ function createTableSheet(name, tableOrSelector) {
     }
 
     return createSheet(name, rows);
+}
+
+function getDaysLate(dueDateValue) {
+    const dueDate = new Date(dueDateValue);
+    if (Number.isNaN(dueDate.getTime())) {
+        return 0;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+
+    return Math.max(0, Math.ceil((today - dueDate) / 86400000));
 }
 
 function createSheet(name, rows) {
