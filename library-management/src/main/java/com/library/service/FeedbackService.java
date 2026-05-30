@@ -2,6 +2,10 @@ package com.library.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +47,7 @@ public class FeedbackService {
     @Transactional
     public FeedbackDTO.Response createFeedback(Long userId, FeedbackDTO.CreateRequest request) {
         validateCreateRequest(request);
+        validateScoreAndComment(request.getScore(), request.getComment());
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user"));
@@ -54,30 +59,34 @@ public class FeedbackService {
         feedback.setBook(book);
         feedback.setEventType(Feedback.EventType.RATING);
         feedback.setWeight(getWeightForEventType(Feedback.EventType.RATING));
+        feedback.setScore(request.getScore());
+        feedback.setComment(request.getComment());
 
         return toResponse(feedbackRepository.save(feedback));
     }
 
     @Transactional(readOnly = true)
-    public List<FeedbackDTO.Response> getFeedbackByUserId(Long userId) {
+    public Page<FeedbackDTO.Response> getFeedbackByUserId(Long userId, Long page, Long size, String sortDir) {
         if (!userRepository.existsById(userId)) {
             throw new EntityNotFoundException("Không tìm thấy người dùng ID: " + userId);
         }
 
-        return feedbackRepository.findByUserIdOrderByEventDateDesc(userId).stream()
-            .map(this::toResponse)
-            .toList();
+        Pageable pageable = PageRequest.of(page.intValue(), size.intValue(),
+                sortDir.equalsIgnoreCase("asc") ? Sort.by("eventDate").ascending() : Sort.by("eventDate").descending());
+        
+        return feedbackRepository.findByUserIdAndEventType(userId, Feedback.EventType.RATING, pageable).map(this::toResponse);
     }
 
     @Transactional(readOnly = true)
-    public List<FeedbackDTO.Response> getFeedbackByBookId(Long bookId) {
+    public Page<FeedbackDTO.Response> getFeedbackByBookId(Long bookId, Long page, Long size, String sortDir) {
         if (!bookRepository.existsById(bookId)) {
             throw new EntityNotFoundException("Không tìm thấy sách ID: " + bookId);
         }
 
-        return feedbackRepository.findByBookIdOrderByEventDateDesc(bookId).stream()
-            .map(this::toResponse)
-            .toList();
+        Pageable pageable = PageRequest.of(page.intValue(), size.intValue(),
+                sortDir.equalsIgnoreCase("asc") ? Sort.by("eventDate").ascending() : Sort.by("eventDate").descending());
+
+        return feedbackRepository.findByBookIdAndEventType(bookId, Feedback.EventType.RATING, pageable).map(this::toResponse);
     }
 
     @Transactional
@@ -88,9 +97,10 @@ public class FeedbackService {
 
         validateEditableFeedback(feedback);
         validateOwnership(feedback, actorUserId, isStaff);
+        validateScoreAndComment(request.getScore(), request.getComment());
 
-        feedback.setEventType(request.getEventType());
-        feedback.setWeight(request.getWeight());
+        feedback.setScore(request.getScore());
+        feedback.setComment(request.getComment());
 
         return toResponse(feedbackRepository.save(feedback));
     }
@@ -105,6 +115,14 @@ public class FeedbackService {
         feedbackRepository.delete(feedback);
     }
 
+    @Transactional
+    public double getAverageScoreForBook(Long bookId) {
+        if (!bookRepository.existsById(bookId)) {
+            throw new EntityNotFoundException("Không tìm thấy sách ID: " + bookId);
+        }
+        return feedbackRepository.findAverageScoreByBookId(bookId).orElse(0.0);
+    }
+
     private void validateCreateRequest(FeedbackDTO.CreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Payload feedback không hợp lệ");
@@ -112,11 +130,17 @@ public class FeedbackService {
         if (request.getBookId() == null) {
             throw new IllegalArgumentException("bookId là bắt buộc");
         }
-        if (request.getEventType() == null) {
-            throw new IllegalArgumentException("eventType là bắt buộc");
+    }
+
+    private void validateScoreAndComment(Integer score, String comment) {
+        if (score == null) {
+            throw new IllegalArgumentException("Điểm đánh giá là bắt buộc");
         }
-        if (request.getEventType() != Feedback.EventType.RATING) {
-            throw new IllegalArgumentException("Chỉ hỗ trợ tạo feedback loại RATING qua API này");
+        if (score < 1 || score > 5) {
+            throw new IllegalArgumentException("Điểm đánh giá phải từ 1 đến 5");
+        }
+        if (comment != null && comment.length() > 1000) {
+            throw new IllegalArgumentException("Bình luận không được vượt quá 1000 ký tự");
         }
     }
 
@@ -144,12 +168,14 @@ public class FeedbackService {
         return new FeedbackDTO.Response(
             feedback.getId(),
             feedback.getUser().getId(),
-            feedback.getUser().getUsername(),
+            feedback.getUser().getFullName(),
             feedback.getBook().getId(),
             feedback.getBook().getTitle(),
             feedback.getEventType(),
             feedback.getWeight(),
-            feedback.getEventDate()
+            feedback.getEventDate(),
+            feedback.getScore(),
+            feedback.getComment()
         );
     }
 }

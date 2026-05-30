@@ -214,4 +214,17 @@ public class WebLibrarianController {
     }
     return "redirect:/librarian/users";
   }
+
+  @PostMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return "redirect:/librarian/users";
+    }
+
+  // UI librarian/users dùng modal sửa user và submit về endpoint này.
+  @PostMapping("/users/update/{id}")
+  public String updateUser(@PathVariable Long id, @ModelAttribute UserDTO userDTO) {
+      userService.updateUser(id, userDTO);
+      return "redirect:/librarian/users";
+  }
 }

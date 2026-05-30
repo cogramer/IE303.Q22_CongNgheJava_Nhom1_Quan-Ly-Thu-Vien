@@ -46,12 +46,10 @@ public class Feedback {
     @Column(name = "event_date", updatable = false)
     private LocalDateTime eventDate;
 
-    // ===== THÊM MỚI =====
-
-    @Column
+    @Column(name = "score", nullable = true)
     private Integer score;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "comment", length = 1000, nullable = true)
     private String comment;
 
     @PrePersist

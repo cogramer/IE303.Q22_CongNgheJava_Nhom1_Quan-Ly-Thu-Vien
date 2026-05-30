@@ -463,6 +463,10 @@ body {
     content: "\f292";
 }
 
+.navbar .dropdown-item[data-nav-path="/reader/feedback"]::before {
+    content: "\f264";
+}
+
 .navbar .dropdown-item[href$="/logout"]::before {
     content: "\f1c6";
 }

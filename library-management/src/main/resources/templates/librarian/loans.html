@@ -18,8 +18,8 @@
         <div th:replace="~{fragments/librarian-sidebar :: sidebar('loans')}"></div>
 
         <section class="loans-page">
-            <div class="loans-heading mb-4">
-                <div>
+            <div class="loans-heading mb-4 loans-card">
+                <div class="loans-hero">
                     <h1 class="h3 mb-1">Quản lý mượn trả</h1>
                     <p class="text-muted mb-0">Theo dõi toàn bộ phiếu mượn, lọc trạng thái và xác nhận trả sách cho độc
                         giả.</p>
@@ -116,6 +116,7 @@
                                         class="btn btn-outline-primary btn-sm renew-loan-btn" type="button">
                                         Gia hạn
                                     </button>
+                                    
                                     <button th:if="${loan.status.name() != 'RETURNED'}"
                                         class="btn btn-outline-warning btn-sm single-return-btn" type="button">
                                         Xác nhận trả
