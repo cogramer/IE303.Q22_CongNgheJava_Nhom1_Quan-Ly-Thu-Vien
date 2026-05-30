@@ -35,8 +35,7 @@
                     <div class="book-detail-grid">
                         <div>
                             <span>Thể loại</span>
-                            <strong th:text="${book.categoryName != null ? book.categoryName : 'Chưa phân loại'}">Thể
-                                loại</strong>
+                            <strong th:text="${book.categoryName != null ? book.categoryName : 'Chưa phân loại'}">Thể loại</strong>
                         </div>
                         <div>
                             <span>ISBN</span>
@@ -44,8 +43,7 @@
                         </div>
                         <div>
                             <span>Kho</span>
-                            <strong th:text="${book.availableCopies + '/' + book.totalCopies + ' cuốn'}">0/0
-                                cuốn</strong>
+                            <strong th:text="${book.availableCopies + '/' + book.totalCopies + ' cuốn'}">0/0 cuốn</strong>
                         </div>
                         <div>
                             <span>Giá</span>
@@ -61,52 +59,99 @@
                     </button>
                 </div>
             </div>
+
+            <section class="book-reviews-section" th:data-book-id="${book.id}">
+                <div class="book-reviews-header">
+                    <div>
+                        <h2>Đánh giá</h2>
+                        <p>Xem cảm nhận của độc giả về cuốn sách này.</p>
+                    </div>
+                    <div class="book-reviews-summary">
+                        <strong><span id="book-average-score">-</span> <span class="book-average-star">&#9733;</span></strong>
+                        <span id="book-review-count">0 đánh giá</span>
+                    </div>
+                </div>
+
+                <div id="book-reviews-list" class="book-reviews-list">
+                    <div class="book-reviews-loading">Đang tải đánh giá...</div>
+                </div>
+
+                <nav id="book-reviews-pagination" class="book-reviews-pagination" aria-label="Phân trang đánh giá sách" hidden>
+                    <button id="book-reviews-prev" class="btn btn-outline-primary btn-sm" type="button">Trước</button>
+                    <span id="book-reviews-page-info">Trang 1 / 1</span>
+                    <button id="book-reviews-next" class="btn btn-outline-primary btn-sm" type="button">Sau</button>
+                </nav>
+
+                <form id="book-review-form" class="book-review-form">
+                    <div class="book-review-form-header">
+                        <div>
+                            <h3>Viết đánh giá của bạn</h3>
+                            <p>Chia sẻ cảm nhận để độc giả khác tham khảo.</p>
+                        </div>
+                        <button id="book-review-submit" class="btn btn-primary" type="submit">Gửi đánh giá</button>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-9">
+                            <label for="book-review-comment" class="form-label">Bình luận</label>
+                            <textarea id="book-review-comment" class="form-control" rows="1" maxlength="1000"
+                                placeholder="Nhập cảm nhận của bạn về cuốn sách..."></textarea>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="book-review-score" class="form-label">Điểm đánh giá</label>
+                            <select id="book-review-score" class="form-select" required>
+                                <option value="5">5 - Rất hay</option>
+                                <option value="4">4 - Hay</option>
+                                <option value="3">3 - Ổn</option>
+                                <option value="2">2 - Chưa phù hợp</option>
+                                <option value="1">1 - Không thích</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </section>
         </section>
     </main>
+
+    <div class="modal fade" id="bookReviewEditModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content book-review-modal">
+                <form id="book-review-edit-form">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Sửa đánh giá</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="edit-book-review-id">
+                        <div class="mb-3">
+                            <label for="edit-book-review-score" class="form-label">Điểm đánh giá</label>
+                            <select id="edit-book-review-score" class="form-select" required>
+                                <option value="5">5 - Rất hay</option>
+                                <option value="4">4 - Hay</option>
+                                <option value="3">3 - Ổn</option>
+                                <option value="2">2 - Chưa phù hợp</option>
+                                <option value="1">1 - Không thích</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit-book-review-comment" class="form-label">Bình luận</label>
+                            <textarea id="edit-book-review-comment" class="form-control" rows="4" maxlength="1000"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button id="book-review-edit-submit" type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <div th:replace="fragments/footer :: footer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script th:src="@{/js/library.js}"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const button = document.getElementById("reserve-detail-btn");
-            const message = document.getElementById("book-detail-message");
-
-            if (!button) {
-                return;
-            }
-
-            button.addEventListener("click", async () => {
-                button.disabled = true;
-                button.textContent = "Đang xử lý...";
-                message.className = "";
-                message.textContent = "";
-
-                // Đã cập nhật đúng Endpoint /api/reservations và chuyển sang gửi JSON
-                const response = await fetch("/api/reservations", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ bookId: button.dataset.bookId })
-                });
-
-                const data = await LibraryUI.readJson(response);
-
-                if (!response.ok) {
-                    message.className = "error-message mt-3";
-                    message.textContent = data?.message || "Đặt giữ thất bại.";
-                    button.disabled = false;
-                    button.textContent = "Đặt giữ sách";
-                    return;
-                }
-
-                message.className = "success-message mt-3";
-                message.textContent = "Đặt giữ thành công. Vui lòng chờ thủ thư duyệt.";
-                button.textContent = "Đã đặt giữ";
-            });
-        });
-    </script>
+    <script th:src="@{/js/book-detail.js}"></script>
 </body>
 
 </html>
