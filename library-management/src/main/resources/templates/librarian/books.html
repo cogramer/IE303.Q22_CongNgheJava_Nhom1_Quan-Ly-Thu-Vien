@@ -18,12 +18,33 @@
         <div th:replace="~{fragments/librarian-sidebar :: sidebar('books')}"></div>
 
         <section class="librarian-books-page">
-            <div class="books-heading mb-4 books-card">
-                <div class="books-hero">
-                    <h1 class="h3 mb-1">Quản lý sách</h1>
-                    <p class="text-muted mb-0">Theo dõi tồn kho, thêm sách mới và cập nhật thông tin sách.</p>
+            <div class="books-toast-container">
+                <div th:if="${successMsg != null}" class="toast books-flash-toast align-items-center border-0 text-bg-success"
+                    role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3200">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <span th:text="${successMsg}">Thông báo</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast" aria-label="Đóng"></button>
+                    </div>
                 </div>
 
+                <div th:if="${errorMsg != null}" class="toast books-flash-toast align-items-center border-0 text-bg-danger"
+                    role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4200">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <span th:text="${errorMsg}">Thông báo</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast" aria-label="Đóng"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="books-heading mb-4">
                 <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     <span th:text="${errorMsg}"></span>

@@ -1,3 +1,12 @@
+.reports-content {
+    --report-blue: #0f4fb8;
+    --report-blue-dark: #0b2f6f;
+    --report-text: #0f172a;
+    --report-muted: #475569;
+    --report-row: #eef5ff;
+    --report-row-hover: #dbeafe;
+}
+
 .reports-hero {
     display: flex;
     align-items: center;
@@ -8,21 +17,21 @@
 
 .eyebrow {
     margin-bottom: 8px;
-    color: #1d63c7;
+    color: var(--report-blue);
     font-size: 0.9rem;
     font-weight: 500;
 }
 
 .reports-hero h1 {
     margin-bottom: 8px;
-    color: #0f2440;
+    color: var(--report-blue-dark);
     font-size: 1.8rem;
     font-weight: 600;
 }
 
 .reports-hero p {
     margin: 0;
-    color: #607086;
+    color: var(--report-muted);
 }
 
 .report-actions {
@@ -50,10 +59,10 @@
 
 .export-status {
     padding: 12px 16px;
-    border: 1px solid #bfdbfe;
+    border: 1px solid #93c5fd;
     border-radius: 14px;
-    background: #eff6ff;
-    color: #0d47a1;
+    background: #dbeafe;
+    color: var(--report-blue-dark);
     font-weight: 700;
 }
 
@@ -68,7 +77,7 @@
 .report-filter label {
     display: block;
     margin-bottom: 6px;
-    color: #52667c;
+    color: var(--report-muted);
     font-size: 0.9rem;
 }
 
@@ -94,14 +103,14 @@
 
 .stat-card span {
     display: block;
-    color: #68788d;
+    color: var(--report-muted);
     font-weight: 400;
 }
 
 .stat-card strong {
     display: block;
     margin-top: 8px;
-    color: #0d47a1;
+    color: var(--report-blue);
     font-size: 2.25rem;
     line-height: 1;
 }
@@ -110,7 +119,7 @@
     position: absolute;
     right: 20px;
     bottom: 16px;
-    color: #d5e6ff;
+    color: #bfdbfe;
     font-size: 3rem;
 }
 
@@ -128,7 +137,7 @@
 
 .section-head h2 {
     margin: 0;
-    color: #0f2440;
+    color: var(--report-text);
     font-size: 1.1rem;
     font-weight: 600;
 }
@@ -139,8 +148,8 @@
     min-height: 30px;
     padding: 6px 12px;
     border-radius: 999px;
-    background: #eaf2ff;
-    color: #0d47a1;
+    background: #dbeafe;
+    color: var(--report-blue-dark);
     font-size: 0.82rem;
     font-weight: 500;
 }
@@ -164,16 +173,20 @@
 
 .report-table th {
     padding: 0 14px 8px;
-    color: #1d4ed8;
+    color: var(--report-blue-dark);
     font-size: 0.95rem;
     font-weight: 700;
 }
 
 .report-table td {
     padding: 14px;
-    background: #f8fbff;
-    color: #1c2f45;
+    background: var(--report-row);
+    color: var(--report-text);
     vertical-align: middle;
+}
+
+.report-table tbody tr:hover td {
+    background: var(--report-row-hover);
 }
 
 .report-table tr td:first-child {
@@ -188,13 +201,45 @@
 
 .report-table strong {
     display: block;
-    color: #0f2440;
+    color: var(--report-text);
     font-weight: 600;
 }
 
 .report-table span {
-    color: #6a7b90;
+    color: var(--report-muted);
     font-size: 0.9rem;
+}
+
+.report-scroll-table {
+    max-height: 420px;
+    overflow: auto;
+    padding-right: 4px;
+}
+
+.report-scroll-table .report-table {
+    margin-bottom: 0;
+}
+
+.report-scroll-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #ffffff;
+    box-shadow: 0 1px 0 #bfdbfe;
+}
+
+.report-scroll-table::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.report-scroll-table::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #cbd5e1;
+}
+
+.report-scroll-table::-webkit-scrollbar-track {
+    background: #f1f5f9;
 }
 
 .count-pill,
@@ -208,13 +253,13 @@
 }
 
 .count-pill {
-    background: #eaf2ff;
-    color: #0d47a1;
+    background: #bfdbfe;
+    color: var(--report-blue-dark);
 }
 
 .late-pill {
-    background: #fff1f2;
-    color: #be123c;
+    background: #dc2626;
+    color: #ffffff;
 }
 
 .status-summary {
@@ -228,15 +273,15 @@
     justify-content: space-between;
     padding: 14px 16px;
     border-radius: 14px;
-    background: #f8fbff;
+    background: var(--report-row);
 }
 
 .status-summary span {
-    color: #607086;
+    color: var(--report-muted);
 }
 
 .status-summary strong {
-    color: #0d47a1;
+    color: var(--report-blue);
     font-size: 1.35rem;
     font-weight: 600;
 }
@@ -248,33 +293,39 @@
     min-width: 92px;
     padding: 7px 12px;
     border-radius: 999px;
+    color: #ffffff;
     font-size: 0.85rem;
     font-weight: 600;
 }
 
+.report-table .status-pill,
+.report-table .late-pill {
+    color: #ffffff;
+}
+
 .status-borrowing {
-    background: #eaf2ff;
-    color: #0d47a1;
+    background: #2563eb;
+    color: #ffffff;
 }
 
 .status-returned {
-    background: #ecfdf5;
-    color: #047857;
+    background: #16a34a;
+    color: #ffffff;
 }
 
 .status-overdue {
-    background: #fff1f2;
-    color: #be123c;
+    background: #dc2626;
+    color: #ffffff;
 }
 
 .status-pending {
-    background: #fff7ed;
-    color: #c2410c;
+    background: #f97316;
+    color: #ffffff;
 }
 
 .status-cancelled {
-    background: #f1f5f9;
-    color: #64748b;
+    background: #64748b;
+    color: #ffffff;
 }
 
 .empty-text {
