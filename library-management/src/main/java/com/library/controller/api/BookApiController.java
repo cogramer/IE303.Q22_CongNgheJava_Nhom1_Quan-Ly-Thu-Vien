@@ -4,12 +4,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.library.dto.BookDTO;
 import com.library.service.BookService;
+import com.library.service.ImageStorageService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class BookApiController {
 
   private final BookService bookService;
+  private final ImageStorageService imageStorageService;
 
   // ==========================================
   // CÁC API PUBLIC (KHÁCH VÃNG LAI, ĐỘC GIẢ ĐỀU XEM ĐƯỢC)
@@ -75,6 +80,19 @@ public class BookApiController {
     return ResponseEntity.status(HttpStatus.CREATED).body(bookService.saveBook(bookDTO));
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<BookDTO> createBookWithImage(
+      @Valid @ModelAttribute BookDTO bookDTO,
+      @RequestParam(name = "bookImage", required = false) MultipartFile bookImage) {
+    bookDTO.setId(null);
+    String uploadedImageUrl = imageStorageService.storeBookImage(bookImage);
+    if (uploadedImageUrl != null) {
+      bookDTO.setImageUrl(uploadedImageUrl);
+    }
+    return ResponseEntity.status(HttpStatus.CREATED).body(bookService.saveBook(bookDTO));
+  }
+
   // Cập nhật thông tin sách
   @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
   @PutMapping("/{id}")
@@ -84,12 +102,31 @@ public class BookApiController {
     return ResponseEntity.ok(bookService.saveBook(bookDTO));
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+  @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<BookDTO> updateBookWithImage(
+      @PathVariable Long id,
+      @Valid @ModelAttribute BookDTO bookDTO,
+      @RequestParam(name = "bookImage", required = false) MultipartFile bookImage) {
+    bookDTO.setId(id);
+    String uploadedImageUrl = imageStorageService.storeBookImage(bookImage);
+    if (uploadedImageUrl != null) {
+      bookDTO.setImageUrl(uploadedImageUrl);
+    }
+    return ResponseEntity.ok(bookService.saveBook(bookDTO));
+  }
+
   // Xóa sách
   @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-    bookService.deleteBook(id);
-    return ResponseEntity.noContent().build();
+  public ResponseEntity<?> deleteBook(@PathVariable Long id) {
+    try {
+      bookService.deleteBook(id);
+      return ResponseEntity.noContent().build();
+    } catch (DataIntegrityViolationException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+          .body(Map.of("message", "Khong the xoa sach nay vi sach dang co phieu muon, dat giu hoac danh gia lien quan."));
+    }
   }
 
   // Cập nhật nhanh tổng số lượng sách khi nhập kho thêm

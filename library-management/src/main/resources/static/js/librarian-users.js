@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".users-flash-toast").forEach(toast => {
+        bootstrap.Toast.getOrCreateInstance(toast).show();
+    });
+
     const searchInput = document.getElementById("user-search");
     const roleFilter = document.getElementById("role-filter");
 

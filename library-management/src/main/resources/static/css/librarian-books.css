@@ -85,6 +85,16 @@
     font-weight: 600;
 }
 
+.book-image-file-input {
+    font-size: 0.86rem;
+    min-height: 42px;
+}
+
+.book-image-file-input::file-selector-button {
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
 .empty-filter-state {
     padding: 28px;
     color: #6c757d;

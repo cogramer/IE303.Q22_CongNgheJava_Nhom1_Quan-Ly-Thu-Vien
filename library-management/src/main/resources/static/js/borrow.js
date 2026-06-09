@@ -1,5 +1,7 @@
 ﻿let userId = null;
 
+let currentBookState = new Map();
+
 document.addEventListener("DOMContentLoaded", async () => {
     const user = await getUser();
     if (!user) {
@@ -7,11 +9,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    currentBookState = await loadCurrentBookState();
     await Promise.all([loadBooks(), loadBorrowedBooks()]);
 
     document.getElementById("borrow-btn").addEventListener("click", borrowBooks);
-    document.getElementById("refresh-books").addEventListener("click", loadBooks);
-    document.getElementById("refresh-borrowed").addEventListener("click", loadBorrowedBooks);
+    document.getElementById("refresh-books").addEventListener("click", async () => {
+        currentBookState = await loadCurrentBookState();
+        await loadBooks();
+    });
+    document.getElementById("refresh-borrowed").addEventListener("click", async () => {
+        await loadBorrowedBooks();
+        currentBookState = await loadCurrentBookState();
+        await loadBooks();
+    });
     document.getElementById("borrow-tab").addEventListener("click", () => switchTab("borrow"));
     document.getElementById("return-tab").addEventListener("click", () => switchTab("return"));
 });
@@ -64,12 +74,65 @@ async function loadBooks() {
     updateSelectedCount();
 }
 
+async function loadCurrentBookState() {
+    const state = new Map();
+    const [borrowRecords, reservations] = await Promise.all([
+        fetchJsonSafe("/api/borrow/me"),
+        fetchJsonSafe("/api/reservations/me")
+    ]);
+
+    if (Array.isArray(borrowRecords)) {
+        borrowRecords
+            .filter(record => record.status !== "RETURNED")
+            .forEach(record => {
+                if (record.bookId) {
+                    state.set(Number(record.bookId), {
+                        className: "borrowed",
+                        label: "Đang mượn"
+                    });
+                }
+            });
+    }
+
+    if (Array.isArray(reservations)) {
+        reservations
+            .filter(reservation => reservation.status === "PENDING")
+            .forEach(reservation => {
+                const bookId = Number(reservation.bookId);
+                if (bookId && !state.has(bookId)) {
+                    state.set(bookId, {
+                        className: "pending",
+                        label: "Chờ duyệt"
+                    });
+                }
+            });
+    }
+
+    return state;
+}
+
+async function fetchJsonSafe(url) {
+    try {
+        const res = await fetch(url, { credentials: "include" });
+        if (!res.ok) return [];
+        return await LibraryUI.readJson(res);
+    } catch (error) {
+        console.error(`Không lấy được dữ liệu từ ${url}`, error);
+        return [];
+    }
+}
+
 function renderBooks(books) {
     const container = document.getElementById("books-container");
-    container.innerHTML = books.map(book => `
+    container.innerHTML = books.map(book => {
+        const bookState = currentBookState.get(Number(book.id));
+        const disabled = Boolean(bookState);
+
+        return `
         <div class="col-md-4 col-lg-3">
-            <div class="card book-selector-card shadow-sm" data-book-id="${book.id}">
-                <input type="checkbox" class="book-checkbox" value="${book.id}" data-title="${LibraryUI.escapeHtml(book.title)}" aria-label="Chọn ${LibraryUI.escapeHtml(book.title)}">
+            <div class="card book-selector-card shadow-sm ${disabled ? "is-unavailable" : ""}" data-book-id="${book.id}">
+                ${bookState ? `<span class="book-state-badge ${bookState.className}">${bookState.label}</span>` : ""}
+                <input type="checkbox" class="book-checkbox" value="${book.id}" data-title="${LibraryUI.escapeHtml(book.title)}" aria-label="Chọn ${LibraryUI.escapeHtml(book.title)}" ${disabled ? "disabled" : ""}>
                 <div class="book-image-container">
                     ${book.imageUrl ? `<img src="${book.imageUrl}" alt="${LibraryUI.escapeHtml(book.title)}">` : "<span class='fs-1'>Sách</span>"}
                 </div>
@@ -80,7 +143,8 @@ function renderBooks(books) {
                 </div>
             </div>
         </div>
-    `).join("");
+    `;
+    }).join("");
 
     document.querySelectorAll(".book-checkbox").forEach(checkbox => {
         checkbox.addEventListener("change", event => {
@@ -132,7 +196,9 @@ async function borrowBooks() {
     }
 
     showMessage(`Đã tạo yêu cầu đặt giữ cho ${selected.length} sách. Vui lòng chờ thủ thư duyệt.`, true);
+    currentBookState = await loadCurrentBookState();
     await loadBooks();
+    await loadBorrowedBooks();
 }
 async function loadBorrowedBooks() {
     const tbody = document.getElementById("borrowed-body");
