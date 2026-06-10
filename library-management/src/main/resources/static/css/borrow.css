@@ -165,6 +165,39 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22), 0 20px 42px rgba(37, 99, 235, 0.14);
 }
 
+.book-selector-card.is-unavailable {
+    box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.18), 0 14px 34px rgba(16, 24, 40, 0.06);
+}
+
+.book-selector-card.is-unavailable .book-image-container,
+.book-selector-card.is-unavailable .book-info {
+    opacity: 0.72;
+}
+
+.book-state-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 7px 11px;
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.22);
+}
+
+.book-state-badge.borrowed {
+    background: #2563eb;
+}
+
+.book-state-badge.pending {
+    background: #f97316;
+}
+
 .book-checkbox {
     position: absolute;
     top: 14px;

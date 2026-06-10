@@ -160,7 +160,7 @@
                 aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
-                        <form method="post" th:action="@{/librarian/books/save}">
+                        <form method="post" th:action="@{/librarian/books/save}" enctype="multipart/form-data">
                             <div class="modal-header">
                                 <h5 class="modal-title">Sửa sách</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -206,6 +206,10 @@
                                         <label class="form-label">Ảnh bìa</label>
                                         <input class="form-control" name="imageUrl" th:value="${book.imageUrl}">
                                     </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">T&#7843;i &#7843;nh m&#7899;i</label>
+                                        <input class="form-control book-image-file-input" type="file" name="bookImage" accept="image/*">
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -221,7 +225,7 @@
             <div class="modal fade" id="addBookModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
-                        <form method="post" th:action="@{/librarian/books/save}">
+                        <form method="post" th:action="@{/librarian/books/save}" enctype="multipart/form-data">
                             <div class="modal-header">
                                 <h5 class="modal-title">Thêm sách</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
@@ -263,6 +267,10 @@
                                     <div class="col-md-4">
                                         <label class="form-label">Ảnh bìa</label>
                                         <input class="form-control" name="imageUrl">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">T&#7843;i &#7843;nh b&#236;a</label>
+                                        <input class="form-control book-image-file-input" type="file" name="bookImage" accept="image/*">
                                     </div>
                                 </div>
                             </div>

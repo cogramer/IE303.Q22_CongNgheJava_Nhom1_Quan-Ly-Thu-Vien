@@ -4,6 +4,7 @@ import java.time.Year;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.library.dto.BookDTO;
@@ -18,6 +20,7 @@ import com.library.dto.UserDTO;
 import com.library.service.BookService;
 import com.library.service.BorrowRecordService;
 import com.library.service.CategoryService;
+import com.library.service.ImageStorageService;
 import com.library.service.ReservationService;
 import com.library.service.UserService;
 import com.library.enums.RegisterResult;
@@ -35,6 +38,7 @@ public class WebLibrarianController {
   private final BorrowRecordService borrowService;
   private final ReservationService reservationService;
   private final UserService userService;
+  private final ImageStorageService imageStorageService;
 
   @GetMapping("/dashboard")
   public String dashboard(Model model) {
@@ -97,8 +101,15 @@ public class WebLibrarianController {
 
   // Xử lý Thêm mới và Cập nhật sách
   @PostMapping("/books/save")
-  public String saveBook(@ModelAttribute BookDTO bookDTO, RedirectAttributes redirectAttributes) {
+  public String saveBook(@ModelAttribute BookDTO bookDTO,
+      @RequestParam(name = "bookImage", required = false) MultipartFile bookImage,
+      RedirectAttributes redirectAttributes) {
     try {
+      String uploadedImageUrl = imageStorageService.storeBookImage(bookImage);
+      if (uploadedImageUrl != null) {
+        bookDTO.setImageUrl(uploadedImageUrl);
+      }
+
       bookService.saveBook(bookDTO);
       // Nếu thành công, gửi thông báo màu xanh
       redirectAttributes.addFlashAttribute("successMsg", "Lưu sách thành công!");
@@ -115,10 +126,17 @@ public class WebLibrarianController {
 
   // Xử lý Xóa sách
   @PostMapping("/books/delete/{id}")
-  public String deleteBook(@PathVariable Long id) {
-    bookService.deleteBook(id);
+  public String deleteBook(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    try {
+      bookService.deleteBook(id);
+      redirectAttributes.addFlashAttribute("successMsg", "Xóa sách thành công!");
+    } catch (DataIntegrityViolationException e) {
+      redirectAttributes.addFlashAttribute("errorMsg",
+          "Không thể xóa sách này vì sách đang có phiếu mượn, đặt giữ hoặc đánh giá liên quan.");
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("errorMsg", "Không thể xóa sách: " + e.getMessage());
+    }
 
-    // Xóa thành công thì load lại trang quản lý sách
     return "redirect:/librarian/books";
   }
 
@@ -210,14 +228,19 @@ public class WebLibrarianController {
       userService.deleteUser(id);
       redirectAttributes.addFlashAttribute("successMsg", "Đã xóa người dùng!");
     } catch (Exception e) {
-      redirectAttributes.addFlashAttribute("errorMsg", "Không thể xóa: " + e.getMessage());
+      redirectAttributes.addFlashAttribute("errorMsg", buildUserDeleteErrorMessage(e));
     }
     return "redirect:/librarian/users";
   }
 
   @PostMapping("/users/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
+    public String deleteUserByPath(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+      try {
         userService.deleteUser(id);
+        redirectAttributes.addFlashAttribute("successMsg", "Đã xóa người dùng!");
+      } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("errorMsg", buildUserDeleteErrorMessage(e));
+      }
         return "redirect:/librarian/users";
     }
 
@@ -226,5 +249,12 @@ public class WebLibrarianController {
   public String updateUser(@PathVariable Long id, @ModelAttribute UserDTO userDTO) {
       userService.updateUser(id, userDTO);
       return "redirect:/librarian/users";
+  }
+
+  private String buildUserDeleteErrorMessage(Exception e) {
+    if (e instanceof DataIntegrityViolationException) {
+      return "Không thể xóa người dùng này vì đang có phiếu mượn, đặt giữ, đánh giá hoặc dữ liệu liên quan.";
+    }
+    return "Không thể xóa người dùng: " + e.getMessage();
   }
 }

@@ -18,13 +18,30 @@
         <div th:replace="~{fragments/librarian-sidebar :: sidebar('users')}"></div>
 
         <section class="users-content">
-            <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMsg}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${errorMsg}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="users-toast-container">
+                <div th:if="${successMsg != null}" class="toast users-flash-toast align-items-center border-0 text-bg-success"
+                    role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3200">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <span th:text="${successMsg}">Thong bao</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast" aria-label="Dong"></button>
+                    </div>
+                </div>
+
+                <div th:if="${errorMsg != null}" class="toast users-flash-toast align-items-center border-0 text-bg-danger"
+                    role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4200">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <span th:text="${errorMsg}">Thong bao</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast" aria-label="Dong"></button>
+                    </div>
+                </div>
             </div>
             <section class="users-hero users-card">
                 <div>
