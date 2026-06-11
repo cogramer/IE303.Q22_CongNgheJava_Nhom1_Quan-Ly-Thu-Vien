@@ -172,6 +172,35 @@
     background: #6c757d;
 }
 
+.book-state-badge {
+    position: absolute;
+    top: 42px;
+    left: 14px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 5px 9px;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
+}
+
+.book-state-badge.borrowed {
+    background: #2563eb;
+}
+
+.book-state-badge.pending {
+    background: #f97316;
+}
+
+.book-list-card.has-user-state .book-cover,
+.book-list-card.has-user-state .book-card-body {
+    opacity: 0.82;
+}
+
 .book-card-body {
     padding: 14px;
     transition: padding 0.28s ease;

@@ -2,13 +2,16 @@ const booksState = {
     currentPage: 1,
     pageSize: 8,
     filteredCards: [],
-    selectedBorrowCard: null
+    selectedBorrowCard: null,
+    currentBookState: new Map()
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const cards = Array.from(document.querySelectorAll(".book-list-card"));
     booksState.filteredCards = cards;
 
+    booksState.currentBookState = await loadCurrentBookState();
+    applyBookStateBadges(cards);
     buildCategoryFilter(cards);
     bindFilters();
     bindBorrowFlow(cards);
@@ -18,6 +21,81 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", syncFilterBarWithCarousel);
     applyFilters();
 });
+
+async function loadCurrentBookState() {
+    const state = new Map();
+    const [borrowRecords, reservations] = await Promise.all([
+        fetchJsonSafe("/api/borrow/me"),
+        fetchJsonSafe("/api/reservations/me")
+    ]);
+
+    if (Array.isArray(borrowRecords)) {
+        borrowRecords
+            .filter(record => record.status !== "RETURNED")
+            .forEach(record => {
+                if (record.bookId) {
+                    state.set(Number(record.bookId), {
+                        className: "borrowed",
+                        label: "\u0110ang m\u01b0\u1ee3n"
+                    });
+                }
+            });
+    }
+
+    if (Array.isArray(reservations)) {
+        reservations
+            .filter(reservation => reservation.status === "PENDING")
+            .forEach(reservation => {
+                const bookId = Number(reservation.bookId);
+                if (bookId && !state.has(bookId)) {
+                    state.set(bookId, {
+                        className: "pending",
+                        label: "Ch\u1edd duy\u1ec7t"
+                    });
+                }
+            });
+    }
+
+    return state;
+}
+
+async function fetchJsonSafe(url) {
+    try {
+        const response = await fetch(url, { credentials: "include" });
+        if (!response.ok) return [];
+        return await LibraryUI.readJson(response);
+    } catch (error) {
+        console.error(`Kh\u00f4ng l\u1ea5y \u0111\u01b0\u1ee3c d\u1eef li\u1ec7u t\u1eeb ${url}`, error);
+        return [];
+    }
+}
+
+function applyBookStateBadges(cards) {
+    cards.forEach(card => {
+        const state = booksState.currentBookState.get(Number(card.dataset.id));
+        const button = card.querySelector(".borrow-book-btn");
+        card.querySelector(".book-state-badge")?.remove();
+        card.classList.toggle("has-user-state", Boolean(state));
+
+        if (!state) {
+            if (button && Number(card.dataset.available || 0) > 0) {
+                button.disabled = false;
+                button.textContent = "\u0110\u1eb7t gi\u1eef";
+            }
+            return;
+        }
+
+        const badge = document.createElement("span");
+        badge.className = `book-state-badge ${state.className}`;
+        badge.textContent = state.label;
+        card.querySelector(".book-cover-wrap")?.appendChild(badge);
+
+        if (button) {
+            button.disabled = true;
+            button.textContent = state.label;
+        }
+    });
+}
 
 function buildCategoryFilter(cards) {
     const select = document.getElementById("category-filter");
@@ -146,6 +224,10 @@ function openBorrowConfirm(card, modal) {
         return;
     }
 
+    if (booksState.currentBookState.has(Number(card.dataset.id))) {
+        return;
+    }
+
     const availableCopies = Number(card.dataset.available || 0);
     if (availableCopies <= 0) {
         return;
@@ -155,14 +237,14 @@ function openBorrowConfirm(card, modal) {
 
     const reservationDate = new Date();
 
-    document.getElementById("confirm-book-title").textContent = card.dataset.title || "sách này";
+    document.getElementById("confirm-book-title").textContent = card.dataset.title || "s\u00e1ch n\u00e0y";
     document.getElementById("confirm-borrow-date").textContent = LibraryUI.formatDate(reservationDate);
-    document.getElementById("confirm-due-date").textContent = "Chờ thủ thư duyệt";
+    document.getElementById("confirm-due-date").textContent = "Ch\u1edd th\u1ee7 th\u01b0 duy\u1ec7t";
     clearBorrowConfirmMessage();
 
     const confirmButton = document.getElementById("confirm-borrow-btn");
     confirmButton.disabled = false;
-    confirmButton.textContent = "Xác nhận đặt giữ";
+    confirmButton.textContent = "X\u00e1c nh\u1eadn \u0111\u1eb7t gi\u1eef";
 
     modal.show();
 }
@@ -175,40 +257,43 @@ async function borrowSelectedBook() {
 
     const confirmButton = document.getElementById("confirm-borrow-btn");
     confirmButton.disabled = true;
-    confirmButton.textContent = "Đang xử lý...";
+    confirmButton.textContent = "\u0110ang x\u1eed l\u00fd...";
     clearBorrowConfirmMessage();
 
-    // =============== ĐÃ SỬA TẠI ĐÂY ===============
     const res = await fetch("/api/reservations", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json" // Đổi thành JSON
+            "Content-Type": "application/json"
         },
         credentials: "include",
-        // Chuyển đổi object thành chuỗi JSON và ép kiểu ID sang Number
         body: JSON.stringify({ bookId: Number(card.dataset.id) })
     });
-    // ===============================================
 
     const data = await LibraryUI.readJson(res);
 
     if (!res.ok) {
-        showBorrowConfirmMessage(data?.message || "Đặt giữ thất bại.", false);
+        showBorrowConfirmMessage(data?.message || "\u0110\u1eb7t gi\u1eef th\u1ea5t b\u1ea1i.", false);
         confirmButton.disabled = false;
-        confirmButton.textContent = "Xác nhận đặt giữ";
+        confirmButton.textContent = "X\u00e1c nh\u1eadn \u0111\u1eb7t gi\u1eef";
         return;
     }
 
-    showBorrowConfirmMessage("Đặt giữ thành công. Vui lòng chờ thủ thư duyệt.", true);
+    showBorrowConfirmMessage("\u0110\u1eb7t gi\u1eef th\u00e0nh c\u00f4ng. Vui l\u00f2ng ch\u1edd th\u1ee7 th\u01b0 duy\u1ec7t.", true);
     markCardAfterReservation(card);
 
-    confirmButton.textContent = "Đã đặt giữ";
+    confirmButton.textContent = "\u0110\u00e3 \u0111\u1eb7t gi\u1eef";
 }
 function markCardAfterReservation(card) {
+    booksState.currentBookState.set(Number(card.dataset.id), {
+        className: "pending",
+        label: "Ch\u1edd duy\u1ec7t"
+    });
+    applyBookStateBadges([card]);
+
     const borrowButton = card.querySelector(".borrow-book-btn");
     if (borrowButton) {
         borrowButton.disabled = true;
-        borrowButton.textContent = "Đã đặt giữ";
+        borrowButton.textContent = "Ch\u1edd duy\u1ec7t";
     }
 }
 
@@ -223,3 +308,4 @@ function clearBorrowConfirmMessage() {
     element.textContent = "";
     element.className = "mt-3";
 }
+

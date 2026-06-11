@@ -176,17 +176,19 @@ body {
 
 .book-state-badge {
     position: absolute;
-    top: 14px;
-    left: 14px;
+    top: 18px;
+    left: 18px;
     z-index: 3;
     display: inline-flex;
     align-items: center;
-    border-radius: 999px;
-    padding: 7px 11px;
+    border-radius: 6px;
+    max-width: calc(100% - 64px);
+    padding: 5px 9px;
     color: #ffffff;
-    font-size: 0.76rem;
-    font-weight: 800;
+    font-size: 0.78rem;
+    font-weight: 700;
     line-height: 1;
+    white-space: nowrap;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.22);
 }
 
