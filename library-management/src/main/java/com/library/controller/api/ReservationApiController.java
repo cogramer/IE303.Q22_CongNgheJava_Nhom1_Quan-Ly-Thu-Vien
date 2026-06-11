@@ -44,6 +44,23 @@ public class ReservationApiController {
     }
   }
 
+  @PostMapping("/batch")
+  public ResponseEntity<?> createReservations(@RequestBody Map<String, List<Long>> payload, Authentication authentication) {
+    try {
+      List<Long> bookIds = payload.get("bookIds");
+      if (bookIds == null || bookIds.isEmpty()) {
+        return ResponseEntity.badRequest().body(Map.of("message", "Vui lòng cung cấp danh sách bookId"));
+      }
+
+      Long currentUserId = userService.getUserByUsername(authentication.getName()).getId();
+      List<ReservationDTO> reservations = reservationService.createReservations(currentUserId, bookIds);
+      return ResponseEntity.status(HttpStatus.CREATED).body(reservations);
+
+    } catch (RuntimeException e) {
+      return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+    }
+  }
+
   @GetMapping("/me")
   public ResponseEntity<List<ReservationDTO>> getMyReservations(Authentication authentication) {
     Long currentUserId = userService.getUserByUsername(authentication.getName()).getId();

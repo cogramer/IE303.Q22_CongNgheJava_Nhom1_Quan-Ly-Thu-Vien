@@ -79,6 +79,8 @@ body {
 }
 
 .action-buttons {
+    position: relative;
+    min-height: 118px;
     background: #fff;
     padding: 18px;
     border-radius: 18px;
@@ -87,7 +89,12 @@ body {
     gap: 12px;
     flex-wrap: wrap;
     align-items: center;
+    align-content: center;
     box-shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+}
+
+.action-buttons .btn {
+    align-self: center;
 }
 
 .btn {
@@ -130,13 +137,41 @@ body {
     margin-right: 8px;
 }
 
-.action-buttons .selected-count {
+.action-buttons .selected-count,
+.action-buttons .reservation-quota {
     margin-left: auto;
     color: #475467;
     font-weight: 600;
     background: #f2f4f7;
     border-radius: 999px;
     padding: 9px 14px;
+}
+
+.action-buttons .reservation-quota {
+    margin-left: 0;
+    background: #f2f4f7;
+    color: #475467;
+}
+
+.action-buttons .reservation-quota strong {
+    margin: 0 2px;
+    color: #16a34a;
+    font-weight: 800;
+}
+
+.action-buttons .selected-count #selected-count {
+    color: #16a34a;
+    font-weight: 800;
+}
+
+.action-buttons .reservation-limit-note {
+    position: absolute;
+    right: 18px;
+    bottom: 12px;
+    color: #667085;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: right;
 }
 
 #books-container {
@@ -367,10 +402,17 @@ body {
         font-size: 1.6rem;
     }
 
-    .action-buttons .selected-count {
+    .action-buttons .selected-count,
+    .action-buttons .reservation-quota,
+    .action-buttons .reservation-limit-note {
         margin-left: 0;
         width: 100%;
         text-align: center;
+    }
+
+    .action-buttons .reservation-limit-note {
+        position: static;
+        margin-top: 14px;
     }
 
     .borrow-tabs,

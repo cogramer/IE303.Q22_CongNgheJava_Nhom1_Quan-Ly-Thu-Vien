@@ -18,12 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
+    private static final int MAX_PENDING_RESERVATIONS_PER_USER = 5;
 
     private final ReservationRepository reservationRepository;
     private final BookRepository bookRepository;
@@ -31,30 +35,57 @@ public class ReservationService {
     private final BorrowRecordRepository borrowRecordRepository;
     private final FeedbackService feedbackService;
     private final ReservationMapper reservationMapper;
-
-    // ĐÃ SỬA: Đổi EmailService thành EmailNotificationService
     private final EmailNotificationService emailService;
 
-    // Độc giả đặt giữ sách
     @Transactional
     public ReservationDTO createReservation(Long userId, Long bookId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user"));
+        return createReservations(userId, List.of(bookId)).get(0);
+    }
 
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sách"));
-
-        if (reservationRepository.existsByUserIdAndBookIdAndStatus(
-                userId, bookId, Reservation.Status.PENDING)) {
-            throw new RuntimeException("Bạn đã đặt giữ cuốn sách này rồi!");
+    @Transactional
+    public List<ReservationDTO> createReservations(Long userId, List<Long> bookIds) {
+        if (bookIds == null || bookIds.isEmpty()) {
+            throw new RuntimeException("Danh sách sách không được để trống!");
         }
 
-        Reservation reservation = new Reservation();
-        reservation.setUser(user);
-        reservation.setBook(book);
-        reservation.setStatus(Reservation.Status.PENDING);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy người dùng"));
 
-        return reservationMapper.toDTO(reservationRepository.save(reservation));
+        Set<Long> uniqueBookIds = new HashSet<>();
+        for (Long bookId : bookIds) {
+            if (bookId == null) {
+                throw new RuntimeException("bookId không được để trống!");
+            }
+            if (!uniqueBookIds.add(bookId)) {
+                throw new RuntimeException("Danh sách có sách bị chọn trùng!");
+            }
+        }
+
+        long currentPendingCount = reservationRepository.countByUserIdAndStatus(userId, Reservation.Status.PENDING);
+        if (currentPendingCount + uniqueBookIds.size() > MAX_PENDING_RESERVATIONS_PER_USER) {
+            throw new RuntimeException("Mỗi độc giả chỉ có thể đặt giữ tối đa 5 quyển sách!");
+        }
+
+        List<Reservation> reservations = new ArrayList<>();
+        for (Long bookId : uniqueBookIds) {
+            Book book = bookRepository.findById(bookId)
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy sách"));
+
+            if (reservationRepository.existsByUserIdAndBookIdAndStatus(
+                    userId, bookId, Reservation.Status.PENDING)) {
+                throw new RuntimeException("Bạn đã đặt giữ cuốn sách này rồi: " + book.getTitle());
+            }
+
+            Reservation reservation = new Reservation();
+            reservation.setUser(user);
+            reservation.setBook(book);
+            reservation.setStatus(Reservation.Status.PENDING);
+            reservations.add(reservation);
+        }
+
+        return reservationRepository.saveAll(reservations).stream()
+                .map(reservationMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     // Thủ thư xác nhận cho mượn → đổi reservation sang FULFILLED
@@ -108,7 +139,7 @@ public class ReservationService {
 
         // Lớp bảo mật: Chặn đứng nếu user đang đăng nhập cố tình huỷ sách của user khác
         if (!reservation.getUser().getId().equals(currentUserId)) {
-            throw new RuntimeException("Truy cập trái phép: Bạn không có quyền huỷ yêu cầu của người khác!");
+            throw new RuntimeException("Truy cập trái phép: Bạn không có quyền hủy yêu cầu của người khác!");
         }
 
         reservation.setStatus(Reservation.Status.CANCELLED);
