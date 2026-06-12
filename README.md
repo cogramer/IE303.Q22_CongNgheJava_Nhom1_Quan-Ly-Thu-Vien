@@ -78,6 +78,7 @@ src
 │   │           │
 │   │           ├───config
 │   │           │       SecurityConfig.java
+│   │           │       WebMvcConfig.java
 │   │           │
 │   │           ├───controller
 │   │           │   ├───api
@@ -152,6 +153,7 @@ src
 │   │                   CategoryService.java
 │   │                   EmailNotificationService.java
 │   │                   FeedbackService.java
+│   │                   ImageStorageService.java
 │   │                   RecommendService.java
 │   │                   RememberMeService.java
 │   │                   ReservationService.java
@@ -161,9 +163,12 @@ src
 │       │   application.properties
 │       │
 │       ├───static
+│       │   │   .gitkeep
+│       │   │
 │       │   ├───css
 │       │   │       books.css
 │       │   │       borrow.css
+│       │   │       feedback.css
 │       │   │       history.css
 │       │   │       librarian-books.css
 │       │   │       librarian-dashboard.css
@@ -175,9 +180,29 @@ src
 │       │   │       style.css
 │       │   │
 │       │   ├───img
+│       │   │       Atomic_Habits.jpg
+│       │   │       background.jpg
+│       │   │       banner_1.jpg
+│       │   │       banner_2.jpg
+│       │   │       banner_3.jpg
+│       │   │       banner_4.jpg
+│       │   │       cho_toi_xin_mot_ve_di_tuoi_tho.jpg
+│       │   │       clean_code.jpg
+│       │   │       dac_nhan_tam.jpg
+│       │   │       de-men-phieu-luu-ky.jpg
+│       │   │       Design_Patterns.jpg
+│       │   │       lap_trinh_java_co_ban.jpg
+│       │   │       nghi_giau_lam_giau.jpg
+│       │   │       nha-gia-kim.jpg
+│       │   │       Sapiens.jpg
+│       │   │       so_do.jpg
+│       │   │       toi_thay_hoa_vang_tren_co_xanh.jpg
+│       │   │
 │       │   └───js
+│       │           book-detail.js
 │       │           books.js
 │       │           borrow.js
+│       │           feedback.js
 │       │           history.js
 │       │           librarian-books.js
 │       │           librarian-dashboard.js
@@ -189,6 +214,7 @@ src
 │       │           recommendations.js
 │       │
 │       └───templates
+│           │   .gitkeep
 │           │   forgotPassword.html
 │           │   home.html
 │           │   login.html
@@ -212,6 +238,7 @@ src
 │           │       book-detail.html
 │           │       books.html
 │           │       borrow.html
+│           │       feedback.html
 │           │       history.html
 │           │       recommendations.html
 │           │
